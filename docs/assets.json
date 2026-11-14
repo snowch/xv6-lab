@@ -14,8 +14,8 @@
     },
     {
       "path": "site/images/kernel",
-      "bytes": 293632,
-      "sha256": "b4127b2692148a41ecf25f5d3e270827cbc015099db1bccf77c27a958a233c30"
+      "bytes": 294704,
+      "sha256": "43ee40cf26cb059dbc96c0cbd2a96d900f5410179799cbc7d02a3d8686a242f8"
     },
     {
       "path": "site/images/fs.img",

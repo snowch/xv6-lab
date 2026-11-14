@@ -1,5 +1,5 @@
-import { lessons } from "./lessons.js";
-import { learning } from "./learning.js";
+import { lessons } from "./lessons.js?v=core25";
+import { learning } from "./learning.js?v=core25";
 const $ = (id) => document.getElementById(id);
 const escape = (value) =>
   String(value)
@@ -141,7 +141,7 @@ function render() {
     if (!$("full-source")?.open) return;
     const target = $("full-source-code");
     try {
-      const response = await fetch(new URL("./source.json", import.meta.url));
+      const response = await fetch(new URL("./source.json?v=core25", import.meta.url));
       if (!response.ok) throw new Error("HTTP " + response.status);
       const data = await response.json();
       target.textContent = data.files[l.source]
@@ -308,7 +308,7 @@ function boot(keepPending = false) {
   guide(
     "Booting a real kernel. This can take a little while; you don’t need to type anything yet.",
   );
-  worker = new Worker(new URL("./worker.js", import.meta.url), {
+  worker = new Worker(new URL("./worker.js?v=core25", import.meta.url), {
     type: "module",
   });
   worker.onmessage = ({ data }) => {

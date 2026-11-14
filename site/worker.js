@@ -80,7 +80,7 @@ function resume() {
   tick();
 }
 async function asset(path) {
-  const response = await fetch(new URL(path, import.meta.url));
+  const response = await fetch(new URL(path+"?v=core25", import.meta.url));
   if (!response.ok)
     throw new Error(`Could not load ${path}: HTTP ${response.status}`);
   return new Uint8Array(await response.arrayBuffer());

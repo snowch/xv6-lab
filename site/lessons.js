@@ -1,4 +1,4 @@
-import { extendedLessons } from "./extended.js";
+import { extendedLessons } from "./extended.js?v=core25";
 export const lessons = [
   {
     id: "boot",
