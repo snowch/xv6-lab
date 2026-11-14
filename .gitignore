@@ -1,2 +1,12 @@
 node_modules/
 .DS_Store
+guest/**/*.o
+guest/**/*.d
+guest/**/*.asm
+guest/**/*.sym
+guest/user/_*
+guest/user/initcode
+guest/user/initcode.out
+guest/kernel/kernel
+guest/mkfs/mkfs
+guest/fs.img

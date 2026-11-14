@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#172c30" />
     <meta
       name="description"
-      content="Discover how xv6 works through six small experiments. A real RISC-V kernel, a guided console, and a closer look inside."
+      content="Discover how xv6 works through a complete core curriculum. A real RISC-V kernel, a guided console, and a closer look inside."
     />
     <title>xv6 Lab — learn by looking inside</title>
     <link rel="stylesheet" href="style.css" />
@@ -26,7 +26,7 @@
         <p>A small kernel.<br />A closer look.</p>
       </div>
       <details id="course-menu" open>
-        <summary>Six experiments <span aria-hidden="true">↕</span></summary>
+        <summary>Core curriculum <span aria-hidden="true">↕</span></summary>
         <nav id="lessons" aria-label="Lessons"></nav>
       </details>
       <div class="course-progress">
@@ -61,8 +61,8 @@
             <p class="eyebrow">LEARN BY LOOKING INSIDE</p>
             <h1>Make the invisible <em>visible.</em></h1>
             <p>
-              One real kernel. Six small experiments. A new way to understand
-              what happens beneath your programs.
+              One real kernel. A complete core curriculum. A new way to
+              understand what happens beneath your programs.
             </p>
           </div>
           <div class="runtime-badge">
@@ -71,6 +71,12 @@
             >
           </div>
         </section>
+        <div class="view-tabs" role="group" aria-label="Workspace view">
+          <button id="view-lesson" aria-pressed="true">Read the lesson</button
+          ><button id="view-machine" aria-pressed="false">
+            Use the live machine
+          </button>
+        </div>
         <div class="workspace">
           <article id="lesson" tabindex="-1"></article>
           <section
@@ -153,6 +159,11 @@ Run the first experiment to wake it up.
 Boot, then pause to inspect an instruction.</pre
               >
               <div id="registers" class="registers"></div>
+              <h3>Matching kernel source</h3>
+              <p id="source-location" class="muted"></p>
+              <pre id="source-view">
+Pause inside the kernel to locate the current instruction in source.</pre
+              >
               <label for="breakpoint"
                 >Advanced: stop at a kernel function</label
               >
@@ -194,6 +205,34 @@ Boot, then pause to inspect an instruction.</pre
             <div class="back-to-lesson">
               <a id="back-lesson" href="#lesson">← Back to the lesson</a>
             </div>
+            <details class="inspector" id="process-panel">
+              <summary>Processes & saved user registers</summary>
+              <p>
+                Stop at a kernel function, then refresh. This is real guest
+                memory, not an illustration.
+              </p>
+              <button id="refresh-processes" disabled>
+                Refresh process table
+              </button>
+              <div id="process-result" class="data-scroll"></div>
+              <label for="process-pid">Process for page-table walk</label
+              ><select id="process-pid"></select>
+              <form id="page-form">
+                <label for="page-address">User virtual address</label>
+                <div class="command-row">
+                  <input
+                    id="page-address"
+                    value="0x0"
+                    spellcheck="false"
+                  /><button id="walk-page" disabled>Walk page table</button>
+                </div>
+              </form>
+              <div
+                id="page-result"
+                class="data-scroll"
+                aria-live="polite"
+              ></div>
+            </details>
             <details class="machine-help">
               <summary>Console help & reset</summary>
               <p id="console-help">

@@ -1548,3 +1548,453 @@ footer a {
     min-height: 55px;
   }
 }
+/* Readability is a baseline, not a zoom setting. */
+html {
+  font-size: 18px;
+}
+body {
+  font-size: 1rem;
+  line-height: 1.75;
+}
+.lead,
+.lesson-stage > p,
+.experiment-steps li,
+.notice p,
+.lesson-disclosure p,
+.takeaway p,
+.answers button,
+.learning-goal p,
+.completion small {
+  font-size: 1rem;
+}
+.learning-goal strong,
+.prerequisite,
+.lesson-topic,
+.stage-label,
+.tag,
+.eyebrow,
+.muted,
+#note-status,
+.example-heading,
+.lesson-disclosure summary,
+.lesson-navigation,
+.source-note,
+.source-note .muted,
+footer,
+.completion-card > p {
+  font-size: 0.8rem;
+}
+.lesson-link {
+  font-size: 0.9rem;
+}
+.lesson-link small {
+  font-size: 0.75rem;
+}
+.sidebar {
+  width: 250px;
+}
+.page {
+  margin-left: 250px;
+}
+.brand small,
+.sidebar-bottom p {
+  font-size: 0.7rem;
+}
+.sidebar-bottom a,
+.course-progress > span,
+#progress {
+  font-size: 0.8rem;
+}
+.sidebar-intro {
+  margin-top: 26px;
+}
+.sidebar-intro > p:last-child {
+  font-size: 27px;
+}
+.sidebar nav {
+  gap: 3px;
+}
+.lesson-link {
+  padding: 10px 8px;
+}
+.lesson-number {
+  font-size: 0.75rem;
+  min-width: 28px;
+  height: 28px;
+}
+#course-menu > summary {
+  font-size: 0.9rem;
+}
+button,
+.toolbar button,
+.command-row input,
+.command-row select,
+label,
+.text-button,
+.example .text-button,
+.machine-help summary,
+.machine-help p,
+.machine-help button,
+.inspector > summary,
+.machine-guide p,
+.back-to-lesson,
+.panel-heading strong {
+  font-size: 0.9rem;
+}
+button {
+  min-height: 44px;
+}
+h3 {
+  font-size: 1.15rem;
+}
+h4 {
+  font-size: 1rem;
+}
+.flow-node strong {
+  font-size: 1rem;
+}
+.flow-node span,
+.mechanism figcaption,
+.detail-tag {
+  font-size: 0.75rem;
+}
+.example code,
+#terminal {
+  font-size: 0.9rem;
+}
+#terminal {
+  height: 320px;
+}
+.terminal-heading,
+.terminal-heading > span:last-child,
+#status,
+#command-help,
+.pc-line,
+.inspector pre,
+#memory-result {
+  font-size: 0.8rem;
+}
+.registers {
+  font-size: 0.75rem;
+  grid-template-columns: 1fr;
+}
+.topbar,
+.topbar-path,
+.machine-jump {
+  font-size: 0.8rem;
+}
+.intro p:not(.eyebrow) {
+  font-size: 1rem;
+}
+.intro h1 {
+  font-size: 42px;
+}
+.workspace {
+  grid-template-columns: minmax(380px, 1fr) minmax(400px, 1fr);
+}
+.machine {
+  top: 85px;
+}
+.command-row input,
+.command-row select {
+  min-height: 46px;
+}
+.prompt-symbol {
+  top: 12px;
+  font-size: 1rem;
+}
+.view-tabs {
+  display: none;
+}
+.page:has(.view-tabs) {
+  min-width: 0;
+}
+@media (max-width: 1450px) {
+  .workspace {
+    display: block;
+  }
+  .machine {
+    position: static;
+    max-height: none;
+  }
+  .workspace > .machine {
+    display: none;
+  }
+  .view-machine .workspace > .machine {
+    display: block;
+  }
+  .view-machine #lesson {
+    display: none;
+  }
+  .view-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 24px;
+  }
+  .view-tabs button {
+    flex: 1;
+    font-size: 1rem;
+  }
+  .view-tabs button[aria-pressed="true"] {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+  }
+  main {
+    max-width: 1000px;
+  }
+  .intro {
+    padding: 25px 0;
+  }
+  .registers {
+    grid-template-columns: 1fr 1fr;
+  }
+  .back-to-lesson {
+    display: block;
+  }
+}
+@media (max-width: 1280px) {
+  .sidebar {
+    position: static;
+    width: auto;
+    padding: 18px 24px;
+  }
+  .page {
+    margin-left: 0;
+  }
+  .sidebar-intro,
+  .sidebar-bottom {
+    display: none;
+  }
+  .brand {
+    font-size: 28px;
+  }
+  .brand small {
+    font-size: 0.65rem;
+  }
+  #course-menu {
+    margin-top: 12px;
+  }
+  #course-menu > summary {
+    padding: 8px 0;
+  }
+  .sidebar nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .course-progress {
+    margin: 12px 0 0;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .progress-track {
+    flex: 1;
+    max-width: 200px;
+  }
+  .course-progress > span {
+    display: none;
+  }
+  #progress {
+    margin: 0;
+  }
+  .topbar {
+    position: static;
+    height: auto;
+    min-height: 55px;
+    flex-wrap: wrap;
+    padding: 12px 24px;
+  }
+  .intro h1 {
+    font-size: 36px;
+  }
+  .registers {
+    font-size: 0.8rem;
+  }
+  .lesson-link {
+    font-size: 1rem;
+  }
+  .lesson-link small {
+    font-size: 0.8rem;
+  }
+  .workspace {
+    display: block;
+  }
+  main {
+    padding: 0 24px;
+  }
+  .intro p:not(.eyebrow) {
+    font-size: 1rem;
+  }
+  .sidebar #course-menu:not([open]) nav {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  html {
+    font-size: 17px;
+  }
+  .sidebar {
+    padding: 16px 18px;
+  }
+  .sidebar nav {
+    grid-template-columns: 1fr;
+  }
+  .topbar {
+    padding: 12px 18px;
+  }
+  .topbar-path {
+    display: none;
+  }
+  main {
+    padding: 0 18px;
+  }
+  .intro h1 {
+    font-size: 34px;
+    max-width: none;
+  }
+  .intro p:not(.eyebrow) {
+    font-size: 1rem;
+  }
+  .lesson-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .registers {
+    grid-template-columns: 1fr;
+  }
+  .lesson-stage > p,
+  .experiment-steps li,
+  .notice p,
+  .lesson-disclosure p,
+  .takeaway p,
+  .answers button {
+    font-size: 1rem;
+  }
+  .stage-label {
+    display: none;
+  }
+  .terminal-heading > span:last-child {
+    display: none;
+  }
+  .toolbar {
+    gap: 8px;
+  }
+  .toolbar button {
+    font-size: 0.9rem;
+    flex: 1;
+  }
+  .example .text-button {
+    display: block;
+  }
+  #terminal {
+    height: 300px;
+    font-size: 0.9rem;
+  }
+  .machine-guide p {
+    font-size: 0.9rem;
+  }
+  .command-row {
+    flex-wrap: wrap;
+  }
+  .command-row input,
+  .command-row select {
+    flex-basis: 65%;
+  }
+  .flow {
+    flex-wrap: wrap;
+  }
+  .flow-node {
+    min-width: 75px;
+  }
+  .flow-node span {
+    font-size: 0.8rem;
+  }
+  .lesson-navigation > span {
+    font-size: 0.8rem;
+  }
+  .source-note {
+    font-size: 0.9rem;
+  }
+  .panel-heading {
+    flex-wrap: wrap;
+  }
+  .intro .eyebrow {
+    font-size: 0.8rem;
+  }
+}
+.data-scroll {
+  max-width: 100%;
+  overflow: auto;
+  margin: 18px 0;
+}
+table {
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  width: 100%;
+}
+th,
+td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+caption {
+  text-align: left;
+  font-weight: 600;
+  padding: 10px;
+}
+td {
+  font-family: var(--mono);
+}
+#process-pid {
+  width: 100%;
+  font-size: 1rem;
+  min-height: 46px;
+  margin-bottom: 18px;
+}
+.inspector p {
+  font-size: 0.9rem;
+}
+#source-view {
+  font-size: 0.85rem;
+  max-height: 240px;
+  overflow: auto;
+}
+.sidebar .lesson-link {
+  padding: 9px 7px;
+}
+.sidebar .lesson-link small {
+  display: none;
+}
+.sidebar-intro {
+  display: none;
+}
+.sidebar #course-menu {
+  margin-top: 24px;
+}
+.sidebar-bottom {
+  padding-top: 12px;
+}
+.sidebar-bottom p {
+  margin-top: 8px;
+}
+.course-section {
+  display: block;
+  font-size: 0.8rem;
+  letter-spacing: 0.4px;
+  color: #b9ccba;
+  padding: 18px 8px 7px;
+  grid-column: 1/-1;
+}
+#full-source-code {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  max-height: 500px;
+  overflow: auto;
+  background: #e9eee5;
+  padding: 18px;
+  white-space: pre;
+  max-width: 100%;
+}

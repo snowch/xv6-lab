@@ -29,12 +29,15 @@ test("every lesson has a goal, actionable scaffolds, and feedback for each misco
 
 test(
   "guided UI runs the real guest, waits for shell readiness, and prepares each lesson",
-  { timeout: 180000 },
+  { timeout: 300000 },
   async (t) => {
     const dom = new JSDOM(
       readFileSync(new URL("../site/index.html", import.meta.url), "utf8"),
       { url: "https://example.test/xv6-lab/#boot" },
     );
+    dom.window.matchMedia = (query) => ({
+      matches: query.includes("max-width"),
+    });
     Object.assign(globalThis, {
       window: dom.window,
       document: dom.window.document,
@@ -72,6 +75,15 @@ test(
     });
     await import("../site/app.js");
     const $ = (id) => document.getElementById(id);
+    assert.equal(
+      $("course-menu").open,
+      false,
+      "tablet starts with compact curriculum",
+    );
+    $("view-machine").click();
+    assert.equal(document.body.classList.contains("view-machine"), true);
+    $("view-lesson").click();
+    assert.equal(document.body.classList.contains("view-machine"), false);
     async function until(predicate, description, timeout = 60000) {
       const start = Date.now();
       while (!predicate()) {
@@ -107,9 +119,10 @@ test(
       "one click sends only one command",
     );
     assert.equal($("complete").checked, false, "running is not mastery");
-    for (const id of ["console", "fork", "pipe", "files", "step"]) {
+    for (const id of lessons.slice(1).map((l) => l.id)) {
       dom.window.location.hash = id;
       dom.window.dispatchEvent(new dom.window.HashChangeEvent("hashchange"));
+      console.log("Guided lesson:", id);
       const lesson = lessons.find((l) => l.id === id);
       const start = $("terminal").textContent.length;
       assert.equal(
@@ -154,7 +167,74 @@ test(
         workers[0].messages.filter((m) => m.type === "input").at(-1).text,
         lesson.command + "\n",
       );
+      const actual = $("terminal").textContent.slice(start);
+      const checks = {
+        identity: /user pid=\d+/,
+        exec: /before exec pid=(\d+)[\s\S]*user pid=\1/,
+        wait: /parent value=7 child status=23/,
+        descriptors: /shared offset: A then B/,
+        unlink: /open descriptor still reads: alive/,
+        links: /alias reads: linked/,
+        directories: /\$ /,
+        heap: /heap grew=4096 bytes value=42/,
+        pagetables: /user pid=\d+/,
+        faults: /parent survived child fault, status=-1/,
+        traps: /user pid=\d+/,
+        scheduling: /parent turn 2[\s\S]*|child turn 2/,
+        sleeping: /awake after timer wakeup/,
+        blocking: /reader EOF=0/,
+        locks: /user pid=\d+/,
+        cache: /xv6 is/,
+        blocks: /file size=14336 bytes/,
+        transactions: /alias reads: linked/,
+        capstone: /reader got 3 bytes: hey[\s\S]*reader EOF=0/,
+      };
+      if (checks[id])
+        assert.match(actual, checks[id], id + ": actual guest result");
+      if (id === "scheduling") {
+        assert.match(actual, /parent turn 2/);
+        assert.match(actual, /child turn 2/);
+      }
       assert.equal($("complete").checked, false);
+      if (id === "identity" || id === "pagetables" || id === "traps") {
+        // A fresh controlled stop in lab allows a real process and user-page walk.
+        $("breakpoint").value = "sys_getpid";
+        $("arm").click();
+        $("command").value = "lab pid";
+        $("command-form").dispatchEvent(
+          new dom.window.Event("submit", { cancelable: true }),
+        );
+        await until(
+          () => $("status").textContent === "Stopped at sys_getpid",
+          "inspector stop",
+        );
+        $("refresh-processes").click();
+        await until(
+          () => $("process-result").textContent.includes("lab"),
+          "process memory",
+        );
+        assert.match($("process-result").textContent, /running/);
+        assert.match(
+          $("process-result").textContent,
+          /000000000000000b/,
+          "saved getpid syscall number",
+        );
+        assert.match($("source-location").textContent, /kernel\/sysproc.c/);
+        $("page-form").dispatchEvent(
+          new dom.window.Event("submit", { cancelable: true }),
+        );
+        await until(
+          () => $("page-result").textContent.includes("Physical address"),
+          "page walk",
+        );
+        assert.match($("page-result").textContent, /VR/);
+        $("continue").click();
+        await until(
+          () =>
+            $("status").textContent === "Shell ready" && !$("send").disabled,
+          "inspector resume",
+        );
+      }
     }
     assert.match($("terminal").textContent, /1\s+1\s+6/);
     $("command").value = "cat note";

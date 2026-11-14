@@ -14,13 +14,18 @@
     },
     {
       "path": "site/images/kernel",
-      "bytes": 342344,
-      "sha256": "cecad2220d73fc8c6d106d85cf6eccbf82874a167307aac77634e661124ff19b"
+      "bytes": 293624,
+      "sha256": "e1b17c80ede8da5a49e7cd0c1eaee4b8188a11ea7220b1042db874a8f5ac2813"
     },
     {
       "path": "site/images/fs.img",
       "bytes": 1024000,
-      "sha256": "440d54ea7d49c7ecb3220e9ffa871e73158131b1426b181b12a1c2ec1e785252"
+      "sha256": "cfef16a8c2a18d33be225cf6b38ce3cf6efb21014e17ae2a10d52f96fa17ffb1"
     }
-  ]
+  ],
+  "guest": {
+    "commit": "d7c0a1b7a703f7366942092f9cf421b6cd111a36",
+    "source": "guest/",
+    "changes": "user/lab.c; Makefile: lab program, explicit RV64GC/O3 flags; memlayout.h: 16 MiB guest RAM for upstream debugger compatibility"
+  }
 }

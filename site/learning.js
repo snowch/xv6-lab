@@ -1,3 +1,4 @@
+import { extendedLearning } from "./extended.js";
 // Authored teaching scaffolds. Diagrams explain a mechanism; they are not live traces.
 export const learning = {
   boot: {
@@ -171,3 +172,4 @@ export const learning = {
     ],
   },
 };
+Object.assign(learning, extendedLearning);

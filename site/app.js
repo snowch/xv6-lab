@@ -75,7 +75,7 @@ function navigation() {
   $("lessons").innerHTML = lessons
     .map(
       (lesson, i) =>
-        `<a class="lesson-link ${lesson.id === selected.id ? "active" : ""}" ${lesson.id === selected.id ? 'aria-current="page"' : ""} href="#${lesson.id}"><span class="lesson-number">${completed.has(lesson.id) ? "✓" : String(i + 1).padStart(2, "0")}</span><span>${escape(lesson.title)}<small>${escape(lesson.tag)}</small></span></a>`,
+        `${{ 0: "Foundations", 6: "Process lifecycle", 9: "Files and names", 13: "Virtual memory", 16: "Traps and scheduling", 20: "Synchronization and storage", 24: "Capstone" }[i] ? `<span class="course-section">${{ 0: "Foundations", 6: "Process lifecycle", 9: "Files and names", 13: "Virtual memory", 16: "Traps and scheduling", 20: "Synchronization and storage", 24: "Capstone" }[i]}</span>` : ""}<a class="lesson-link ${lesson.id === selected.id ? "active" : ""}" ${lesson.id === selected.id ? 'aria-current="page"' : ""} href="#${lesson.id}"><span class="lesson-number">${completed.has(lesson.id) ? "✓" : String(i + 1).padStart(2, "0")}</span><span>${escape(lesson.title)}<small>${escape(lesson.tag)}</small></span></a>`,
     )
     .join("");
   $("progress").textContent =
@@ -83,7 +83,15 @@ function navigation() {
   $("progress-fill").style.width =
     `${(completed.size / lessons.length) * 100}%`;
 }
+function view(machine) {
+  document.body.classList.toggle("view-machine", machine);
+  $("view-machine").setAttribute("aria-pressed", String(machine));
+  $("view-lesson").setAttribute("aria-pressed", String(!machine));
+}
+$("view-machine").onclick = () => view(true);
+$("view-lesson").onclick = () => view(false);
 function render() {
+  view(false);
   const previous = selected?.id;
   selected =
     lessons.find((lesson) => lesson.id === location.hash.slice(1)) ||
@@ -96,7 +104,7 @@ function render() {
   $("current-topic").textContent = l.title;
   navigation();
   $("lesson").innerHTML = `
-    <div class="lesson-heading"><span class="tag">EXPERIMENT ${String(index + 1).padStart(2, "0")} / 06</span><span class="lesson-topic">${escape(l.tag)}</span></div>
+    <div class="lesson-heading"><span class="tag">EXPERIMENT ${String(index + 1).padStart(2, "0")} / ${lessons.length}</span><span class="lesson-topic">${escape(l.tag)}</span></div>
     <h2>${escape(l.title)}</h2><p class="lead">${escape(l.intro)}</p>
     <div class="learning-goal"><span class="goal-icon" aria-hidden="true">◎</span><div><strong>By the end, you can…</strong><p>${escape(s.goal)}</p></div></div>
     <p class="prerequisite">${escape(s.needs)}</p>
@@ -106,7 +114,7 @@ function render() {
     <section class="lesson-stage quiz"><div class="stage-heading"><span class="stage-number">04</span><h3>Check your understanding</h3></div><p>${escape(l.question)}</p><div class="answers">${l.choices.map((choice, i) => `<button data-answer="${i}" aria-pressed="false"><span class="answer-letter" aria-hidden="true">${String.fromCharCode(65 + i)}</span><span>${escape(choice)}</span><span class="answer-mark" aria-hidden="true"></span></button>`).join("")}</div><p id="feedback" class="feedback" role="status"></p><details class="lesson-disclosure retrieval"><summary>One more thought, without looking back</summary><p>${escape(s.transfer)}</p><p class="muted">Explain it in your own words, then compare.</p><button id="reveal-transfer" class="text-button" aria-expanded="false" aria-controls="transfer-answer">Compare with an explanation</button><p id="transfer-answer" hidden>${escape(s.transferAnswer)}</p></details></section>
     <div class="completion-card"><label class="completion"><input id="complete" type="checkbox" ${completed.has(l.id) ? "checked" : ""}><span><strong>I can explain this idea</strong><small>I’ve tried the experiment and checked my understanding. Mark this lesson as explored.</small></span></label><p class="muted">This is your own learning record, not an automatic grade.</p></div>
     <div class="lesson-navigation">${index > 0 ? `<a href="#${lessons[index - 1].id}">← Previous</a>` : "<span>Keep the machine running as you explore.</span>"}${index < lessons.length - 1 ? `<a class="next-lesson" href="#${lessons[index + 1].id}">Next experiment <span aria-hidden="true">→</span></a>` : '<a class="next-lesson" href="#boot">Revisit the beginning →</a>'}</div>
-    <details class="source-note"><summary>Go deeper: source & scope</summary><p>${escape(l.next)}</p><a href="https://github.com/mit-pdos/xv6-riscv/blob/riscv/${l.source}" target="_blank" rel="noreferrer">Read ${escape(l.source)} ↗</a><p class="muted">This opens current upstream xv6. The lab uses a compatible older image, so exact lines may differ.</p></details>`;
+    <details class="source-note" id="full-source"><summary>Read the matching source in this page</summary><pre id="full-source-code">Open to load the source file.</pre></details><details class="source-note"><summary>Go deeper: source & scope</summary><p>${escape(l.next)}</p><a href="https://github.com/snowch/xv6-lab/blob/main/guest/${l.source}" target="_blank" rel="noreferrer">Read ${escape(l.source)} ↗</a><p class="muted">This opens the matching source used to build this lab’s kernel and user programs.</p></details>`;
   function recallPrediction() {
     $("prediction-text").textContent = notes.get(l.id);
     $("prediction-recall").hidden = !notes.get(l.id)?.trim();
@@ -128,6 +136,21 @@ function render() {
       ? "Prediction saved in this browser."
       : "Kept for this tab session; browser storage is unavailable.";
     navigation();
+  };
+  $("full-source").ontoggle = async () => {
+    if (!$("full-source")?.open) return;
+    const target = $("full-source-code");
+    try {
+      const response = await fetch(new URL("./source.json", import.meta.url));
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const data = await response.json();
+      target.textContent = data.files[l.source]
+        .split("\n")
+        .map((line, i) => `${i + 1}: ${line}`)
+        .join("\n");
+    } catch (e) {
+      target.textContent = "Could not load source: " + e.message;
+    }
   };
   $("load-command").onclick = () => {
     $("command").value = l.command;
@@ -180,6 +203,9 @@ function controls() {
   $("step").disabled = !ready || running;
   $("inspect").disabled = !ready || running;
   $("arm").disabled = !ready;
+  $("refresh-processes").disabled = !ready || running;
+  $("walk-page").disabled =
+    !ready || running || !$("process-pid").options.length;
   for (const id of ["command", "send"])
     $(id).disabled = !ready || !running || !shellReady;
   $("machine-dot").classList.toggle("active", running);
@@ -224,6 +250,7 @@ function launchPending() {
       : "Command sent to the real shell. Compare its output with your prediction.";
 }
 function startExperiment(lesson) {
+  view(true);
   if (worker && (!ready || !running || !shellReady)) return;
   pending = lesson;
   if (!worker) boot(true);
@@ -272,6 +299,10 @@ function boot(keepPending = false) {
   $("registers").replaceChildren();
   $("instruction").textContent = "Waiting for CPU snapshot.";
   $("memory-result").textContent = "";
+  $("process-result").replaceChildren();
+  $("page-result").replaceChildren();
+  $("process-pid").replaceChildren();
+  $("source-view").textContent = "Waiting for a kernel source snapshot.";
   guide(
     "Booting a real kernel. This can take a little while; you don’t need to type anything yet.",
   );
@@ -296,10 +327,17 @@ function boot(keepPending = false) {
         launchPending();
         break;
       case "state":
+        $("process-result").replaceChildren();
+        $("process-pid").replaceChildren();
+        $("page-result").replaceChildren();
         running = data.running;
         $("status").textContent = data.reason;
         $("pc").textContent = data.pc;
         $("instruction").textContent = data.instruction;
+        $("source-location").textContent = data.source
+          ? `${data.source.path}:${data.source.line} (instruction-to-source mapping; optimized code may reorder lines)`
+          : "No source mapping at this address.";
+        $("source-view").textContent = data.source?.text || "—";
         $("registers").innerHTML = data.registers
           .map(
             (value, i) =>
@@ -319,6 +357,21 @@ function boot(keepPending = false) {
         }
         controls();
         launchPending();
+        break;
+      case "processes":
+        $("process-result").innerHTML =
+          `<table><caption>Paused guest processes</caption><thead><tr><th>PID</th><th>Name</th><th>State</th><th>Bytes</th><th>FDs</th><th>Saved user registers</th></tr></thead><tbody>${data.rows.map((p) => `<tr><td>${p.pid}</td><td>${escape(p.name)}</td><td>${escape(p.state)}</td><td>${p.bytes}</td><td>${p.descriptors}</td><td>${p.trap ? `epc ${p.trap.epc}<br>a0 ${p.trap.a0}<br>a7 ${p.trap.a7}` : "—"}</td></tr>`).join("")}</tbody></table>`;
+        $("process-pid").innerHTML = data.rows
+          .map(
+            (p) =>
+              `<option value="${p.pid}" ${p.name === "lab" ? "selected" : ""}>${p.pid} ${escape(p.name)}</option>`,
+          )
+          .join("");
+        controls();
+        break;
+      case "pagetable":
+        $("page-result").innerHTML =
+          `<p>${escape(data.result)}</p><table><caption>PID ${data.pid} · actual PTE reads</caption><thead><tr><th>Level</th><th>Index</th><th>PTE</th><th>Flags</th></tr></thead><tbody>${data.steps.map((s) => `<tr><td>${s.level}</td><td>${s.index}</td><td>${s.pte}</td><td>${s.flags || "—"}</td></tr>`).join("")}</tbody></table>`;
         break;
       case "memory":
         $("memory-result").textContent = data.address + " → " + data.value;
@@ -407,6 +460,7 @@ for (const [id, target] of [
 ]) {
   $(id).onclick = (event) => {
     event.preventDefault();
+    view(target === "machine");
     $(target).focus({ preventScroll: true });
     $(target).scrollIntoView?.({
       behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
@@ -432,6 +486,35 @@ window.addEventListener("storage", (event) => {
       $("complete").checked = completed.has(lesson.id);
   }
 });
-if (window.matchMedia?.("(max-width: 700px)")?.matches)
+if (window.matchMedia?.("(max-width: 1280px)")?.matches)
   $("course-menu").open = false;
 render();
+
+$("refresh-processes").onclick = () => {
+  $("process-result").replaceChildren();
+  $("process-pid").replaceChildren();
+  $("page-result").replaceChildren();
+  controls();
+  send("processes");
+};
+$("page-form").onsubmit = (e) => {
+  e.preventDefault();
+  send("pagetable", {
+    pid: $("process-pid").value,
+    address: $("page-address").value.trim(),
+  });
+};
+
+$("breakpoint").innerHTML = [
+  ...new Set([
+    ...lessons.map((l) => l.breakpoint).filter(Boolean),
+    "usertrap",
+    "sleep",
+    "wakeup",
+    "sys_read",
+    "sys_open",
+    "syscall",
+  ]),
+]
+  .map((s) => `<option>${s}</option>`)
+  .join("");

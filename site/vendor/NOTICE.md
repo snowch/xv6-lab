@@ -1,13 +1,7 @@
-# Bundled runtime and guest images
+# Runtime and guest provenance
 
-- Emulator: [takahirox/riscv-rust](https://github.com/takahirox/riscv-rust), commit `8ee69d7a5dc7ef6d8b2bda96bf86d2923f2cf176` (MIT).
-  - `wasm/web/riscv_emu_rust_wasm.js`
-  - `wasm/web/riscv_emu_rust_wasm_bg.wasm`
-  - License: [LICENSE-riscv-rust](LICENSE-riscv-rust)
-- Guest: MIT [xv6-riscv](https://github.com/mit-pdos/xv6-riscv), kernel and disk images copied from `resources/xv6/` in that same riscv-rust commit.
-  - License: [LICENSE-xv6](LICENSE-xv6)
-  - Upstream [build notes](https://github.com/takahirox/riscv-rust/blob/8ee69d7a5dc7ef6d8b2bda96bf86d2923f2cf176/resources/xv6/Readme.md).
+- Emulator: [takahirox/riscv-rust](https://github.com/takahirox/riscv-rust), commit `8ee69d7a5dc7ef6d8b2bda96bf86d2923f2cf176`. The precompiled `wasm/web/riscv_emu_rust_wasm.js` and `_bg.wasm` remain unchanged. [MIT license](LICENSE-riscv-rust).
+- Guest: MIT [xv6-riscv](https://github.com/mit-pdos/xv6-riscv) at `d7c0a1b7a703f7366942092f9cf421b6cd111a36`. [MIT license](LICENSE-xv6). The matching source is vendored in `guest/` in this lab repository.
+- Lab changes: add `user/lab.c` and its build entry, explicit RV64GC/LP64D/O3 flags, and 16 MiB managed guest RAM for debugger compatibility. See the repository README for the upstream debugger bounds-check limitation.
 
-Upstream does not record the xv6 source revision used to produce these guest images. They are legacy, known-compatible artifacts, not a build of current xv6. Their exact hashes are recorded in `docs/assets.json` in the lab repository. Matching, reproducible guest-source builds are a next increment; source links in lessons explicitly identify this limitation.
-
-No runtime assets have been modified from the pinned upstream versions. The lab interface and worker harness are new MIT-licensed code.
+Guest images are built from those sources by `tools/build-guest.sh`; they no longer use the legacy images bundled in the emulator repository. The packaging script generates source associations, symbols, layout offsets and the asset manifest used by tests and inspectors. The course is functional, not a hardware-performance benchmark. The interface, scaffolds, worker harness and experiment programs are MIT-licensed lab code.

@@ -1,55 +1,73 @@
 # xv6 Lab
 
-Learn how an operating system works, one small experiment at a time.
+**[Open the lab](https://snowch.github.io/xv6-lab/)** · [Companion book](https://snowch.github.io/computer-systems/) · [Open in Codespaces](https://codespaces.new/snowch/xv6-lab)
 
-**[Open the lab](https://snowch.github.io/xv6-lab/)** · [Systems From Scratch](https://snowch.github.io/computer-systems/)
+Learn how an operating system works, one small experiment at a time. A real xv6 RISC-V kernel executes locally in a WebAssembly worker. Its console, process records, trapframes and page tables come from actual guest execution.
 
-A real xv6 RISC-V kernel runs locally in a WebAssembly emulator inside a browser worker. The terminal is guest UART output; commands execute guest binaries. No server, account, cross-origin-isolation headers or shared memory is required.
+## Complete core curriculum
 
-## The learning experience
+25 lessons follow **predict → run and observe → explain → vary → retrieve**. Each has a concrete outcome, saved prediction, guided experiment, concept map, optional hints and expected observations, misconception-specific quiz feedback and a transfer question. Completion is the learner’s explicit choice; neither output nor a quiz answer automatically grants mastery.
 
-Six small lessons follow predict → experiment → explain → check, with a clear outcome and a retrieval question:
+| Experiments | Focus |
+| --- | --- |
+| 1–6 | Boot, system calls, fork, pipes, redirection, instruction stepping |
+| 7–9 | PID, exec identity, exit/wait and memory isolation |
+| 10–13 | dup/shared offsets, unlink lifetime, hard links, pathname traversal |
+| 14–16 | sbrk, real Sv39 page-table walks, contained user faults |
+| 17–20 | Saved trapframes, scheduling, timer sleep/wakeup, blocking pipes and EOF |
+| 21–24 | Spinlocks, buffer cache, indirect blocks, transaction commit and recovery reasoning |
+| 25 | End-to-end capstone connecting processes, VM, IPC, scheduling and exit |
 
-1. Boot and meet the shell.
-2. Follow a write into the kernel.
-3. Catch the shell creating a child process.
-4. Connect programs with a pipe.
-5. Redirect output into a file.
-6. Pause and step kernel instructions.
+**Run this experiment** boots if necessary, waits for the shell and prepares the command/breakpoint. A breakpoint is global: shell or other kernel activity can reach it first. Continue resumes the same machine. Commands wait for a shell prompt; interactive programs accept direct console input, including Ctrl-D.
 
-Start with **Run this experiment**. It boots xv6 if needed, waits for the shell prompt, prepares the lesson’s one-shot breakpoint, and sends the first command. At a breakpoint the CPU inspector opens automatically; Continue resumes the same guest. Commands cannot be sent from the command field while the machine is booting, paused, or still running a command. Interactive programs accept direct console input.
+## Inspect the real kernel
 
-Each lesson includes a saved prediction, observation prompts, an optional hint, an explicitly labelled concept map, a short mechanism explanation, a variation, misconception-specific quiz feedback, and a retrieval question with an optional explanation. Completion remains a learner decision.
+- Pause/continue, instruction step, one-shot named breakpoints, registers and disassembly.
+- A matching source excerpt for the current kernel instruction, plus an in-page full source reader.
+- Process table: PID, name, state, virtual size, open descriptor count, saved user epc/a0/a7.
+- Per-process Sv39 walker: actual indices, PTEs, permissions and translated physical address, or an unmapped result.
+- Eight-byte virtual-memory reads in the current CPU context.
 
-The live machine supports boot/reset, pause/continue, instruction stepping, one-shot kernel-function breakpoints, integer register snapshots, disassembly and eight-byte virtual-memory reads. Breakpoints resolve symbols from the actual guest ELF. Completion is explicitly marked and saved locally per lesson; quiz answers do not automatically complete a lesson. Storage failures keep marks for the current tab session.
+Stop inside a kernel function (for example `sys_getpid`) before reading processes or walking page tables. Refresh selects `lab` when present. CPU registers and saved user registers are different contexts. Optimization can associate multiple instructions with one source line; stepping is at instruction level.
 
-Wait for the `$` prompt before sending shell commands. Click/focus the console for direct keyboard input; Ctrl-D sends guest EOF. Reset terminates the worker and boots the original disk image, discarding session changes. The console retains the last 100 KB of output.
+Reading text is 18px on larger screens and 17px on phones. Tablets use a full-width Lesson/Live machine switch and a collapsed curriculum instead of a fixed sidebar. Advanced tools remain in disclosures. Lesson/machine jumps, keyboard focus, coarse-pointer touch targets and reduced-motion preferences are supported.
 
-## Run and verify
-
-Requires Node 24 and Python 3 for the local server.
+## Run and test
 
 ```sh
 npm ci
 npm test
 npm run serve
-# Open http://localhost:8000
+# http://localhost:8000
 ```
 
-Tests execute the shipped Wasm against the shipped kernel/disk, check real shell output, hit kernel breakpoints, step instructions, and exercise the worker protocol and lesson interface. An integrated DOM + real-worker test runs all six guided lessons, including cold boot, readiness gating, automatic breakpoints, resumption, file output, and prediction retention. There are no simulated success responses. GitHub Actions runs the checks before deploying `site/` to Pages on `main`.
+Requires Node 24; local serving uses Python 3. The checked-in assets run without a compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
 
-The responsive layout provides a collapsible mobile course menu, a desktop machine panel that remains in view, keyboard focus, large touch targets, and reduced-motion support. See [design and learning review](docs/design-learning-review.md) for the rationale and verification boundaries.
+Tests drive all 25 lessons through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
 
-## Scope and next increments
+## Build or modify the guest
 
-This lab teaches function, not hardware performance. One emulated hart is enough to demonstrate process scheduling, traps and blocking. Guest instruction ticks are not hardware cycles.
+`guest/` vendors xv6 at **d7c0a1b7a703f7366942092f9cf421b6cd111a36**, with the additions listed below. `guest/user/lab.c` contains the experiment programs. Edit them in Codespaces, the dev container, or Linux with the RISC-V cross toolchain:
 
-This version does **not** yet provide an editor/compiler, source-line stepping, process-table/trapframe visualization, a page-table inspector, persistent disk snapshots, or multicore execution. Lessons describe those boundaries where relevant. Students run and vary existing guest commands; they cannot rebuild guest C from the webpage yet.
+```sh
+# Debian/Ubuntu dependencies:
+sudo apt-get install gcc-riscv64-linux-gnu binutils-riscv64-linux-gnu make gcc perl python3
+./tools/build-guest.sh
+npm test
+```
 
-Next: pin and reproducibly build a matching xv6 source tree; add a tiny editable user program and `getpid()` experiment; then process/trapframe and page-table views. Preserve the small-lesson structure as capabilities grow. The RISC-V assembly lab is a separate project.
+The build packages the ELF, disk image, DWARF source associations, complete source text, ELF symbol addresses, host-computed process-field offsets, and hashes. Run it after any guest change so inspectors stay consistent. Compiler versions can change binary bytes and source mappings; this is a rebuildable pinned source tree, not a claim of identical output from every toolchain.
 
-## Runtime provenance and licenses
+Local guest changes: add `user/lab.c` and its Makefile entry; use explicit RV64GC/LP64D, O3 flags; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while leaving the upstream Wasm unchanged. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
 
-See [NOTICE](site/vendor/NOTICE.md) and [asset hashes](docs/assets.json). This initial increment vendors riscv-rust’s known-compatible legacy xv6 images and its precompiled Wasm. The originating emulator commit is pinned, but the exact xv6 source commit used to build those upstream binaries is not recorded by upstream. Source links therefore open current xv6 for orientation and do not claim line-for-line correspondence.
+## Functional scope
 
-New lab code is MIT licensed. riscv-rust and xv6 retain their MIT notices. All runtime assets are served from this repository.
+This is a single-hart functional lab. It does not claim hardware timing, real multicore contention or weak-memory coverage. Logging lessons execute filesystem operations and examine actual commit/recovery code, but do not claim a physical power-loss experiment. Reset discards session disk changes and boots the original image; it is not crash replay. Draft predictions and progress persist locally with a session-only fallback when storage is unavailable.
+
+Browser-side C compilation, C source-line stepping, persistent disk snapshots and multi-hart emulation are not supplied. Guest C can be edited and rebuilt with the included toolchain setup. Readability and functional checks are automated; rendered browser/device and assistive-technology verification still need an available browser runner.
+
+## Provenance
+
+[Runtime notice](site/vendor/NOTICE.md) · [Asset/build manifest](docs/assets.json) · [Design and learning review](docs/design-learning-review.md)
+
+New code is MIT licensed. xv6 and riscv-rust retain their MIT licenses. The RISC-V assembly lab is a separate project.

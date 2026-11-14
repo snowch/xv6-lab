@@ -51,7 +51,9 @@ test("all lessons navigate, grade answers, save explicit completion, and operate
     $("load-command").click();
     assert.equal($("command").value, lesson.command);
   }
-  assert.match($("progress").textContent, /6 \/ 6/);
+  assert.match($("progress").textContent, /25 \/ 25/);
+  dom.window.location.hash = "step";
+  dom.window.dispatchEvent(new dom.window.HashChangeEvent("hashchange"));
   $("boot").click();
   assert.deepEqual(worker.messages[0], { type: "boot" });
   worker.receive({ type: "ready" });

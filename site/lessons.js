@@ -1,3 +1,4 @@
+import { extendedLessons } from "./extended.js";
 export const lessons = [
   {
     id: "boot",
@@ -77,7 +78,7 @@ export const lessons = [
     feedback:
       "fork creates the child process. exec loads a new program into an existing process. wait lets the parent collect the child’s exit status and resources.",
     source: "kernel/sysproc.c",
-    next: "The live inspector shows CPU registers, not a process table yet. Process-table visualization is a later lab increment.",
+    next: "Use Processes & saved user registers at a kernel stop to compare actual process records.",
   },
   {
     id: "pipe",
@@ -103,7 +104,7 @@ export const lessons = [
     feedback:
       "A reader cannot infer that no more bytes will arrive while a write end is still open. Closing descriptors is part of the pipe’s communication protocol.",
     source: "kernel/pipe.c",
-    next: "This experiment observes pipe behaviour. Sleep-channel and wakeup visualization will be added in a later increment.",
+    next: "Continue to the blocking and sleep/wakeup lessons to connect pipe behaviour with process state.",
   },
   {
     id: "files",
@@ -154,6 +155,7 @@ export const lessons = [
     feedback:
       "This is machine-instruction stepping. Interrupts, traps and variable-length instructions make it different from source-line stepping. Emulated ticks are not hardware performance measurements.",
     source: "kernel/trap.c",
-    next: "You have a working foundation: a real kernel, controlled execution, live registers and memory. Page tables, process state and source stepping are next.",
+    next: "Continue through the process, virtual-memory, scheduling and storage lessons. Source excerpts track the current instruction; stepping remains at instruction level.",
   },
 ];
+lessons.push(...extendedLessons);

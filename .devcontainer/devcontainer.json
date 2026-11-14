@@ -1,0 +1,1 @@
+{"name":"xv6 Lab","build":{"dockerfile":"Dockerfile"},"postCreateCommand":"npm ci","forwardPorts":[8000]}
