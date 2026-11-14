@@ -172,8 +172,10 @@ function render() {
     save("done:" + l.id, event.target.checked ? "1" : "0");
     navigation();
   };
-  if (previous && previous !== selected.id)
+  if (previous && previous !== selected.id) {
     $("lesson").focus({ preventScroll: true });
+    $("lesson").scrollIntoView?.({behavior:"auto",block:"start"});
+  }
   controls();
 }
 function grade(lesson, choice) {
