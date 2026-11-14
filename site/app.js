@@ -1,99 +1,437 @@
-import { lessons } from './lessons.js';
-const $ = id => document.getElementById(id);
-const names = ['zero','ra','sp','gp','tp','t0','t1','t2','s0','s1','a0','a1','a2','a3','a4','a5','a6','a7','s2','s3','s4','s5','s6','s7','s8','s9','s10','s11','t3','t4','t5','t6'];
-let worker, ready = false, running = false, selected, output = '', storageAvailable = true;
-const completed = new Set();
+import { lessons } from "./lessons.js";
+import { learning } from "./learning.js";
+const $ = (id) => document.getElementById(id);
+const escape = (value) =>
+  String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+const names = [
+  "zero",
+  "ra",
+  "sp",
+  "gp",
+  "tp",
+  "t0",
+  "t1",
+  "t2",
+  "s0",
+  "s1",
+  "a0",
+  "a1",
+  "a2",
+  "a3",
+  "a4",
+  "a5",
+  "a6",
+  "a7",
+  "s2",
+  "s3",
+  "s4",
+  "s5",
+  "s6",
+  "s7",
+  "s8",
+  "s9",
+  "s10",
+  "s11",
+  "t3",
+  "t4",
+  "t5",
+  "t6",
+];
+let worker,
+  ready = false,
+  running = false,
+  shellReady = false,
+  selected,
+  output = "",
+  pending = null,
+  storageAvailable = true;
+const completed = new Set(),
+  notes = new Map(),
+  answers = new Map();
+function read(key) {
+  try {
+    return localStorage.getItem("xv6-lab:" + key);
+  } catch {
+    storageAvailable = false;
+    return null;
+  }
+}
+function save(key, value) {
+  try {
+    localStorage.setItem("xv6-lab:" + key, value);
+  } catch {
+    storageAvailable = false;
+  }
+}
 for (const lesson of lessons) {
-  try { if (localStorage.getItem('xv6-lab:done:' + lesson.id) === '1') completed.add(lesson.id); }
-  catch { storageAvailable = false; }
+  if (read("done:" + lesson.id) === "1") completed.add(lesson.id);
+  notes.set(lesson.id, read("prediction:" + lesson.id) || "");
 }
 function navigation() {
-  $('lessons').innerHTML = lessons.map((lesson, i) => `<a class="lesson-link ${lesson.id === selected.id ? 'active' : ''}" ${lesson.id === selected.id ? 'aria-current="page"' : ''} href="#${lesson.id}"><span class="lesson-number">${completed.has(lesson.id) ? '✓' : String(i + 1).padStart(2, '0')}</span><span>${lesson.title}</span></a>`).join('');
-  $('progress').textContent = `${completed.size} / ${lessons.length} lessons marked done${storageAvailable ? '' : ' · progress is session-only'}`;
+  $("lessons").innerHTML = lessons
+    .map(
+      (lesson, i) =>
+        `<a class="lesson-link ${lesson.id === selected.id ? "active" : ""}" ${lesson.id === selected.id ? 'aria-current="page"' : ""} href="#${lesson.id}"><span class="lesson-number">${completed.has(lesson.id) ? "✓" : String(i + 1).padStart(2, "0")}</span><span>${escape(lesson.title)}<small>${escape(lesson.tag)}</small></span></a>`,
+    )
+    .join("");
+  $("progress").textContent =
+    `${completed.size} / ${lessons.length} explored${storageAvailable ? "" : " · session only"}`;
+  $("progress-fill").style.width =
+    `${(completed.size / lessons.length) * 100}%`;
 }
 function render() {
-  selected = lessons.find(lesson => lesson.id === location.hash.slice(1)) || lessons[0];
-  const l = selected, index = lessons.indexOf(l);
+  const previous = selected?.id;
+  selected =
+    lessons.find((lesson) => lesson.id === location.hash.slice(1)) ||
+    lessons[0];
+  if (pending && pending.id !== selected.id) pending = null;
+  const l = selected,
+    s = learning[l.id],
+    index = lessons.indexOf(l);
   document.title = `${l.title} — xv6 Lab`;
+  $("current-topic").textContent = l.title;
   navigation();
-  $('lesson').innerHTML = `<span class="tag">Experiment ${String(index + 1).padStart(2, '0')} / ${l.tag}</span><h2>${l.title}</h2><p class="lead">${l.intro}</p><div class="predict"><strong>Before you run</strong><p>${l.predict}</p></div><h3>The mechanism</h3><p>${l.concept}</p><h3>Try it, one step at a time</h3><ol>${l.steps.map(s => `<li>${s}</li>`).join('')}</ol><div class="example"><code>${l.command.replaceAll('>', '&gt;').replaceAll('<', '&lt;')}</code><button id="load-command">Use this command →</button>${l.breakpoint ? '<button id="choose-breakpoint">Select lesson breakpoint</button>' : ''}<details><summary>What to look for</summary><p>${l.expected}</p></details></div><h3>Change one thing</h3><p>${l.experiment}</p><div class="quiz"><h3>Check your understanding</h3><p>${l.question}</p><div class="answers">${l.choices.map((choice, i) => `<button data-answer="${i}">${choice}</button>`).join('')}</div><p id="feedback" class="feedback" role="status"></p></div><label class="completion"><input id="complete" type="checkbox" ${completed.has(l.id) ? 'checked' : ''}> I’ve explored this lesson. Mark it as done.</label><div class="lesson-footer"><p>${l.next}</p><a href="https://github.com/mit-pdos/xv6-riscv/blob/riscv/${l.source}" target="_blank" rel="noreferrer">Read ${l.source} ↗</a><p class="muted">Source link opens current upstream xv6. This lab runs an older bundled image; exact lines may differ.</p><div class="lesson-navigation">${index > 0 ? `<a href="#${lessons[index - 1].id}">← Previous</a>` : '<span></span>'}${index < lessons.length - 1 ? `<a href="#${lessons[index + 1].id}">Next experiment →</a>` : '<a href="#boot">Back to the beginning ↑</a>'}</div></div>`;
-  $('load-command').onclick = () => { $('command').value = l.command; if (ready) $('command').focus(); };
-  if (l.breakpoint) $('choose-breakpoint').onclick = () => { $('breakpoint').value = l.breakpoint; $('arm').focus(); };
-  document.querySelectorAll('[data-answer]').forEach(button => button.onclick = () => {
-    const correct = Number(button.dataset.answer) === l.answer;
-    document.querySelectorAll('[data-answer]').forEach(b => b.classList.remove('correct', 'wrong'));
-    button.classList.add(correct ? 'correct' : 'wrong');
-    $('feedback').textContent = correct ? l.feedback : 'Try again. Return to the mechanism above and compare the roles of the shell, kernel and emulator.';
-  });
-  $('complete').onchange = event => {
-    if (event.target.checked) completed.add(l.id); else completed.delete(l.id);
-    try { localStorage.setItem('xv6-lab:done:' + l.id, event.target.checked ? '1' : '0'); }
-    catch { storageAvailable = false; }
+  $("lesson").innerHTML = `
+    <div class="lesson-heading"><span class="tag">EXPERIMENT ${String(index + 1).padStart(2, "0")} / 06</span><span class="lesson-topic">${escape(l.tag)}</span></div>
+    <h2>${escape(l.title)}</h2><p class="lead">${escape(l.intro)}</p>
+    <div class="learning-goal"><span class="goal-icon" aria-hidden="true">◎</span><div><strong>By the end, you can…</strong><p>${escape(s.goal)}</p></div></div>
+    <p class="prerequisite">${escape(s.needs)}</p>
+    <section class="lesson-stage"><div class="stage-heading"><span class="stage-number">01</span><h3>Make a prediction</h3><span class="stage-label">THINK FIRST</span></div><p>${escape(l.predict)}</p><label class="sr-only" for="prediction">Your prediction</label><textarea id="prediction" rows="2" maxlength="2000" placeholder="I think… (a sentence is enough)">${escape(notes.get(l.id))}</textarea><p id="note-status" class="muted">${storageAvailable ? "Optional. Your notes stay in this browser." : "Optional. Notes are kept for this tab session only."}</p></section>
+    <section class="lesson-stage experiment-stage"><div class="stage-heading"><span class="stage-number">02</span><h3>Run & notice</h3><span class="stage-label">TRY IT</span></div><ol class="experiment-steps">${s.steps.map((step) => `<li>${escape(step)}</li>`).join("")}</ol><div class="example"><div class="example-heading"><span>YOUR FIRST COMMAND</span>${l.breakpoint ? `<span>STOP AT ${escape(l.breakpoint)}</span>` : "<span>IN THE XV6 SHELL</span>"}</div><code>${escape(l.command)}</code><button id="run-experiment" class="primary">Run this experiment <span aria-hidden="true">↗</span></button><button id="load-command" class="text-button">Copy to command field</button></div><p id="experiment-status" class="experiment-status" role="status"></p><div class="notice"><strong>Look closely</strong><p>${escape(s.observe)}</p></div><details class="lesson-disclosure"><summary>Need a nudge?</summary><p>${escape(s.hint)}</p></details><details class="lesson-disclosure"><summary>Expected observation</summary><p>${escape(l.expected)}</p><p>Compare this with the real console. Seeing output is evidence to reason about, not an automatic pass.</p></details></section>
+    <section class="lesson-stage"><div class="stage-heading"><span class="stage-number">03</span><h3>Connect the dots</h3><span class="stage-label">UNDERSTAND</span></div><div id="prediction-recall" class="prediction-recall" hidden><strong>You predicted</strong><blockquote id="prediction-text"></blockquote><p>What would you keep or revise after the experiment?</p></div><figure class="mechanism"><div class="flow">${s.flow.map(([label, caption], i) => `${i ? '<span class="flow-arrow" aria-hidden="true">→</span>' : ""}<div class="flow-node"><strong>${escape(label)}</strong><span>${escape(caption)}</span></div>`).join("")}</div><figcaption>A map of the idea · not a live execution trace</figcaption></figure><p>${escape(l.concept)}</p><div class="takeaway"><span aria-hidden="true">↳</span><p>${escape(s.takeaway)}</p></div><h4>Change one thing</h4><p>${escape(l.experiment)}</p></section>
+    <section class="lesson-stage quiz"><div class="stage-heading"><span class="stage-number">04</span><h3>Check your understanding</h3></div><p>${escape(l.question)}</p><div class="answers">${l.choices.map((choice, i) => `<button data-answer="${i}" aria-pressed="false"><span class="answer-letter" aria-hidden="true">${String.fromCharCode(65 + i)}</span><span>${escape(choice)}</span><span class="answer-mark" aria-hidden="true"></span></button>`).join("")}</div><p id="feedback" class="feedback" role="status"></p><details class="lesson-disclosure retrieval"><summary>One more thought, without looking back</summary><p>${escape(s.transfer)}</p><p class="muted">Explain it in your own words, then compare.</p><button id="reveal-transfer" class="text-button" aria-expanded="false" aria-controls="transfer-answer">Compare with an explanation</button><p id="transfer-answer" hidden>${escape(s.transferAnswer)}</p></details></section>
+    <div class="completion-card"><label class="completion"><input id="complete" type="checkbox" ${completed.has(l.id) ? "checked" : ""}><span><strong>I can explain this idea</strong><small>I’ve tried the experiment and checked my understanding. Mark this lesson as explored.</small></span></label><p class="muted">This is your own learning record, not an automatic grade.</p></div>
+    <div class="lesson-navigation">${index > 0 ? `<a href="#${lessons[index - 1].id}">← Previous</a>` : "<span>Keep the machine running as you explore.</span>"}${index < lessons.length - 1 ? `<a class="next-lesson" href="#${lessons[index + 1].id}">Next experiment <span aria-hidden="true">→</span></a>` : '<a class="next-lesson" href="#boot">Revisit the beginning →</a>'}</div>
+    <details class="source-note"><summary>Go deeper: source & scope</summary><p>${escape(l.next)}</p><a href="https://github.com/mit-pdos/xv6-riscv/blob/riscv/${l.source}" target="_blank" rel="noreferrer">Read ${escape(l.source)} ↗</a><p class="muted">This opens current upstream xv6. The lab uses a compatible older image, so exact lines may differ.</p></details>`;
+  function recallPrediction() {
+    $("prediction-text").textContent = notes.get(l.id);
+    $("prediction-recall").hidden = !notes.get(l.id)?.trim();
+  }
+  recallPrediction();
+  $("reveal-transfer").onclick = () => {
+    const hidden = !$("transfer-answer").hidden;
+    $("transfer-answer").hidden = hidden;
+    $("reveal-transfer").setAttribute("aria-expanded", String(!hidden));
+    $("reveal-transfer").textContent = hidden
+      ? "Compare with an explanation"
+      : "Hide explanation";
+  };
+  $("prediction").oninput = (event) => {
+    notes.set(l.id, event.target.value);
+    save("prediction:" + l.id, event.target.value);
+    recallPrediction();
+    $("note-status").textContent = storageAvailable
+      ? "Prediction saved in this browser."
+      : "Kept for this tab session; browser storage is unavailable.";
     navigation();
   };
+  $("load-command").onclick = () => {
+    $("command").value = l.command;
+    $("experiment-status").textContent =
+      "Command copied. Run the guided experiment, or send it yourself when the shell is ready.";
+    if (shellReady && running) $("command").focus();
+  };
+  $("run-experiment").onclick = () => startExperiment(l);
+  document
+    .querySelectorAll("[data-answer]")
+    .forEach(
+      (button) =>
+        (button.onclick = () => grade(l, Number(button.dataset.answer))),
+    );
+  if (answers.has(l.id)) grade(l, answers.get(l.id));
+  $("complete").onchange = (event) => {
+    if (event.target.checked) completed.add(l.id);
+    else completed.delete(l.id);
+    save("done:" + l.id, event.target.checked ? "1" : "0");
+    navigation();
+  };
+  if (previous && previous !== selected.id)
+    $("lesson").focus({ preventScroll: true });
+  controls();
+}
+function grade(lesson, choice) {
+  answers.set(lesson.id, choice);
+  document.querySelectorAll("[data-answer]").forEach((button) => {
+    const chosen = Number(button.dataset.answer) === choice;
+    button.classList.toggle("correct", chosen && choice === lesson.answer);
+    button.classList.toggle("wrong", chosen && choice !== lesson.answer);
+    button.setAttribute("aria-pressed", String(chosen));
+    button.querySelector(".answer-mark").textContent = chosen
+      ? choice === lesson.answer
+        ? "✓"
+        : "↺"
+      : "";
+  });
+  const correct = choice === lesson.answer;
+  $("feedback").classList.toggle("success", correct);
+  $("feedback").textContent = correct
+    ? "That’s it. " + lesson.feedback
+    : "Try again. " + learning[lesson.id].wrong[choice];
 }
 function controls() {
-  $('boot').disabled = !!worker;
-  $('reset').disabled = !worker;
-  $('pause').disabled = !ready || !running;
-  $('continue').disabled = !ready || running;
-  $('step').disabled = !ready || running;
-  $('inspect').disabled = !ready || running;
-  for (const id of ['command', 'send', 'arm']) $(id).disabled = !ready;
-  $('machine-dot').classList.toggle('active', running);
+  $("boot").disabled = !!worker;
+  $("reset").disabled = !worker;
+  $("pause").disabled = !ready || !running;
+  $("continue").disabled = !ready || running;
+  $("step").disabled = !ready || running;
+  $("inspect").disabled = !ready || running;
+  $("arm").disabled = !ready;
+  for (const id of ["command", "send"])
+    $(id).disabled = !ready || !running || !shellReady;
+  $("machine-dot").classList.toggle("active", running);
+  if ($("run-experiment"))
+    $("run-experiment").disabled =
+      !!pending || (!!worker && (!ready || !running || !shellReady));
+  $("command-help").textContent = !worker
+    ? "Run an experiment to start the shell."
+    : !ready
+      ? "Loading the machine…"
+      : !running
+        ? "Machine paused. Continue before sending a command."
+        : shellReady
+          ? "Shell ready. Enter a command and press Run."
+          : "Waiting for the shell prompt. Use the console directly for interactive programs.";
 }
-function error(message) { $('error').textContent = message; $('error').hidden = false; }
-function send(type, data = {}) { $('error').hidden = true; worker?.postMessage({ type, ...data }); }
-function boot() {
-  worker?.terminate(); ready = false; running = false; output = '';
-  $('terminal').textContent = 'Loading RISC-V emulator and xv6 disk…\nBoot can take a little while. Wait for “init: starting sh” and the $ prompt.\n';
-  $('status').textContent = 'Loading'; $('pc').textContent = '—'; $('registers').replaceChildren(); $('instruction').textContent = 'Waiting for CPU snapshot.'; $('memory-result').textContent = '';
-  worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+function guide(message) {
+  $("machine-hint").textContent = message;
+}
+function error(message) {
+  $("error").textContent = message;
+  $("error").hidden = false;
+  pending = null;
+  controls();
+}
+function send(type, data = {}) {
+  $("error").hidden = true;
+  worker?.postMessage({ type, ...data });
+}
+function launchPending() {
+  if (!pending || !ready || !running || !shellReady) return;
+  const lesson = pending;
+  pending = null;
+  if (lesson.breakpoint) {
+    $("breakpoint").value = lesson.breakpoint;
+    send("break", { symbol: lesson.breakpoint });
+  }
+  submitCommand(lesson.command);
+  if ($("experiment-status"))
+    $("experiment-status").textContent = lesson.breakpoint
+      ? `Command sent. xv6 will pause at ${lesson.breakpoint}. Follow the live machine on the right (below on small screens).`
+      : "Command sent to the real shell. Compare its output with your prediction.";
+}
+function startExperiment(lesson) {
+  if (worker && (!ready || !running || !shellReady)) return;
+  pending = lesson;
+  if (!worker) boot(true);
+  else launchPending();
+  if (pending)
+    $("experiment-status").textContent =
+      "Starting xv6 and waiting for the shell. Your command will run automatically when it is ready.";
+  controls();
+  $("machine").scrollIntoView?.({
+    behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
+      ? "auto"
+      : "smooth",
+    block: "nearest",
+  });
+}
+function submitCommand(text) {
+  shellReady = false;
+  $("status").textContent = "Command running";
+  send("input", { text: text + "\n" });
+  guide(
+    "Your command is running. Watch the console; a new $ prompt means the shell is ready again.",
+  );
+  controls();
+}
+function appendOutput(text) {
+  for (const char of text) {
+    if (char === "\b") output = output.slice(0, -1);
+    else if (char !== "\r") output += char;
+  }
+  output = output.slice(-100000);
+  $("terminal").textContent = output;
+  $("terminal").scrollTop = $("terminal").scrollHeight;
+  shellReady = output.endsWith("$ ");
+}
+function boot(keepPending = false) {
+  if (!keepPending) pending = null;
+  worker?.terminate();
+  ready = false;
+  running = false;
+  shellReady = false;
+  output = "";
+  $("terminal").textContent =
+    "Loading the RISC-V machine and xv6 disk…\n\nThe kernel will initialize, then start its shell.\n";
+  $("status").textContent = "Booting xv6";
+  $("pc").textContent = "—";
+  $("registers").replaceChildren();
+  $("instruction").textContent = "Waiting for CPU snapshot.";
+  $("memory-result").textContent = "";
+  guide(
+    "Booting a real kernel. This can take a little while; you don’t need to type anything yet.",
+  );
+  worker = new Worker(new URL("./worker.js", import.meta.url), {
+    type: "module",
+  });
   worker.onmessage = ({ data }) => {
     switch (data.type) {
-      case 'ready': ready = true; controls(); break;
-      case 'output':
-        output = (output + data.text).slice(-100000); $('terminal').textContent = output; $('terminal').scrollTop = $('terminal').scrollHeight; break;
-      case 'state':
-        running = data.running; $('status').textContent = data.reason; $('pc').textContent = data.pc; $('instruction').textContent = data.instruction;
-        $('registers').innerHTML = data.registers.map((value, i) => `<div class="register"><span>x${i} ${names[i]}</span><code>${value.slice(2)}</code></div>`).join('');
-        controls(); break;
-      case 'memory': $('memory-result').textContent = data.address + ' → ' + data.value; break;
-      case 'error': error(data.message); break;
+      case "ready":
+        ready = true;
+        controls();
+        break;
+      case "output":
+        appendOutput(data.text);
+        if (shellReady && running) {
+          $("status").textContent = "Shell ready";
+          guide(
+            "The $ prompt is the shell waiting for you. Try another command, or move to the next experiment.",
+          );
+        }
+        controls();
+        launchPending();
+        break;
+      case "state":
+        running = data.running;
+        $("status").textContent = data.reason;
+        $("pc").textContent = data.pc;
+        $("instruction").textContent = data.instruction;
+        $("registers").innerHTML = data.registers
+          .map(
+            (value, i) =>
+              `<div class="register"><span>x${i} <strong>${names[i]}</strong></span><code>${escape(value.slice(2))}</code></div>`,
+          )
+          .join("");
+        if (!running) {
+          $("cpu-panel").open = true;
+          guide(
+            data.reason.startsWith("Stopped at")
+              ? `${data.reason}. The machine is paused before this function’s body runs. Inspect the PC, take a Step, then Continue.`
+              : "Execution is paused. Inspect the CPU, step one instruction, or Continue to return to the experiment.",
+          );
+        } else if (shellReady) {
+          $("status").textContent = "Shell ready";
+          guide("The shell is ready for your next command.");
+        }
+        controls();
+        launchPending();
+        break;
+      case "memory":
+        $("memory-result").textContent = data.address + " → " + data.value;
+        break;
+      case "error":
+        if (data.fatal) stopWorker();
+        error(data.message);
+        break;
     }
   };
-  worker.onerror = event => {
-    error(event.message || 'The emulator worker stopped unexpectedly. Reset to try again.');
-    worker.terminate(); worker = null; ready = false; running = false; $('status').textContent = 'Stopped'; controls();
+  worker.onerror = (event) => {
+    stopWorker();
+    error(
+      event.message ||
+        "The machine stopped unexpectedly. Boot xv6 to try again.",
+    );
   };
-  controls(); send('boot');
+  controls();
+  send("boot");
 }
-$('boot').onclick = boot;
-$('reset').onclick = boot;
-$('pause').onclick = () => send('pause');
-$('continue').onclick = () => send('continue');
-$('step').onclick = () => send('step');
-$('arm').onclick = () => send('break', { symbol: $('breakpoint').value });
-$('command-form').onsubmit = event => {
-  event.preventDefault(); if (!ready) return;
-  const text = $('command').value;
-  if (text.length > 120 || /[^\x20-\x7e]/.test(text)) { error('Use up to 120 printable ASCII characters. This guest console does not support Unicode input.'); return; }
-  send('input', { text: text + '\n' }); $('command').value = '';
+function stopWorker() {
+  worker?.terminate();
+  worker = null;
+  ready = false;
+  running = false;
+  shellReady = false;
+  pending = null;
+  $("status").textContent = "Machine stopped";
+  guide(
+    "The machine stopped. Boot xv6 for a fresh session. Your lesson notes are safe.",
+  );
+  controls();
+}
+$("boot").onclick = () => boot();
+$("reset").onclick = () => boot();
+$("pause").onclick = () => send("pause");
+$("continue").onclick = () => send("continue");
+$("step").onclick = () => send("step");
+$("arm").onclick = () => send("break", { symbol: $("breakpoint").value });
+$("command-form").onsubmit = (event) => {
+  event.preventDefault();
+  if (!ready || !running || !shellReady) return;
+  const text = $("command").value;
+  if (text.length > 120 || /[^\x20-\x7e]/.test(text)) {
+    error(
+      "Use up to 120 printable ASCII characters. This xv6 console does not support Unicode input.",
+    );
+    return;
+  }
+  submitCommand(text);
+  $("command").value = "";
 };
-$('memory-form').onsubmit = event => { event.preventDefault(); if (ready && !running) send('memory', { address: $('address').value.trim() }); };
-// Interactive programs such as cat can read input and Ctrl-D directly from the console.
-$('terminal').onkeydown = event => {
-  if (!ready || event.altKey || event.metaKey || (event.ctrlKey && event.key.toLowerCase() !== 'd')) return;
+$("memory-form").onsubmit = (event) => {
+  event.preventDefault();
+  if (ready && !running) send("memory", { address: $("address").value.trim() });
+};
+$("terminal").onkeydown = (event) => {
+  if (
+    !ready ||
+    !running ||
+    event.altKey ||
+    event.metaKey ||
+    (event.ctrlKey && event.key.toLowerCase() !== "d")
+  )
+    return;
   let text;
-  if (event.ctrlKey && event.key.toLowerCase() === 'd') text = '\x04';
-  else if (event.key === 'Enter') text = '\n';
-  else if (event.key === 'Backspace') text = '\x7f';
-  else if (event.key.length === 1 && /^[\x20-\x7e]$/.test(event.key)) text = event.key;
-  if (text) { event.preventDefault(); send('input', { text }); }
+  if (event.ctrlKey && event.key.toLowerCase() === "d") text = "\x04";
+  else if (event.key === "Enter") text = "\n";
+  else if (event.key === "Backspace") text = "\x7f";
+  else if (event.key.length === 1 && /^[\x20-\x7e]$/.test(event.key))
+    text = event.key;
+  if (text) {
+    event.preventDefault();
+    shellReady = false;
+    send("input", { text });
+    controls();
+  }
 };
-window.addEventListener('hashchange', render);
-window.addEventListener('storage', event => {
-  const lesson = lessons.find(l => event.key === 'xv6-lab:done:' + l.id);
-  if (lesson) { if (event.newValue === '1') completed.add(lesson.id); else completed.delete(lesson.id); render(); }
+window.addEventListener("hashchange", () => {
+  if (lessons.some((lesson) => "#" + lesson.id === location.hash)) render();
 });
-render(); controls();
+for (const [id, target] of [
+  ["jump-machine", "machine"],
+  ["current-topic", "lesson"],
+  ["back-lesson", "lesson"],
+]) {
+  $(id).onclick = (event) => {
+    event.preventDefault();
+    $(target).focus({ preventScroll: true });
+    $(target).scrollIntoView?.({
+      behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
+        ? "auto"
+        : "smooth",
+      block: "start",
+    });
+  };
+}
+window.addEventListener("storage", (event) => {
+  if (event.key === null) {
+    completed.clear();
+    navigation();
+    if ($("complete")) $("complete").checked = false;
+    return;
+  }
+  const lesson = lessons.find((l) => event.key === "xv6-lab:done:" + l.id);
+  if (lesson) {
+    if (event.newValue === "1") completed.add(lesson.id);
+    else completed.delete(lesson.id);
+    navigation();
+    if (selected.id === lesson.id)
+      $("complete").checked = completed.has(lesson.id);
+  }
+});
+if (window.matchMedia?.("(max-width: 700px)")?.matches)
+  $("course-menu").open = false;
+render();

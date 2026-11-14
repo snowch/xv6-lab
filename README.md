@@ -6,9 +6,9 @@ Learn how an operating system works, one small experiment at a time.
 
 A real xv6 RISC-V kernel runs locally in a WebAssembly emulator inside a browser worker. The terminal is guest UART output; commands execute guest binaries. No server, account, cross-origin-isolation headers or shared memory is required.
 
-## First increment
+## The learning experience
 
-Six small lessons follow predict → run → inspect → change → check:
+Six small lessons follow predict → experiment → explain → check, with a clear outcome and a retrieval question:
 
 1. Boot and meet the shell.
 2. Follow a write into the kernel.
@@ -16,6 +16,10 @@ Six small lessons follow predict → run → inspect → change → check:
 4. Connect programs with a pipe.
 5. Redirect output into a file.
 6. Pause and step kernel instructions.
+
+Start with **Run this experiment**. It boots xv6 if needed, waits for the shell prompt, prepares the lesson’s one-shot breakpoint, and sends the first command. At a breakpoint the CPU inspector opens automatically; Continue resumes the same guest. Commands cannot be sent from the command field while the machine is booting, paused, or still running a command. Interactive programs accept direct console input.
+
+Each lesson includes a saved prediction, observation prompts, an optional hint, an explicitly labelled concept map, a short mechanism explanation, a variation, misconception-specific quiz feedback, and a retrieval question with an optional explanation. Completion remains a learner decision.
 
 The live machine supports boot/reset, pause/continue, instruction stepping, one-shot kernel-function breakpoints, integer register snapshots, disassembly and eight-byte virtual-memory reads. Breakpoints resolve symbols from the actual guest ELF. Completion is explicitly marked and saved locally per lesson; quiz answers do not automatically complete a lesson. Storage failures keep marks for the current tab session.
 
@@ -32,7 +36,9 @@ npm run serve
 # Open http://localhost:8000
 ```
 
-Tests execute the shipped Wasm against the shipped kernel/disk, check real shell output, hit kernel breakpoints, step instructions, and exercise the worker protocol and lesson interface. There are no simulated success responses. GitHub Actions runs the checks before deploying `site/` to Pages on `main`.
+Tests execute the shipped Wasm against the shipped kernel/disk, check real shell output, hit kernel breakpoints, step instructions, and exercise the worker protocol and lesson interface. An integrated DOM + real-worker test runs all six guided lessons, including cold boot, readiness gating, automatic breakpoints, resumption, file output, and prediction retention. There are no simulated success responses. GitHub Actions runs the checks before deploying `site/` to Pages on `main`.
+
+The responsive layout provides a collapsible mobile course menu, a desktop machine panel that remains in view, keyboard focus, large touch targets, and reduced-motion support. See [design and learning review](docs/design-learning-review.md) for the rationale and verification boundaries.
 
 ## Scope and next increments
 

@@ -1,34 +1,220 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Learn how xv6 works, one small experiment at a time. A real RISC-V operating system running in your browser.">
-<title>xv6 Lab — an operating system, opened up</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-<header><a class="brand" href="#boot"><span class="brand-mark">x6</span> xv6 <strong>Lab</strong></a><span class="header-note">A SMALL KERNEL. A CLOSER LOOK.</span><a href="https://github.com/snowch/xv6-lab">Source ↗</a></header>
-<main>
-<section class="intro"><div><p class="eyebrow">SYSTEMS FROM SCRATCH / INTERACTIVE LAB</p><h1>An operating system,<br><em>opened up.</em></h1><p>Boot a real kernel. Follow a system call. Take one instruction at a time.<br>Learn how xv6 works through small, hands-on experiments.</p></div><div class="intro-aside"><span class="dot"></span> RISC-V → WebAssembly<br><span>Runs locally in your browser.<br>No install. No account.</span></div></section>
-<div class="workspace">
-<aside class="curriculum"><p class="eyebrow">01 / FOUNDATIONS</p><nav id="lessons" aria-label="Lessons"></nav><p id="progress" class="muted"></p><div class="aside-note">Understand the behaviour.<br>Inspect the mechanism.<br>Change one thing.</div><a href="https://snowch.github.io/computer-systems/">Read Systems From Scratch ↗</a></aside>
-<article id="lesson" aria-live="polite"></article>
-<section class="machine" aria-label="Live xv6 machine">
-<div class="panel-heading"><div><span class="dot" id="machine-dot"></span><strong>LIVE MACHINE</strong></div><span id="status" role="status">Not booted</span></div>
-<div class="toolbar"><button id="boot" class="primary">Boot xv6</button><button id="pause" disabled>Pause</button><button id="continue" disabled>Continue</button><button id="step" disabled>Step instruction</button><button id="reset" disabled>Reset machine</button></div>
-<div class="terminal-heading"><span>UART CONSOLE</span><span>single hart / RV64</span></div>
-<pre id="terminal" tabindex="0" aria-label="xv6 console output">Your machine is ready to boot.
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#172c30" />
+    <meta
+      name="description"
+      content="Discover how xv6 works through six small experiments. A real RISC-V kernel, a guided console, and a closer look inside."
+    />
+    <title>xv6 Lab — learn by looking inside</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#lesson">Skip to lesson</a>
+    <aside class="sidebar">
+      <a class="brand" href="#boot" aria-label="xv6 Lab home"
+        ><span class="brand-mark" aria-hidden="true">x6<span>_</span></span
+        ><span
+          >xv6 <strong>Lab</strong
+          ><small>THE OPERATING SYSTEM WORKSHOP</small></span
+        ></a
+      >
+      <div class="sidebar-intro">
+        <p class="eyebrow">YOUR FIELD GUIDE</p>
+        <p>A small kernel.<br />A closer look.</p>
+      </div>
+      <details id="course-menu" open>
+        <summary>Six experiments <span aria-hidden="true">↕</span></summary>
+        <nav id="lessons" aria-label="Lessons"></nav>
+      </details>
+      <div class="course-progress">
+        <div class="progress-track" aria-hidden="true">
+          <span id="progress-fill"></span>
+        </div>
+        <p id="progress"></p>
+        <span>At your pace. Progress stays in this browser.</span>
+      </div>
+      <div class="sidebar-bottom">
+        <a href="https://snowch.github.io/computer-systems/"
+          >Read the companion book <span aria-hidden="true">↗</span></a
+        ><a href="https://github.com/snowch/xv6-lab"
+          >View the source <span aria-hidden="true">↗</span></a
+        >
+        <p>MIT xv6 · RISC-V · WebAssembly</p>
+      </div>
+    </aside>
+    <div class="page">
+      <header class="topbar">
+        <span
+          ><span class="topbar-path">THE WORKSHOP</span
+          ><span aria-hidden="true"> / </span
+          ><a id="current-topic" href="#lesson">Foundations</a></span
+        ><a href="#machine" id="jump-machine" class="machine-jump"
+          >Jump to live machine <span aria-hidden="true">↓</span></a
+        >
+      </header>
+      <main>
+        <section class="intro">
+          <div>
+            <p class="eyebrow">LEARN BY LOOKING INSIDE</p>
+            <h1>Make the invisible <em>visible.</em></h1>
+            <p>
+              One real kernel. Six small experiments. A new way to understand
+              what happens beneath your programs.
+            </p>
+          </div>
+          <div class="runtime-badge">
+            <span class="dot active"></span> Runs in your browser<small
+              >No setup. No account.</small
+            >
+          </div>
+        </section>
+        <div class="workspace">
+          <article id="lesson" tabindex="-1"></article>
+          <section
+            id="machine"
+            class="machine"
+            aria-label="Live xv6 machine"
+            tabindex="-1"
+          >
+            <div class="panel-heading">
+              <div>
+                <span class="dot" id="machine-dot"></span
+                ><strong>Your live machine</strong>
+              </div>
+              <span id="status" role="status">Ready to boot</span>
+            </div>
+            <div class="machine-guide">
+              <span class="guide-icon" aria-hidden="true">↳</span>
+              <p id="machine-hint">
+                Start with “Run this experiment” in the lesson. We’ll boot xv6
+                and prepare the command for you.
+              </p>
+            </div>
+            <div class="toolbar">
+              <button id="boot">Boot xv6</button
+              ><button id="pause" disabled>Pause</button
+              ><button id="continue" class="primary" disabled>
+                Continue <span aria-hidden="true">▶</span></button
+              ><button id="step" disabled>Step instruction</button>
+            </div>
+            <div class="terminal-heading">
+              <span><span aria-hidden="true">● ● ●</span> xv6 console</span
+              ><span>RV64 / 1 HART</span>
+            </div>
+            <pre
+              id="terminal"
+              tabindex="0"
+              aria-label="Interactive xv6 console"
+              aria-describedby="console-help"
+            >
+A real operating system lives here.
 
-Press Boot xv6, then wait for the $ prompt.
-</pre>
-<form id="command-form"><label for="command">Send to xv6</label><div class="command-row"><input id="command" maxlength="120" autocomplete="off" spellcheck="false" placeholder="echo hello" disabled><button id="send" disabled>Send ↵</button></div><p class="muted">Commands run in the real xv6 shell. Wait for $ before sending one.</p></form>
-<div id="error" role="alert" hidden></div>
-<details class="inspector" open><summary>CPU & execution</summary><p class="muted">Pause to refresh the live register snapshot.</p><div class="pc-line">PC <code id="pc">—</code></div><pre id="instruction">No instruction snapshot yet.</pre><label for="breakpoint">Stop at a kernel function</label><div class="command-row"><select id="breakpoint"><option>sys_write</option><option>sys_fork</option><option>sys_exec</option><option>usertrap</option><option>sys_getpid</option></select><button id="arm" disabled>Arm & continue</button></div><p class="muted">One-shot breakpoint. It clears when hit.</p><div id="registers" class="registers"></div></details>
-<details class="inspector"><summary>Read virtual memory</summary><p class="muted">Read eight bytes using the paused CPU’s active address translation. Values display as a little-endian 64-bit word.</p><form id="memory-form"><label for="address">Hexadecimal address</label><div class="command-row"><input id="address" value="0x80000000" spellcheck="false"><button id="inspect" disabled>Inspect</button></div></form><output id="memory-result"></output></details>
-<p class="machine-footnote">Reset discards this session’s disk changes. Guest code stays in a worker; no shared-memory headers are needed.</p>
-</section>
-</div>
-</main>
-<footer><span>xv6 Lab · Learn by looking inside.</span><span>MIT xv6 + riscv-rust · <a href="vendor/NOTICE.md">Runtime & licenses</a></span></footer>
-<script type="module" src="app.js"></script>
-</body></html>
+Run the first experiment to wake it up.
+</pre
+            >
+            <form id="command-form">
+              <label for="command">Try your own command</label>
+              <div class="command-row">
+                <span class="prompt-symbol" aria-hidden="true">$</span
+                ><input
+                  id="command"
+                  maxlength="120"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="echo hello"
+                  aria-describedby="command-help"
+                  disabled
+                /><button id="send" disabled>
+                  Run <span aria-hidden="true">↵</span>
+                </button>
+              </div>
+              <p id="command-help" class="muted">
+                Available when the shell is ready.
+              </p>
+            </form>
+            <div id="error" role="alert" hidden></div>
+            <details id="cpu-panel" class="inspector">
+              <summary>
+                <span>Inside the CPU</span
+                ><span class="detail-tag">REGISTERS + STEPPING</span>
+              </summary>
+              <p class="muted">
+                Pause to refresh this snapshot. These are current CPU registers;
+                in a kernel handler they are not automatically the saved user
+                arguments.
+              </p>
+              <div class="pc-line">
+                <span>Next instruction · PC</span><code id="pc">—</code>
+              </div>
+              <pre id="instruction">
+Boot, then pause to inspect an instruction.</pre
+              >
+              <div id="registers" class="registers"></div>
+              <label for="breakpoint"
+                >Advanced: stop at a kernel function</label
+              >
+              <div class="command-row">
+                <select id="breakpoint">
+                  <option>sys_write</option>
+                  <option>sys_fork</option>
+                  <option>sys_exec</option>
+                  <option>usertrap</option>
+                  <option>sys_getpid</option></select
+                ><button id="arm" disabled>Arm & continue</button>
+              </div>
+              <p class="muted">
+                One-shot breakpoint; clears when hit. It may stop for shell
+                activity as well as your command.
+              </p>
+            </details>
+            <details class="inspector">
+              <summary>
+                <span>Read virtual memory</span
+                ><span class="detail-tag">ADVANCED</span>
+              </summary>
+              <p class="muted">
+                Pause first. Read eight bytes through the CPU’s active address
+                translation, displayed as a little-endian 64-bit word.
+              </p>
+              <form id="memory-form">
+                <label for="address">Hexadecimal address</label>
+                <div class="command-row">
+                  <input
+                    id="address"
+                    value="0x80000000"
+                    spellcheck="false"
+                  /><button id="inspect" disabled>Inspect</button>
+                </div>
+              </form>
+              <output id="memory-result"></output>
+            </details>
+            <div class="back-to-lesson">
+              <a id="back-lesson" href="#lesson">← Back to the lesson</a>
+            </div>
+            <details class="machine-help">
+              <summary>Console help & reset</summary>
+              <p id="console-help">
+                Focus the console to type directly into interactive programs.
+                Enter sends a line; Ctrl-D sends end of input. The command field
+                waits for the shell prompt.
+              </p>
+              <p>
+                Reset starts a fresh machine and discards files created in this
+                session. Lesson progress and prediction notes stay saved.
+              </p>
+              <button id="reset" disabled>Reset to a fresh machine</button>
+            </details>
+          </section>
+        </div>
+        <footer>
+          <span>A working kernel, not a simulation of its output.</span
+          ><a href="vendor/NOTICE.md">Runtime & licenses ↗</a>
+        </footer>
+      </main>
+    </div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
