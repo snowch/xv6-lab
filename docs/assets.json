@@ -14,13 +14,13 @@
     },
     {
       "path": "site/images/kernel",
-      "bytes": 293624,
-      "sha256": "e1b17c80ede8da5a49e7cd0c1eaee4b8188a11ea7220b1042db874a8f5ac2813"
+      "bytes": 293632,
+      "sha256": "b4127b2692148a41ecf25f5d3e270827cbc015099db1bccf77c27a958a233c30"
     },
     {
       "path": "site/images/fs.img",
       "bytes": 1024000,
-      "sha256": "cfef16a8c2a18d33be225cf6b38ce3cf6efb21014e17ae2a10d52f96fa17ffb1"
+      "sha256": "696e5ef26890bc5211323b67e15f76064886896b91f974ada924fc47627bf868"
     }
   ],
   "guest": {

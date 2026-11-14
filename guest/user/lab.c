@@ -39,7 +39,8 @@ int main(int argc, char **argv) {
   close(p[0]);sleep(2);write(p[1],"hey",3);close(p[1]);wait(0);
  } else if(!strcmp(mode,"file")) {
   int fd=open("blocks",O_CREATE|O_RDWR|O_TRUNC);require(fd>=0,"open");char block[1024];memset(block,'x',sizeof block);
-  for(int i=0;i<14;i++)require(write(fd,block,sizeof block)==sizeof block,"write block");close(fd);
+  for(int i=0;i<14;i++) { require(write(fd,block,sizeof block)==sizeof block,"write block"); }
+  close(fd);
   struct stat st;require(stat("blocks",&st)==0,"stat");printf("file size=%d bytes across direct and indirect blocks\n",st.size);unlink("blocks");
  } else if(!strcmp(mode,"links")) {
   unlink("original");unlink("alias");int fd=open("original",O_CREATE|O_WRONLY);require(fd>=0,"open");write(fd,"linked",6);close(fd);

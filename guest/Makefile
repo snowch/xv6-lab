@@ -56,7 +56,7 @@ LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
 
-CFLAGS = -Wall -Wno-infinite-recursion -O3 -fno-omit-frame-pointer -g -march=rv64gc -mabi=lp64d
+CFLAGS = -std=gnu17 -Wall -Wno-infinite-recursion -O3 -fno-omit-frame-pointer -g -march=rv64gc -mabi=lp64d
 CFLAGS += -MD
 CFLAGS += -mcmodel=medany
 CFLAGS += -ffreestanding -fno-common -nostdlib -mno-relax
