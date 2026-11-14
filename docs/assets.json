@@ -1,0 +1,26 @@
+{
+  "upstream": "https://github.com/takahirox/riscv-rust",
+  "commit": "8ee69d7a5dc7ef6d8b2bda96bf86d2923f2cf176",
+  "assets": [
+    {
+      "path": "site/vendor/riscv_emu_rust_wasm.js",
+      "bytes": 15694,
+      "sha256": "b51a13f2be49a8286e96e5c6d51dd677950fbdf4675b7fa80ff356da76878d05"
+    },
+    {
+      "path": "site/vendor/riscv_emu_rust_wasm_bg.wasm",
+      "bytes": 158147,
+      "sha256": "e1804062b8a40bfe27af9a393bee291b0e8228435ebbc47a19d45a1faa8e3f65"
+    },
+    {
+      "path": "site/images/kernel",
+      "bytes": 342344,
+      "sha256": "cecad2220d73fc8c6d106d85cf6eccbf82874a167307aac77634e661124ff19b"
+    },
+    {
+      "path": "site/images/fs.img",
+      "bytes": 1024000,
+      "sha256": "440d54ea7d49c7ecb3220e9ffa871e73158131b1426b181b12a1c2ec1e785252"
+    }
+  ]
+}
