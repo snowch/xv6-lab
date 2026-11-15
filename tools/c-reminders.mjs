@@ -8,6 +8,15 @@ const escape = (value) =>
     .replaceAll('"', "&quot;");
 const base = "https://snowch.github.io/c-foundry/#/chapter/";
 const topics = {
+  addressInteger: {
+    title: "addresses and integer casts",
+    text: "In this RV64 kernel, uint64 holds 64-bit values, including its address values. The cast converts a pointer to that integer type for a byte-offset calculation. Adding 4096 to this integer advances by 4096 bytes; adding to a typed pointer would instead count its element size. This calculation does not allocate storage or change the CPU’s stack pointer.",
+    code: "uint64 base = (uint64)stack0;\nuint64 top = base + 4096;\nint offset = (int)(top - base);",
+    links: [
+      ["Addresses and pointer arithmetic", "pointers/3"],
+      ["Conversions and casts", "values/4"],
+    ],
+  },
   bits: {
     title: "shifts, masks and casts",
     text: "Right-shifting an unsigned 64-bit value moves its high bits down. A mask selects particular bits; a cast converts the resulting value to the requested C type. Here shifting by 60 extracts the top four mode bits, then the int cast supplies printf’s %d argument.",
@@ -185,7 +194,7 @@ const topics = {
 };
 const map = {
   "editing-the-kernel-boot": "basics",
-  "boot-needs-a-stack": "arithmetic",
+  "boot-needs-a-stack": "addressInteger",
   "boot-turns-on-paging": "bits",
   "boot-prepares-physical-pages": "ownership",
   "initialization-is-not-execution": "loops",
