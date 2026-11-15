@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#edf2f8" />
+    <meta
+      name="description"
+      content="Edit real xv6 source, compile RISC-V code in your browser, and run the result on a working kernel."
+    />
+    <title>Nested critical sections restore the previous interrupt state — xv6 Lab</title>
+    <link
+      rel="preload"
+      as="font"
+      href="fonts/source-sans-3-400.ttf"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter12" />
+  </head>
+  <body class="lesson-page" data-lesson="nested-critical-sections-restore-interrupts">
+    <a href="#source-editor" class="skip-link">Skip to editable source</a>
+    <header class="app-header">
+      <a class="brand" href="./"
+        ><span aria-hidden="true">x6_</span
+        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
+      >
+      <details class="lesson-menu">
+        <summary>
+          Chapter 12 · Lesson 3 of 7
+        </summary>
+        <nav aria-label="Chapter 12 lessons"><a href="lessons/an-atomic-swap-returns-the-old-value/" data-lesson="an-atomic-swap-returns-the-old-value"><span>1.</span> An atomic swap returns the old value</a>
+<a href="lessons/a-lock-records-its-owner/" data-lesson="a-lock-records-its-owner"><span>2.</span> A spinlock records its owning CPU</a>
+<a href="lessons/nested-critical-sections-restore-interrupts/" data-lesson="nested-critical-sections-restore-interrupts"><span>3.</span> Nested critical sections restore the previous interrupt state</a>
+<a href="lessons/locks-order-protected-publication/" data-lesson="locks-order-protected-publication"><span>4.</span> Locks order the publication of protected state</a>
+<a href="lessons/a-sleeping-lock-does-not-spin-through-io/" data-lesson="a-sleeping-lock-does-not-spin-through-io"><span>5.</span> A sleeping lock can stay held across blocking work</a>
+<a href="lessons/a-wakeup-needs-the-right-condition-and-channel/" data-lesson="a-wakeup-needs-the-right-condition-and-channel"><span>6.</span> A wakeup needs the matching channel</a>
+<a href="lessons/lock-order-prevents-circular-wait/" data-lesson="lock-order-prevents-circular-wait"><span>7.</span> Lock order prevents circular wait</a></nav>
+      </details>
+      <a class="course-link" href="./">Course contents</a>
+    </header>
+    <main>
+      <div class="project-heading">
+        <div>
+          <p class="preview-label">
+            Chapter 12 · Locks and coordination · Lesson 3 of
+            7
+          </p>
+          <h1 id="lesson-title">Nested critical sections restore the previous interrupt state</h1>
+          <p id="lesson-subtitle">Observe that the outermost pop restores the original enable state.</p>
+        </div>
+        <p class="privacy-note">
+          Compiler and kernel run locally.<br />Your source stays in this
+          browser.
+        </p>
+      </div>
+      <div id="storage-warning" role="status" hidden></div>
+      <article class="lesson-reading" aria-label="Lesson explanation">
+        <div id="reading-content"><p>A device interrupt could try to acquire a spinlock already held by the code it interrupted. On one hart, spinning in that interrupt would prevent the interrupted holder from ever releasing it. xv6 disables local interrupts while holding spinlocks.</p><p>Critical sections can nest. push_off saves the previous interrupt-enable state only at nesting depth zero, then increments noff. pop_off decrements it and restores delivery only when the outermost level ends and the saved state allowed interrupts.</p><p>Build and expect the inner pop to leave interrupts off, with the outer pop restoring 1. Change the initial state to off: both samples become 0. The final cleanup explicitly reinstates this handler’s known normal entry state; general callers should preserve their own state through matched nesting.</p></div>
+        <details class="c-reminder"><summary>C reminder: arguments and return values</summary><div class="c-reminder-content"><p>A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.</p><pre translate="no"><code>int pid = getpid();
+printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters and return values <span class="new-tab-label">(new tab)</span></a></p></div></details>
+        <figure class="source-figure">
+          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <pre id="source-excerpt" translate="no">Loading source…</pre>
+          <p id="source-note">The nesting count prevents an inner release from enabling interrupts inside an outer critical section. intena remembers the initial state.</p>
+        </figure>
+        <details id="context">
+          <summary id="context-title">Read surrounding source</summary>
+          <label for="context-file">Baseline source (read-only)</label
+          ><select id="context-file"></select>
+          <pre id="context-source" translate="no"></pre>
+        </details>
+      </article>
+      <section class="experiment-intro" aria-labelledby="experiment-title">
+        <p class="preview-label">Try it in xv6</p>
+        <h2 id="experiment-title">One small experiment</h2>
+        <p id="assignment">Replace the first intr_on() with intr_off(), leaving the final cleanup unchanged. Build and run; restored enable becomes 0.</p>
+        <details id="test-program-details" class="supplied-program" hidden>
+          <summary>Read the supplied user program</summary>
+          <pre id="test-program-source" translate="no"></pre>
+        </details>
+      </section>
+      <div class="workbench-grid">
+        <section class="source-pane" aria-labelledby="file-name">
+          <div class="pane-header">
+            <h2 id="file-name">kernel/sysproc.c</h2>
+            <span id="editable-label" class="editable-label"
+              >Function only</span
+            >
+          </div>
+          <div class="editor-meta">
+            <span id="draft-status" role="status">Loading source…</span
+            ><button id="restore" disabled>Restore starter</button
+            ><button id="undo-restore" hidden>Undo restore</button>
+          </div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: 640px"
+          ></div>
+          <div class="editor-bottom">
+            <span id="build-relation">No build yet</span
+            ><button id="export-source" disabled>Download source</button>
+          </div>
+          <div class="diagnostics">
+            <h3>Build messages</h3>
+            <pre id="build-messages" role="status" aria-live="polite">
+Loading the matching xv6 sources…</pre>
+          </div>
+          <details class="build-details">
+            <summary>About this build</summary>
+            <p id="build-method"></p>
+            <p>
+              These lessons compile small, freestanding C edits with a
+              WebAssembly build of Tiny C Compiler. The edited object is
+              incrementally linked into a reserved area of an otherwise
+              native-built xv6 image. This is a real compiled executable, with a
+              bounded source and object size; it is not a full
+              <code>make</code> rebuild.
+            </p>
+            <p>
+              Every run boots a fresh, disposable machine. Guest files reset;
+              source drafts stay saved.
+            </p>
+            <p>
+              Kernel instruction helpers execute the native RISC-V register and
+              atomic instructions that this C compiler cannot assemble inline.
+              Their
+              <a
+                href="https://github.com/snowch/xv6-lab/blob/main/guest/kernel/workbench.c"
+                >complete source</a
+              >
+              is included with the kernel.
+            </p>
+            <p>
+              <a href="workbench/NOTICE.md"
+                >Compiler provenance, limits and licenses</a
+              >
+            </p>
+          </details>
+        </section>
+        <section
+          id="machine-pane"
+          class="machine-pane"
+          aria-labelledby="machine-title"
+          tabindex="-1"
+        >
+          <div class="pane-header">
+            <h2 id="machine-title">Running xv6</h2>
+            <span id="run-status" role="status">Not started</span>
+          </div>
+          <p id="run-owner">Build your source to create a runnable image.</p>
+          <section
+            id="process-evidence"
+            class="process-evidence"
+            aria-labelledby="process-evidence-title"
+            hidden
+          >
+            <h3 id="process-evidence-title">Kernel process snapshot</h3>
+            <div class="process-table-area">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">PID</th>
+                    <th scope="col">Parent</th>
+                    <th scope="col">State</th>
+                  </tr>
+                </thead>
+                <tbody id="process-rows"></tbody>
+              </table>
+            </div>
+            <p id="process-note">
+              Build & run to capture the workbench processes at getpid.
+            </p>
+          </section>
+          <div id="pid-evidence" class="evidence">
+            <h3>Evidence from this run</h3>
+            <dl>
+              <div>
+                <dt>Kernel PID at syscall entry</dt>
+                <dd id="pid-entry">—</dd>
+              </div>
+              <div>
+                <dt>Kernel PID at process exit</dt>
+                <dd id="pid-exit">—</dd>
+              </div>
+              <div>
+                <dt>PID reported by the program</dt>
+                <dd id="pid-reported">—</dd>
+              </div>
+            </dl>
+            <p id="evidence-note">
+              Values will be captured from real guest state and console output.
+            </p>
+          </div>
+          <div class="console-heading">
+            <span>xv6 console</span><span>RISC-V · one hart</span>
+          </div>
+          <div class="console-area">
+            <p id="console-empty">
+              Your program’s output will appear here after Build & run.
+            </p>
+            <pre
+              id="terminal"
+              aria-label="Guest console output"
+              translate="no"
+              tabindex="0"
+            ></pre>
+          </div>
+          <p id="run-message">
+            Build & run compiles this draft, boots the image, and launches
+            <code>workbench</code> in the guest shell.
+          </p>
+        </section>
+      </div>
+      <section class="lesson-ending">
+        <h2>What this shows</h2>
+        <p id="takeaway">Leaving a nested critical section restores a saved policy rather than blindly enabling interrupts.</p>
+        <details class="reflection">
+          <summary>A question to carry forward</summary>
+          <p id="reflection">Why would intr_on at every release break an outer lock’s protection?</p>
+        </details>
+        <nav class="lesson-navigation" aria-label="Previous and next lessons">
+          <a data-direction="previous" href="lessons/a-lock-records-its-owner/"><small>← Previous lesson</small>A spinlock records its owning CPU</a><a data-direction="next" href="lessons/locks-order-protected-publication/"><small>Next lesson →</small>Locks order the publication of protected state</a>
+        </nav>
+      </section>
+    </main>
+    <footer class="action-bar">
+      <div class="activity">
+        <span id="activity-dot" aria-hidden="true"></span>
+        <p id="activity-status" role="status">Loading the workbench…</p>
+        <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
+      </div>
+      <div class="actions">
+        <button id="stop" disabled>Stop run</button
+        ><button id="build-only" disabled>Build only</button
+        ><button id="run-built" disabled>Run build</button
+        ><button
+          id="build-run"
+          class="primary"
+          disabled
+          aria-keyshortcuts="Control+Enter Meta+Enter"
+        >
+          Build & run
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="workbench/app.js?v=chapter12"></script>
+  </body>
+</html>

@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#edf2f8" />
+    <meta
+      name="description"
+      content="Edit real xv6 source, compile RISC-V code in your browser, and run the result on a working kernel."
+    />
+    <title>A wakeup needs the matching channel — xv6 Lab</title>
+    <link
+      rel="preload"
+      as="font"
+      href="fonts/source-sans-3-400.ttf"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter12" />
+  </head>
+  <body class="lesson-page" data-lesson="a-wakeup-needs-the-right-condition-and-channel">
+    <a href="#source-editor" class="skip-link">Skip to editable source</a>
+    <header class="app-header">
+      <a class="brand" href="./"
+        ><span aria-hidden="true">x6_</span
+        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
+      >
+      <details class="lesson-menu">
+        <summary>
+          Chapter 12 · Lesson 6 of 7
+        </summary>
+        <nav aria-label="Chapter 12 lessons"><a href="lessons/an-atomic-swap-returns-the-old-value/" data-lesson="an-atomic-swap-returns-the-old-value"><span>1.</span> An atomic swap returns the old value</a>
+<a href="lessons/a-lock-records-its-owner/" data-lesson="a-lock-records-its-owner"><span>2.</span> A spinlock records its owning CPU</a>
+<a href="lessons/nested-critical-sections-restore-interrupts/" data-lesson="nested-critical-sections-restore-interrupts"><span>3.</span> Nested critical sections restore the previous interrupt state</a>
+<a href="lessons/locks-order-protected-publication/" data-lesson="locks-order-protected-publication"><span>4.</span> Locks order the publication of protected state</a>
+<a href="lessons/a-sleeping-lock-does-not-spin-through-io/" data-lesson="a-sleeping-lock-does-not-spin-through-io"><span>5.</span> A sleeping lock can stay held across blocking work</a>
+<a href="lessons/a-wakeup-needs-the-right-condition-and-channel/" data-lesson="a-wakeup-needs-the-right-condition-and-channel"><span>6.</span> A wakeup needs the matching channel</a>
+<a href="lessons/lock-order-prevents-circular-wait/" data-lesson="lock-order-prevents-circular-wait"><span>7.</span> Lock order prevents circular wait</a></nav>
+      </details>
+      <a class="course-link" href="./">Course contents</a>
+    </header>
+    <main>
+      <div class="project-heading">
+        <div>
+          <p class="preview-label">
+            Chapter 12 · Locks and coordination · Lesson 6 of
+            7
+          </p>
+          <h1 id="lesson-title">A wakeup needs the matching channel</h1>
+          <p id="lesson-subtitle">Observe that changing a condition does not itself wake a sleeping process.</p>
+        </div>
+        <p class="privacy-note">
+          Compiler and kernel run locally.<br />Your source stays in this
+          browser.
+        </p>
+      </div>
+      <div id="storage-warning" role="status" hidden></div>
+      <article class="lesson-reading" aria-label="Lesson explanation">
+        <div id="reading-content"><p>A sleep channel is an identity, commonly an address. wakeup marks processes sleeping on exactly that channel RUNNABLE; it is not a stored token. The shared condition records whether work may proceed, and a loop rechecks it under the condition lock.</p><p>The supplied child calls the edited getpid hook first and waits for ready. Its parent sleeps briefly, calls the hook to set ready under the same lock, and wakes the matching channel. Build and expect waiter status=0. sleep’s acquire-before-release handoff prevents a notification from falling between the condition check and publication of the sleeping state.</p><p>Set MATCH to 0. The condition becomes true but the notification targets another address, so the child remains sleeping. The parent’s bounded cleanup kills it after two further ticks; the real exit status becomes -1. A notification and a condition are separate parts of one protocol.</p></div>
+        <details class="c-reminder"><summary>C reminder: static state shared by callbacks</summary><div class="c-reminder-content"><p>A file-scope static variable has one storage location for this compiled kernel unit and starts at zero. Its value persists between function calls in this VM, so a probe can arm an interrupt observer and later disarm it. An ordinary local variable is separate for each call. A fresh VM resets this state independently of the source draft saved in your browser.</p><pre translate="no"><code>static int watching;
+watching = !watching;  // toggle between 0 and 1</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/3" target="_blank" rel="noopener noreferrer">Scope and storage duration <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/2" target="_blank" rel="noopener noreferrer">Variables and initialisation <span class="new-tab-label">(new tab)</span></a></p></div></details>
+        <figure class="source-figure">
+          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <pre id="source-excerpt" translate="no">Loading source…</pre>
+          <p id="source-note">wakeup acquires each process lock before matching its state and channel. Being made runnable still does not guarantee the condition remains true until execution resumes.</p>
+        </figure>
+        <details id="context">
+          <summary id="context-title">Read surrounding source</summary>
+          <label for="context-file">Baseline source (read-only)</label
+          ><select id="context-file"></select>
+          <pre id="context-source" translate="no"></pre>
+        </details>
+      </article>
+      <section class="experiment-intro" aria-labelledby="experiment-title">
+        <p class="preview-label">Try it in xv6</p>
+        <h2 id="experiment-title">One small experiment</h2>
+        <p id="assignment">Change MATCH from 1 to 0. Build and run; the parent’s bounded cleanup should report waiter status=-1.</p>
+        <details id="test-program-details" class="supplied-program" hidden>
+          <summary>Read the supplied user program</summary>
+          <pre id="test-program-source" translate="no"></pre>
+        </details>
+      </section>
+      <div class="workbench-grid">
+        <section class="source-pane" aria-labelledby="file-name">
+          <div class="pane-header">
+            <h2 id="file-name">kernel/sysproc.c</h2>
+            <span id="editable-label" class="editable-label"
+              >Function only</span
+            >
+          </div>
+          <div class="editor-meta">
+            <span id="draft-status" role="status">Loading source…</span
+            ><button id="restore" disabled>Restore starter</button
+            ><button id="undo-restore" hidden>Undo restore</button>
+          </div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: 850px"
+          ></div>
+          <div class="editor-bottom">
+            <span id="build-relation">No build yet</span
+            ><button id="export-source" disabled>Download source</button>
+          </div>
+          <div class="diagnostics">
+            <h3>Build messages</h3>
+            <pre id="build-messages" role="status" aria-live="polite">
+Loading the matching xv6 sources…</pre>
+          </div>
+          <details class="build-details">
+            <summary>About this build</summary>
+            <p id="build-method"></p>
+            <p>
+              These lessons compile small, freestanding C edits with a
+              WebAssembly build of Tiny C Compiler. The edited object is
+              incrementally linked into a reserved area of an otherwise
+              native-built xv6 image. This is a real compiled executable, with a
+              bounded source and object size; it is not a full
+              <code>make</code> rebuild.
+            </p>
+            <p>
+              Every run boots a fresh, disposable machine. Guest files reset;
+              source drafts stay saved.
+            </p>
+            <p>
+              Kernel instruction helpers execute the native RISC-V register and
+              atomic instructions that this C compiler cannot assemble inline.
+              Their
+              <a
+                href="https://github.com/snowch/xv6-lab/blob/main/guest/kernel/workbench.c"
+                >complete source</a
+              >
+              is included with the kernel.
+            </p>
+            <p>
+              <a href="workbench/NOTICE.md"
+                >Compiler provenance, limits and licenses</a
+              >
+            </p>
+          </details>
+        </section>
+        <section
+          id="machine-pane"
+          class="machine-pane"
+          aria-labelledby="machine-title"
+          tabindex="-1"
+        >
+          <div class="pane-header">
+            <h2 id="machine-title">Running xv6</h2>
+            <span id="run-status" role="status">Not started</span>
+          </div>
+          <p id="run-owner">Build your source to create a runnable image.</p>
+          <section
+            id="process-evidence"
+            class="process-evidence"
+            aria-labelledby="process-evidence-title"
+            hidden
+          >
+            <h3 id="process-evidence-title">Kernel process snapshot</h3>
+            <div class="process-table-area">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">PID</th>
+                    <th scope="col">Parent</th>
+                    <th scope="col">State</th>
+                  </tr>
+                </thead>
+                <tbody id="process-rows"></tbody>
+              </table>
+            </div>
+            <p id="process-note">
+              Build & run to capture the workbench processes at getpid.
+            </p>
+          </section>
+          <div id="pid-evidence" class="evidence">
+            <h3>Evidence from this run</h3>
+            <dl>
+              <div>
+                <dt>Kernel PID at syscall entry</dt>
+                <dd id="pid-entry">—</dd>
+              </div>
+              <div>
+                <dt>Kernel PID at process exit</dt>
+                <dd id="pid-exit">—</dd>
+              </div>
+              <div>
+                <dt>PID reported by the program</dt>
+                <dd id="pid-reported">—</dd>
+              </div>
+            </dl>
+            <p id="evidence-note">
+              Values will be captured from real guest state and console output.
+            </p>
+          </div>
+          <div class="console-heading">
+            <span>xv6 console</span><span>RISC-V · one hart</span>
+          </div>
+          <div class="console-area">
+            <p id="console-empty">
+              Your program’s output will appear here after Build & run.
+            </p>
+            <pre
+              id="terminal"
+              aria-label="Guest console output"
+              translate="no"
+              tabindex="0"
+            ></pre>
+          </div>
+          <p id="run-message">
+            Build & run compiles this draft, boots the image, and launches
+            <code>workbench</code> in the guest shell.
+          </p>
+        </section>
+      </div>
+      <section class="lesson-ending">
+        <h2>What this shows</h2>
+        <p id="takeaway">Correct blocking needs a protected condition, atomic sleep handoff and a matching notification.</p>
+        <details class="reflection">
+          <summary>A question to carry forward</summary>
+          <p id="reflection">Why does ready=1 not cause an unrelated sleeping process to run automatically?</p>
+        </details>
+        <nav class="lesson-navigation" aria-label="Previous and next lessons">
+          <a data-direction="previous" href="lessons/a-sleeping-lock-does-not-spin-through-io/"><small>← Previous lesson</small>A sleeping lock can stay held across blocking work</a><a data-direction="next" href="lessons/lock-order-prevents-circular-wait/"><small>Next lesson →</small>Lock order prevents circular wait</a>
+        </nav>
+      </section>
+    </main>
+    <footer class="action-bar">
+      <div class="activity">
+        <span id="activity-dot" aria-hidden="true"></span>
+        <p id="activity-status" role="status">Loading the workbench…</p>
+        <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
+      </div>
+      <div class="actions">
+        <button id="stop" disabled>Stop run</button
+        ><button id="build-only" disabled>Build only</button
+        ><button id="run-built" disabled>Run build</button
+        ><button
+          id="build-run"
+          class="primary"
+          disabled
+          aria-keyshortcuts="Control+Enter Meta+Enter"
+        >
+          Build & run
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="workbench/app.js?v=chapter12"></script>
+  </body>
+</html>

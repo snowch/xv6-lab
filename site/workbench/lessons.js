@@ -1,3 +1,4 @@
+import { chapter12Lessons } from "./chapter12.js?v=chapter12";
 import { chapter11Lessons } from "./chapter11.js?v=chapter11";
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
 import { chapter10Lessons } from "./chapter10.js?v=chapter10";
@@ -268,6 +269,14 @@ chapters.push({
     "Follow saved kernel contexts, stack ownership, scheduler contracts, timer preemption and the sleep lock handoff.",
   lessonIds: Object.keys(chapter11Lessons),
 });
+chapters.push({
+  number: 12,
+  id: "chapter-twelve",
+  title: "Locks and coordination",
+  intro:
+    "Follow atomic claims, ownership, interrupt nesting, publication, sleeping locks and the protocols that prevent lost wakeups and deadlock.",
+  lessonIds: Object.keys(chapter12Lessons),
+});
 export const plannedChapters = [
   {
     number: 8,
@@ -313,6 +322,7 @@ export const lessons = {
   ...chapter9Lessons,
   ...chapter10Lessons,
   ...chapter11Lessons,
+  ...chapter12Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;
