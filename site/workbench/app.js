@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter1";
+import { lessons, sourceExcerpt } from "./lessons.js?v=chapter2";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;

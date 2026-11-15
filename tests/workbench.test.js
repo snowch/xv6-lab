@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { buildExercise } from "../site/workbench/build.js";
 import { readElf } from "../site/workbench/elf.js";
-import { lessons, sourceExcerpt } from "../site/workbench/lessons.js";
+import { lessons, sourceExcerpt, chapters } from "../site/workbench/lessons.js";
 import init, { WasmRiscv } from "../site/vendor/riscv_emu_rust_wasm.js";
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url));
 const assets = {
@@ -53,30 +53,38 @@ async function run(images, observePid = true) {
   const sources = JSON.parse(read("site/source.json")),
     layout = JSON.parse(read("site/layout.json")),
     base = BigInt(sources.symbols.proc);
-  let actualPID;
-  for (let i = 0; i < layout.count; i++) {
-    const at = base + BigInt(i * layout.size),
-      state =
-        vm.load_doubleword(at + BigInt(layout.state), error) & 0xffffffffn;
-    if (state === 3n) {
-      actualPID = Number(
-        vm.load_doubleword(at + BigInt(layout.pid), error) & 0xffffffffn,
-      );
-      break;
+  function runningPID() {
+    for (let i = 0; i < layout.count; i++) {
+      const at = base + BigInt(i * layout.size),
+        state =
+          vm.load_doubleword(at + BigInt(layout.state), error) & 0xffffffffn;
+      if (state === 3n) {
+        return Number(
+          vm.load_doubleword(at + BigInt(layout.pid), error) & 0xffffffffn,
+        );
+      }
     }
   }
+  const actualPID = runningPID();
   assert.ok(actualPID > 0);
-  const before = output.length;
-  for (
-    let i = 0;
-    i < 1500 &&
-    (!output.slice(before).includes("reported pid=") || !output.endsWith("$ "));
-    i++
-  )
-    tick();
+  const exitAddress = vm.get_address_of_symbol("sys_exit", error);
+  assert.equal(error[0], 0);
+  let exitHit = false;
+  for (let i = 0; i < 1500 && !exitHit; i++) {
+    exitHit = vm.run_until_breakpoints(
+      new BigUint64Array([exitAddress]),
+      100000,
+    );
+    let c;
+    while ((c = vm.get_output())) output += String.fromCharCode(c);
+  }
+  assert.equal(exitHit, true, output);
+  const exitPID = runningPID();
+  assert.ok(exitPID > 0);
+  for (let i = 0; i < 1500 && !output.endsWith("$ "); i++) tick();
   assert.ok(output.endsWith("$ "), output);
   vm.free();
-  return { output, actualPID };
+  return { output, actualPID, exitPID };
 }
 
 test(
@@ -165,7 +173,8 @@ test(
   "every Chapter 1 starter and its taught edits execute on the real guest",
   { timeout: 120000 },
   async () => {
-    for (const [id, lesson] of Object.entries(lessons)) {
+    for (const id of chapters[0].lessonIds) {
+      const lesson = lessons[id];
       const excerpt = sourceExcerpt(assets.files, lesson);
       assert.ok(excerpt.text.trim(), id + ": matching source");
       let source = lesson.starter(assets.files);
@@ -199,3 +208,122 @@ test(
     }
   },
 );
+
+test(
+  "Chapter 2 starters execute real fork, wait, memory-copy and exec behaviour",
+  { timeout: 120000 },
+  async () => {
+    for (const id of chapters[1].lessonIds) {
+      const lesson = lessons[id];
+      const snippet = sourceExcerpt(assets.files, lesson);
+      assert.ok(snippet.text.length > 10);
+      const built = await buildExercise(
+          lesson.mode,
+          lesson.starter(assets.files),
+          assets,
+        ),
+        result = await run(built, lesson.observePid);
+      assert.ok(
+        result.output.includes(lesson.expected),
+        id + ": " + result.output,
+      );
+      if (id === "fork-creates-a-child") {
+        const parent = result.output.match(
+          /parent: fork returned (\d+); collected (\d+)/,
+        );
+        assert.ok(parent, result.output);
+        assert.ok(Number(parent[1]) > 0);
+        assert.equal(parent[1], parent[2]);
+      }
+      if (id === "waiting-for-a-child")
+        assert.ok(
+          result.output.indexOf("child: finishing") <
+            result.output.indexOf("parent: collected"),
+        );
+      if (id === "fork-copies-memory")
+        assert.ok(result.output.includes("child value=99"));
+      if (id === "exec-replaces-the-program") {
+        assert.equal(result.actualPID, result.exitPID);
+        assert.ok(!result.output.includes("exec returned to the old program"));
+      }
+      if (id === "when-exec-fails") {
+        assert.equal(result.actualPID, result.exitPID);
+        assert.ok(
+          result.output.includes(
+            `caller pid before=${result.actualPID} after=${result.actualPID}`,
+          ),
+        );
+      }
+    }
+  },
+);
+
+test(
+  "Chapter 2 taught edits change outcomes without manufacturing guest output",
+  { timeout: 120000 },
+  async () => {
+    const cases = [
+      [
+        "fork-creates-a-child",
+        (s) => s.replace("child: fork returned", "child edit: fork returned"),
+        /child edit: fork returned 0/,
+      ],
+      [
+        "waiting-for-a-child",
+        (s) =>
+          s.replace(
+            "  exit(0);\n}",
+            '  printf("second wait=%d\\n", wait(0));\n  exit(0);\n}',
+          ),
+        /second wait=-1/,
+      ],
+      [
+        "a-childs-exit-status",
+        (s) => s.replace("exit(7)", "exit(23)"),
+        /exited with status 23/,
+      ],
+      [
+        "fork-copies-memory",
+        (s) => s.replace("value = 99", "value = 123"),
+        /child value=123[\s\S]*parent value=7/,
+      ],
+      [
+        "exec-replaces-the-program",
+        (s) => s.replace("The new program is echo", "EDITED EXEC ARGUMENT"),
+        /EDITED EXEC ARGUMENT/,
+      ],
+      [
+        "when-exec-fails",
+        (s) => s.replace('exec("missing", args)', 'exec("echo", args)'),
+        /The replacement ran/,
+      ],
+    ];
+    for (const [id, edit, expected] of cases) {
+      const lesson = lessons[id],
+        source = edit(lesson.starter(assets.files));
+      assert.notEqual(source, lesson.starter(assets.files), id);
+      const built = await buildExercise(lesson.mode, source, assets),
+        result = await run(built, lesson.observePid);
+      assert.match(result.output, expected);
+      if (id === "when-exec-fails") {
+        assert.ok(!result.output.includes("exec result="));
+        assert.ok(!result.output.includes("caller pid before="));
+        assert.equal(result.actualPID, result.exitPID);
+      }
+    }
+  },
+);
+
+test("source excerpts stay inside the selected kernel function", () => {
+  assert.throws(
+    () =>
+      sourceExcerpt(assets.files, {
+        excerpt: {
+          file: "kernel/proc.c",
+          within: "fork(void)",
+          anchor: "p->xstate = status;",
+        },
+      }),
+    /Matching source excerpt was not found/,
+  );
+});

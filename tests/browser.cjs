@@ -48,8 +48,11 @@ const server = http.createServer((req, res) => {
   });
   try {
     // The course starts at a contents page and progresses through one concept per URL.
-    const { lessons: chapter, lessonIds } =
-      await import("../site/workbench/lessons.js");
+    const {
+      lessons: chapter,
+      lessonIds,
+      chapters,
+    } = await import("../site/workbench/lessons.js");
     for (const [name, width, height] of [
       ["desktop", 1680, 1050],
       ["tablet", 1024, 1000],
@@ -67,7 +70,10 @@ const server = http.createServer((req, res) => {
         }),
       );
       await page.goto(base);
-      assert.equal(await page.locator(".course-lessons li").count(), 6);
+      assert.equal(
+        await page.locator(".course-lessons li").count(),
+        lessonIds.length,
+      );
       await page.evaluate(() => document.fonts.ready);
       await page.screenshot({
         path: path.join(artifacts, "course-contents-" + name + ".png"),
@@ -92,7 +98,32 @@ const server = http.createServer((req, res) => {
           ),
           id + ": no page overflow",
         );
-        if (name === "desktop") {
+        assert.match(
+          await page.locator(".lesson-menu summary").textContent(),
+          new RegExp("Chapter " + chapter[id].chapter),
+        );
+        const mobileEdit =
+          name !== "desktop" &&
+          ["a-childs-exit-status", "exec-replaces-the-program"].includes(id);
+        let expected = chapter[id].expected;
+        if (mobileEdit) {
+          const source = await page.locator(".cm-content").innerText();
+          await page.locator(".cm-content").click();
+          await page.keyboard.press("ControlOrMeta+a");
+          await page.keyboard.insertText(
+            id === "a-childs-exit-status"
+              ? source.replace("exit(7)", "exit(23)")
+              : source.replace(
+                  "The new program is echo",
+                  "EDITED EXEC ARGUMENT",
+                ),
+          );
+          expected =
+            id === "a-childs-exit-status"
+              ? "exited with status 23"
+              : "EDITED EXEC ARGUMENT";
+        }
+        if (name === "desktop" || mobileEdit) {
           await page.locator("#build-run").click();
           await page.waitForFunction(
             () =>
@@ -102,15 +133,28 @@ const server = http.createServer((req, res) => {
             { timeout: 60000 },
           );
           assert.ok(
-            (await page.locator("#terminal").textContent()).includes(
-              chapter[id].expected,
-            ),
+            (await page.locator("#terminal").textContent()).includes(expected),
             id + ": real output",
           );
           assert.equal(
             await page.locator("#pid-evidence").isVisible(),
             chapter[id].observePid,
           );
+          if (id === "exec-replaces-the-program") {
+            const before = Number(
+              await page.locator("#pid-entry").textContent(),
+            );
+            assert.ok(before > 0);
+            assert.equal(
+              Number(await page.locator("#pid-exit").textContent()),
+              before,
+            );
+            assert.ok(
+              !(await page.locator("#terminal").textContent()).includes(
+                "exec returned to the old program",
+              ),
+            );
+          }
         }
         await page.locator(".cm-content").scrollIntoViewIfNeeded();
         await page.evaluate(
@@ -123,7 +167,13 @@ const server = http.createServer((req, res) => {
         await page.screenshot({
           path: path.join(
             artifacts,
-            "chapter1-" + name + "-" + (index + 1) + ".png",
+            "chapter" +
+              chapter[id].chapter +
+              "-" +
+              name +
+              "-" +
+              (chapters[chapter[id].chapter - 1].lessonIds.indexOf(id) + 1) +
+              ".png",
           ),
           fullPage: true,
         });
@@ -134,7 +184,7 @@ const server = http.createServer((req, res) => {
       await page.locator("#resume-lesson").waitFor();
       assert.match(
         await page.locator("#resume-lesson").getAttribute("href"),
-        /changing-the-answer/,
+        /when-exec-fails/,
       );
       await page.locator("#resume-lesson").click();
       await page
@@ -142,14 +192,14 @@ const server = http.createServer((req, res) => {
         .click();
       assert.equal(
         new URL(page.url()).pathname,
-        "/lessons/the-current-process/",
+        "/lessons/exec-replaces-the-program/",
       );
       await page.goBack();
       await page.locator(".cm-content").waitFor();
       assert.equal(await page.locator("#build-run").isDisabled(), false);
       assert.deepEqual(errors, [], "chapter runtime errors");
       await page.close();
-      console.log("Chapter 1 " + name + " passed");
+      console.log("Chapters 1–2 " + name + " passed");
     }
     for (const [name, width, height] of [
       ["desktop", 1680, 1050],

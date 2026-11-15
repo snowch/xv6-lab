@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#edf2f8" />
+    <meta
+      name="description"
+      content="Edit real xv6 source, compile RISC-V code in your browser, and run the result on a working kernel."
+    />
+    <title>Parent and child have separate memory — xv6 Lab</title>
+    <link
+      rel="preload"
+      as="font"
+      href="fonts/source-sans-3-400.ttf"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter2" />
+  </head>
+  <body class="lesson-page" data-lesson="fork-copies-memory">
+    <a href="#source-editor" class="skip-link">Skip to editable source</a>
+    <header class="app-header">
+      <a class="brand" href="./"
+        ><span aria-hidden="true">x6_</span
+        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
+      >
+      <details class="lesson-menu">
+        <summary>
+          Chapter 2 · Lesson 4 of 6
+        </summary>
+        <nav aria-label="Chapter 2 lessons"><a href="lessons/fork-creates-a-child/" data-lesson="fork-creates-a-child"><span>1.</span> fork creates a child process</a>
+<a href="lessons/waiting-for-a-child/" data-lesson="waiting-for-a-child"><span>2.</span> wait collects an exited child</a>
+<a href="lessons/a-childs-exit-status/" data-lesson="a-childs-exit-status"><span>3.</span> A child returns an exit status</a>
+<a href="lessons/fork-copies-memory/" data-lesson="fork-copies-memory"><span>4.</span> Parent and child have separate memory</a>
+<a href="lessons/exec-replaces-the-program/" data-lesson="exec-replaces-the-program"><span>5.</span> exec replaces the program</a>
+<a href="lessons/when-exec-fails/" data-lesson="when-exec-fails"><span>6.</span> A failed exec leaves the caller running</a></nav>
+      </details>
+      <a class="course-link" href="./">Course contents</a>
+    </header>
+    <main>
+      <div class="project-heading">
+        <div>
+          <p class="preview-label">
+            Chapter 2 · Processes · Lesson 4 of
+            6
+          </p>
+          <h1 id="lesson-title">Parent and child have separate memory</h1>
+          <p id="lesson-subtitle">Observe a child change its own copy of an ordinary variable.</p>
+        </div>
+        <p class="privacy-note">
+          Compiler and kernel run locally.<br />Your source stays in this
+          browser.
+        </p>
+      </div>
+      <div id="storage-warning" role="status" hidden></div>
+      <article class="lesson-reading" aria-label="Lesson explanation">
+        <div id="reading-content"><p>The parent and child start with the same ordinary variable values. That does not mean they share the same user memory. In this xv6 version, <button class="code-link" data-focus="fork">fork</button> copies the parent’s user memory into the child’s address space.</p><p>The child changes <button class="code-link" data-focus="value = 99">value</button> to <code>99</code>, then exits. The parent waits for that to happen and reads its own value, which remains <code>7</code>. Waiting establishes that the child has finished; it does not copy the child’s variables back.</p><p>The kernel passes different page tables to <code>uvmcopy</code> below. A page table describes which memory belongs at each address in a process. The memory chapter will examine that mapping; here observe its consequence for one C variable.</p></div>
+        <figure class="source-figure">
+          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <pre id="source-excerpt" translate="no">Loading source…</pre>
+          <p id="source-note">uvmcopy copies user memory from the parent’s page table to the child’s page table. This lesson concerns ordinary user memory; inherited file descriptors have different sharing rules, which the file lessons will examine.</p>
+        </figure>
+        <details id="context">
+          <summary id="context-title">Read surrounding source</summary>
+          <label for="context-file">Baseline source (read-only)</label
+          ><select id="context-file"></select>
+          <pre id="context-source" translate="no"></pre>
+        </details>
+      </article>
+      <section class="experiment-intro" aria-labelledby="experiment-title">
+        <p class="preview-label">Try it in xv6</p>
+        <h2 id="experiment-title">One small experiment</h2>
+        <p id="assignment">Change the child’s assignment from 99 to 123. Build and run. The child should print 123 and the parent should still print 7.</p>
+      </section>
+      <div class="workbench-grid">
+        <section class="source-pane" aria-labelledby="file-name">
+          <div class="pane-header">
+            <h2 id="file-name">user/workbench.c</h2>
+            <span id="editable-label" class="editable-label"
+              >Editable C</span
+            >
+          </div>
+          <div class="editor-meta">
+            <span id="draft-status" role="status">Loading source…</span
+            ><button id="restore" disabled>Restore starter</button
+            ><button id="undo-restore" hidden>Undo restore</button>
+          </div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: 600px"
+          ></div>
+          <div class="editor-bottom">
+            <span id="build-relation">No build yet</span
+            ><button id="export-source" disabled>Download source</button>
+          </div>
+          <div class="diagnostics">
+            <h3>Build messages</h3>
+            <pre id="build-messages" role="status" aria-live="polite">
+Loading the matching xv6 sources…</pre
+            >
+          </div>
+          <details class="build-details">
+            <summary>About this build</summary>
+            <p id="build-method"></p>
+            <p>
+              These lessons compile small, freestanding C edits with a
+              WebAssembly build of Tiny C Compiler. The edited object is
+              incrementally linked into a reserved area of an otherwise
+              native-built xv6 image. This is a real compiled executable, with a
+              bounded source and object size; it is not a full
+              <code>make</code> rebuild.
+            </p>
+            <p>
+              Every run boots a fresh, disposable machine. Guest files reset;
+              source drafts stay saved.
+            </p>
+            <p>
+              <a href="workbench/NOTICE.md"
+                >Compiler provenance, limits and licenses</a
+              >
+            </p>
+          </details>
+        </section>
+        <section
+          id="machine-pane"
+          class="machine-pane"
+          aria-labelledby="machine-title"
+          tabindex="-1"
+        >
+          <div class="pane-header">
+            <h2 id="machine-title">Running xv6</h2>
+            <span id="run-status" role="status">Not started</span>
+          </div>
+          <p id="run-owner">Build your source to create a runnable image.</p>
+          <div id="pid-evidence" class="evidence">
+            <h3>Evidence from this run</h3>
+            <dl>
+              <div>
+                <dt>Kernel PID at syscall entry</dt>
+                <dd id="pid-entry">—</dd>
+              </div>
+              <div>
+                <dt>Kernel PID at process exit</dt>
+                <dd id="pid-exit">—</dd>
+              </div>
+              <div>
+                <dt>PID reported by the program</dt>
+                <dd id="pid-reported">—</dd>
+              </div>
+            </dl>
+            <p id="evidence-note">
+              Values will be captured from real guest state and console output.
+            </p>
+          </div>
+          <div class="console-heading">
+            <span>xv6 console</span><span>RISC-V · one hart</span>
+          </div>
+          <div class="console-area">
+            <p id="console-empty">
+              Your program’s output will appear here after Build & run.
+            </p>
+            <pre
+              id="terminal"
+              aria-label="Guest console output"
+              translate="no"
+              tabindex="0"
+            ></pre>
+          </div>
+          <p id="run-message">
+            Build & run compiles this draft, boots the image, and launches
+            <code>workbench</code> in the guest shell.
+          </p>
+        </section>
+      </div>
+      <section class="lesson-ending">
+        <h2>What this shows</h2>
+        <p id="takeaway">After fork, assigning to an ordinary variable in the child changes the child’s copy of user memory.</p>
+        <details class="reflection">
+          <summary>A question to carry forward</summary>
+          <p id="reflection">Does waiting longer cause the child’s assignment to appear in the parent, or are these different memory copies?</p>
+        </details>
+        <nav class="lesson-navigation" aria-label="Previous and next lessons">
+          <a data-direction="previous" href="lessons/a-childs-exit-status/"><small>← Previous lesson</small>A child returns an exit status</a><a data-direction="next" href="lessons/exec-replaces-the-program/"><small>Next lesson →</small>exec replaces the program</a>
+        </nav>
+      </section>
+    </main>
+    <footer class="action-bar">
+      <div class="activity">
+        <span id="activity-dot" aria-hidden="true"></span>
+        <p id="activity-status" role="status">Loading the workbench…</p>
+        <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
+      </div>
+      <div class="actions">
+        <button id="stop" disabled>Stop run</button
+        ><button id="build-only" disabled>Build only</button
+        ><button id="run-built" disabled>Run build</button
+        ><button
+          id="build-run"
+          class="primary"
+          disabled
+          aria-keyshortcuts="Control+Enter Meta+Enter"
+        >
+          Build & run
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="workbench/app.js?v=chapter2"></script>
+  </body>
+</html>

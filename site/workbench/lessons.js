@@ -1,4 +1,5 @@
-// Chapter 1. Each lesson has one idea, a matching xv6 source excerpt and one experiment.
+// Each lesson has one idea, a matching xv6 source excerpt and one experiment.
+import { chapter2Lessons } from "./chapter2.js?v=chapter2";
 const userProgram = (body) =>
   '#include "kernel/types.h"\n#include "user/user.h"\n\nint\nmain(void)\n{\n' +
   body +
@@ -10,8 +11,7 @@ const kernelStarter = (files) =>
   files["kernel/sysproc.c"].match(
     /uint64\nsys_getpid\(void\)\n\{[\s\S]*?\n\}/,
   )[0] + "\n";
-export const chapter = { title: "Programs and system calls", number: 1 };
-export const lessons = {
+const chapter1Lessons = {
   "running-a-program": {
     title: "A running program is a process",
     goal: "Distinguish a program’s source from a running process.",
@@ -169,18 +169,52 @@ export const lessons = {
     expected: "reported pid=",
   },
 };
-export const lessonIds = Object.keys(lessons);
+export const chapters = [
+  {
+    number: 1,
+    id: "chapter-one",
+    title: "Programs and system calls",
+    intro:
+      "Start with a running user program. Follow its request into the kernel, then change the answer the kernel returns.",
+    lessonIds: Object.keys(chapter1Lessons),
+  },
+  {
+    number: 2,
+    id: "chapter-two",
+    title: "Processes",
+    intro:
+      "Create a child, collect its result, and follow one process as it replaces the program it runs.",
+    lessonIds: Object.keys(chapter2Lessons),
+  },
+];
+export const lessons = { ...chapter1Lessons, ...chapter2Lessons };
+for (const chapter of chapters)
+  for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;
+export const lessonIds = chapters.flatMap((chapter) => chapter.lessonIds);
 export const lessonHref = (id) => "lessons/" + id + "/";
 export function sourceExcerpt(files, lesson) {
   const spec = lesson.excerpt,
     lines = files[spec.file].split("\n");
-  let first = lines.findIndex((line) =>
-    line.includes(spec.declaration || spec.anchor),
+  const within = spec.within
+    ? lines.findIndex((line) => line.includes(spec.within))
+    : 0;
+  if (within < 0)
+    throw new Error("Matching source function was not found: " + spec.within);
+  const limit = spec.within
+    ? lines.findIndex((line, index) => index > within && line === "}") + 1
+    : lines.length;
+  if (limit <= within)
+    throw new Error("Source function boundary was not found.");
+  let first = lines.findIndex(
+    (line, index) =>
+      index >= within &&
+      index < limit &&
+      line.includes(spec.declaration || spec.anchor),
   );
   if (first < 0)
     throw new Error("Matching source excerpt was not found: " + spec.file);
   first = Math.max(0, first - (spec.before || 0));
-  let end = first + (spec.after ?? 0) + 1;
+  let end = Math.min(limit, first + (spec.after ?? 0) + 1);
   if (spec.until) {
     end = lines.findIndex((line, index) => index > first && line === "}") + 1;
     if (!end) throw new Error("Source function boundary was not found.");

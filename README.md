@@ -17,9 +17,22 @@ The main entry point is a course contents page. Six short lesson pages each teac
 
 The browser compiles real C to RISC-V using a WebAssembly build of TCC and incrementally links the selected program or kernel function against a matching native-built baseline. It does **not** rebuild all of xv6 in the browser. Each run uses a disposable machine. See [design decisions](docs/source-workbench.md) and [compiler provenance and limits](site/workbench/NOTICE.md).
 
-Later chapters on processes, memory, files, pipes and scheduling are planned. They are labelled as planned on the contents page; Chapter 1 is the available source-led chapter.
+## Chapter 2: Processes
 
-To regenerate the committed lesson pages after changing `site/workbench/lessons.js` or `tools/workbench-page.html`, run `npm run build:lessons`. To regenerate the CodeMirror bundle after changing its source, run `npm run build:editor`. CI verifies both generated outputs. The existing guest build regenerates the matching workbench baseline ELF.
+Six more source-led lessons continue directly from Chapter 1:
+
+1. `fork` creates a child process.
+2. `wait` collects an exited child.
+3. A child returns an exit status.
+4. Parent and child have separate memory.
+5. `exec` replaces the program.
+6. A failed `exec` leaves the caller running.
+
+These examples compile real user programs and exercise xv6's process implementation. Relevant excerpts come from `kernel/proc.c` and `kernel/exec.c`; no PID, status or memory results are simulated. The exec lesson compares actual kernel PID snapshots before replacement and at the replacement program's exit. Chapter menus are local to each chapter, while Previous/Next links continue across the boundary.
+
+Memory, files, pipes and scheduling chapters remain planned and are labelled accordingly on the contents page.
+
+To regenerate the committed lesson pages after changing `site/workbench/lessons.js`, `site/workbench/chapter2.js` or `tools/workbench-page.html`, run `npm run build:lessons`. To regenerate the CodeMirror bundle after changing its source, run `npm run build:editor`. CI verifies both generated outputs. The existing guest build regenerates the matching workbench baseline ELF.
 
 ## Kernel explorer
 
@@ -48,7 +61,7 @@ npm run serve
 
 Requires Node 24; local serving uses Python 3. The checked-in assets run without installing a host compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
 
-Tests compile and execute Chapter 1’s six examples and taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
+Tests compile and execute the twelve source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
 
 ## Build or modify the guest
 

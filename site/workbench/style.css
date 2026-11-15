@@ -878,7 +878,7 @@ body[data-build-state="error"] .activity > span {
   position: static;
 }
 .lesson-page #source-editor {
-  height: 330px;
+  height: var(--editor-height, 330px);
 }
 .lesson-page .console-area {
   height: 285px;
@@ -995,11 +995,11 @@ body[data-build-state="error"] .activity > span {
   font-size: 17px;
   color: var(--muted);
 }
-#chapter-one {
+.course-chapter {
   border-top: 1px solid var(--line);
   padding-top: 30px;
 }
-#chapter-one h2,
+.course-chapter h2,
 .course-roadmap h2 {
   font-size: 29px;
   font-weight: 600;
@@ -1143,8 +1143,12 @@ body[data-build-state="error"] .activity > span {
   .lesson-number {
     font-size: 17px;
   }
-  #chapter-one h2,
+  .course-chapter h2,
   .course-roadmap h2 {
     font-size: 25px;
   }
+}
+
+.course-chapter + .course-chapter {
+  margin-top: 40px;
 }

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter1" />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter2" />
   </head>
   <body class="lesson-page" data-lesson="{{id}}">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -27,8 +27,10 @@
         ><strong>xv6 Lab<small>Learn through the source</small></strong></a
       >
       <details class="lesson-menu">
-        <summary>Lesson {{number}} of {{count}}</summary>
-        <nav aria-label="Chapter 1 lessons">{{outline}}</nav>
+        <summary>
+          Chapter {{chapterNumber}} · Lesson {{number}} of {{count}}
+        </summary>
+        <nav aria-label="Chapter {{chapterNumber}} lessons">{{outline}}</nav>
       </details>
       <a class="course-link" href="./">Course contents</a>
     </header>
@@ -36,7 +38,7 @@
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 1 · Programs and system calls · Lesson {{number}} of
+            Chapter {{chapterNumber}} · {{chapterTitle}} · Lesson {{number}} of
             {{count}}
           </p>
           <h1 id="lesson-title">{{title}}</h1>
@@ -70,15 +72,21 @@
       <div class="workbench-grid">
         <section class="source-pane" aria-labelledby="file-name">
           <div class="pane-header">
-            <h2 id="file-name">user/workbench.c</h2>
-            <span id="editable-label" class="editable-label">Editable C</span>
+            <h2 id="file-name">{{file}}</h2>
+            <span id="editable-label" class="editable-label"
+              >{{editableLabel}}</span
+            >
           </div>
           <div class="editor-meta">
             <span id="draft-status" role="status">Loading source…</span
             ><button id="restore" disabled>Restore starter</button
             ><button id="undo-restore" hidden>Undo restore</button>
           </div>
-          <div id="source-editor" tabindex="-1"></div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: {{editorHeight}}px"
+          ></div>
           <div class="editor-bottom">
             <span id="build-relation">No build yet</span
             ><button id="export-source" disabled>Download source</button>
@@ -194,6 +202,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter1b"></script>
+    <script type="module" src="workbench/app.js?v=chapter2"></script>
   </body>
 </html>
