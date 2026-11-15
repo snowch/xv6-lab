@@ -14,18 +14,41 @@
     },
     {
       "path": "site/images/kernel",
-      "bytes": 294704,
-      "sha256": "43ee40cf26cb059dbc96c0cbd2a96d900f5410179799cbc7d02a3d8686a242f8"
+      "bytes": 376816,
+      "sha256": "4a0a1555faa8160bf5e445cbb95af73d6cff28f1a45257db98e30417dc4507af"
     },
     {
       "path": "site/images/fs.img",
       "bytes": 1024000,
-      "sha256": "696e5ef26890bc5211323b67e15f76064886896b91f974ada924fc47627bf868"
+      "sha256": "90397a946f1a5d458361df39e54056512f083b2a3fb3ecf750889a4eed6d0d4b"
+    },
+    {
+      "path": "site/workbench/assets/user-base.elf",
+      "bytes": 96720,
+      "sha256": "b76c4c21f749367bfbc86a6be3d41e6745a59e7a24b846d993bf4b3cdc067719"
+    },
+    {
+      "path": "site/workbench/compiler/tcc.wasm",
+      "bytes": 2155307,
+      "sha256": "047bba88a9c036598d8d3e7e76750736e8304dc9b8f0604f4e33ecc3b5217b0d"
+    },
+    {
+      "path": "site/workbench/compiler/tcc-source.tar.gz",
+      "bytes": 3481925,
+      "sha256": "abff0af6154eecc427c0ea1d17ea3614f42390f55d9be2c10eb99d100eea6603"
     }
   ],
   "guest": {
     "commit": "d7c0a1b7a703f7366942092f9cf421b6cd111a36",
     "source": "guest/",
-    "changes": "user/lab.c; Makefile: lab program, explicit RV64GC/O3 flags; memlayout.h: 16 MiB guest RAM for upstream debugger compatibility"
+    "changes": "user/lab.c and user/workbench.c; Makefile: lab/workbench programs, explicit RV64GC/O3 flags; workbench executable slots and separate writable kernel data slot; memlayout.h: 16 MiB guest RAM for upstream debugger compatibility"
+  },
+  "compiler": {
+    "upstream": "https://github.com/lupyuen/tcc-riscv32-wasm",
+    "commit": "8cffa69ed303d80206b7cb6e6e3737506243777c",
+    "target": "riscv64",
+    "license": "LGPL-2.1-or-later",
+    "source": "site/workbench/compiler/tcc-source.tar.gz",
+    "changes": "Unmodified upstream WebAssembly binary; browser adapter and incremental ELF linker in site/workbench/"
   }
 }

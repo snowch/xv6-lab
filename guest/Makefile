@@ -118,6 +118,7 @@ mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h
 .PRECIOUS: %.o
 
 UPROGS=\
+	$U/_workbench\
 	$U/_lab\
 	$U/_cat\
 	$U/_echo\
@@ -173,3 +174,7 @@ qemu-gdb: $K/kernel .gdbinit fs.img
 	@echo "*** Now run 'gdb' in another window." 1>&2
 	$(QEMU) $(QEMUOPTS) -S $(QEMUGDB)
 
+
+# Browser workbench base: immutable xv6 user library plus an incremental-link slot.
+$U/_workbench: $U/workbench.o $U/workbench-slot.o $(ULIB)
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^

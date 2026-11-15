@@ -18,7 +18,10 @@ const server = http.createServer((req, res) => {
   const name = decodeURIComponent(
     new URL(req.url, "http://localhost").pathname,
   );
-  const file = path.resolve(root, "." + (name === "/" ? "/index.html" : name));
+  const file = path.resolve(
+    root,
+    "." + (name.endsWith("/") ? name + "index.html" : name),
+  );
   if (!file.startsWith(root + path.sep)) {
     res.writeHead(403).end();
     return;
@@ -211,6 +214,159 @@ const server = http.createServer((req, res) => {
     assert.match(await page.locator("#lesson > h2").textContent(), /Sv39/);
     await page.close();
     console.log("deep link passed");
+    // Source workbench: real browser-side C compilation and guest execution.
+    for (const [name, width, height] of [
+      ["wide", 1680, 1050],
+      ["tablet", 1024, 1000],
+      ["phone", 390, 844],
+    ]) {
+      const page = await browser.newPage({ viewport: { width, height } });
+      const errors = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      await page.goto(base + "workbench/#user");
+      await page.locator(".cm-content").waitFor();
+      await page.waitForFunction(
+        () => !document.querySelector("#build-run").disabled,
+      );
+      await page.evaluate(() => document.fonts.ready);
+      await page.screenshot({
+        path: path.join(artifacts, "source-" + name + "-user.png"),
+      });
+      assert.ok(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+        "source workbench has no page overflow",
+      );
+      const edit = async (source) => {
+        await page.locator(".cm-content").click();
+        await page.keyboard.press("ControlOrMeta+a");
+        await page.keyboard.insertText(source);
+      };
+      const starter = await page.locator(".cm-content").innerText();
+      await edit(
+        starter.replace(
+          "Hello from my xv6 program!",
+          "I CHANGED THIS C SOURCE",
+        ),
+      );
+      await page.locator("#build-run").click();
+      await page.waitForFunction(
+        () =>
+          document.querySelector("#run-status").textContent === "Run complete",
+        null,
+        { timeout: 60000 },
+      );
+      assert.match(
+        await page.locator("#terminal").textContent(),
+        /I CHANGED THIS C SOURCE/,
+      );
+      const actual = Number(await page.locator("#pid-exit").textContent());
+      assert.ok(actual > 0);
+      assert.equal(
+        Number(await page.locator("#pid-reported").textContent()),
+        actual,
+      );
+      const previous = await page.locator("#terminal").textContent();
+      await edit(starter.replace("exit(0);", "this is invalid;"));
+      await page.locator("#build-run").click();
+      await page.waitForFunction(
+        () => document.body.dataset.buildState === "error",
+      );
+      assert.match(
+        await page.locator("#build-messages").textContent(),
+        /workbench.c:\d+: error/,
+      );
+      assert.equal(
+        await page.locator("#terminal").textContent(),
+        previous,
+        "compile errors retain last output",
+      );
+      await page.locator('[data-lesson="kernel"]').click();
+      await page.waitForFunction(
+        () =>
+          document.querySelector("#file-name").textContent ===
+          "kernel/sysproc.c",
+      );
+      const kernel = await page.locator(".cm-content").innerText();
+      await edit(kernel.replace("myproc()->pid;", "myproc()->pid + 1000;"));
+      await page.locator("#build-run").click();
+      await page.waitForFunction(
+        () =>
+          document.querySelector("#run-status").textContent ===
+            "Run complete" &&
+          document
+            .querySelector("#terminal")
+            .textContent.includes("reported pid=100"),
+        null,
+        { timeout: 60000 },
+      );
+      const internal = Number(await page.locator("#pid-exit").textContent());
+      assert.ok(internal > 0);
+      assert.equal(
+        Number(await page.locator("#pid-reported").textContent()),
+        internal + 1000,
+      );
+      if (name === "phone") {
+        await page.locator("#view-result").click();
+        assert.equal(new URL(page.url()).hash, "#kernel");
+        assert.equal(
+          await page.locator("#file-name").textContent(),
+          "kernel/sysproc.c",
+        );
+      }
+      await page.screenshot({
+        path: path.join(artifacts, "source-" + name + "-kernel.png"),
+      });
+      await page.locator("#restore").click();
+      assert.equal(await page.locator("#undo-restore").isVisible(), true);
+      await page.locator("#undo-restore").click();
+      assert.match(await page.locator(".cm-content").innerText(), /\+ 1000/);
+      if (name === "wide") {
+        // A pending download can be cancelled without changing source or output.
+        await page.route("**/workbench/compiler/tcc.wasm", async (route) => {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          await route.continue().catch(() => {});
+        });
+        await page.locator("#build-run").click();
+        await page.locator("#stop").click();
+        assert.match(
+          await page.locator("#build-messages").textContent(),
+          /Build cancelled/,
+        );
+        assert.match(await page.locator(".cm-content").innerText(), /\+ 1000/);
+        await page.unroute("**/workbench/compiler/tcc.wasm");
+        // Saved drafts survive reload; Stop interrupts a real looping guest.
+        await page.reload();
+        await page.locator(".cm-content").waitFor();
+        assert.match(await page.locator(".cm-content").innerText(), /\+ 1000/);
+        await page.locator('[data-lesson="user"]').click();
+        await page.waitForFunction(
+          () =>
+            document.querySelector("#file-name").textContent ===
+            "user/workbench.c",
+        );
+        await edit(starter.replace("exit(0);", "for (;;) {}"));
+        await page.locator("#build-run").click();
+        await page.waitForFunction(() =>
+          document
+            .querySelector("#terminal")
+            .textContent.includes("reported pid="),
+        );
+        await page.locator("#stop").click();
+        assert.equal(
+          await page.locator("#run-status").textContent(),
+          "Stopped",
+        );
+        assert.match(
+          await page.locator(".cm-content").innerText(),
+          /for \(;;\)/,
+        );
+      }
+      assert.deepEqual(errors, [], "source workbench runtime errors");
+      await page.close();
+      console.log("source workbench " + name + " passed");
+    }
   } finally {
     await browser.close();
     server.close();

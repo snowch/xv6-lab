@@ -4,6 +4,14 @@
 
 Learn how an operating system works, one small experiment at a time. A real xv6 RISC-V kernel executes locally in a WebAssembly worker. Its console, process records, trapframes and page tables come from actual guest execution.
 
+## Source workbench preview
+
+**[Open the source workbench](https://snowch.github.io/xv6-lab/workbench/)** to edit real C, compile it to RISC-V locally, and boot the result. Two connected exercises introduce the model: change a user program, then change `sys_getpid` and compare its returned value with actual kernel process state. Explanation, editor, diagnostics and console share one workspace; no fixed prediction/check wizard is required.
+
+This preview compiles the selected user program or kernel function with a WebAssembly build of TCC and incrementally links it against a matching native-built baseline. It does **not** rebuild all of xv6 in the browser or migrate all 25 lessons. Drafts persist independently; each run uses a disposable machine. See [design decisions](docs/source-workbench.md) and [compiler provenance and limits](site/workbench/NOTICE.md).
+
+To regenerate the committed CodeMirror editor bundle after changing `tools/workbench-editor.js`, run `npm ci && npm run build:editor`. The existing guest build also regenerates the matching workbench baseline ELF.
+
 ## Complete core curriculum
 
 25 lessons follow **predict → run and observe → explain → vary → retrieve**. Each has a concrete outcome, saved prediction, guided experiment, concept map, optional hints and expected observations, misconception-specific quiz feedback and a transfer question. Completion is the learner’s explicit choice; neither output nor a quiz answer automatically grants mastery.
