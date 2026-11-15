@@ -1,6 +1,6 @@
 # Source workbench: provenance and limits
 
-Nine available chapters contain fifty-six source-led lesson pages. Further chapters are listed on the published roadmap; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
+Ten available chapters contain sixty-three source-led lesson pages. Further chapters are listed on the published roadmap; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
 
 ## Compiler
 
@@ -29,3 +29,7 @@ Kernel lessons can replace the function named in their build context, including 
 The emulator is now rebuilt with the page-permission correction documented in the main runtime notice. The compiler binary remains unmodified. Address-translation exercises use real PTE reads, CPU protection faults and checked-copy results; the optional supplied-program disclosure shows the exact user test harness.
 
 The trap chapter replaces usertrap, syscall, argint and usertrapret in focused exercises. A complete kernel-panic line stops the disposable VM while retaining the source and build; a new run always boots a fresh image.
+
+A lesson may replace multiple named kernel functions in one compiled unit; their globals and address table are linked once and shared by those functions. Driver tracing can therefore use a real handler plus a lab-only arming hook. The console editing fixture directly invokes the actual consoleintr callback and does not claim physical keyboard input.
+
+The native baseline exposes `wb_disk_descriptors` in `kernel/virtio_disk.c`, a read-only accessor returning the real descriptor-array pointer. This bridges TCC’s large-global-offset limitation; it does not synthesize requests or device output. The front-page conceptual illustration was generated for this course.

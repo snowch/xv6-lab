@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#edf2f8" />
+    <meta
+      name="description"
+      content="Edit real xv6 source, compile RISC-V code in your browser, and run the result on a working kernel."
+    />
+    <title>An enable bit controls supervisor interrupt delivery — xv6 Lab</title>
+    <link
+      rel="preload"
+      as="font"
+      href="fonts/source-sans-3-400.ttf"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter10" />
+  </head>
+  <body class="lesson-page" data-lesson="masking-supervisor-interrupts">
+    <a href="#source-editor" class="skip-link">Skip to editable source</a>
+    <header class="app-header">
+      <a class="brand" href="./"
+        ><span aria-hidden="true">x6_</span
+        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
+      >
+      <details class="lesson-menu">
+        <summary>
+          Chapter 10 · Lesson 2 of 8
+        </summary>
+        <nav aria-label="Chapter 10 lessons"><a href="lessons/timer-interrupts-advance-kernel-ticks/" data-lesson="timer-interrupts-advance-kernel-ticks"><span>1.</span> Timer interrupts advance a kernel counter</a>
+<a href="lessons/masking-supervisor-interrupts/" data-lesson="masking-supervisor-interrupts"><span>2.</span> An enable bit controls supervisor interrupt delivery</a>
+<a href="lessons/claiming-and-completing-device-interrupts/" data-lesson="claiming-and-completing-device-interrupts"><span>3.</span> The interrupt controller identifies a device</a>
+<a href="lessons/uart-registers-are-memory-mapped/" data-lesson="uart-registers-are-memory-mapped"><span>4.</span> A device register is accessed through an address</a>
+<a href="lessons/uart-output-passes-through-a-ring/" data-lesson="uart-output-passes-through-a-ring"><span>5.</span> Buffered output separates a writer from the UART</a>
+<a href="lessons/the-console-edits-and-commits-lines/" data-lesson="the-console-edits-and-commits-lines"><span>6.</span> The console edits a line before readers consume it</a>
+<a href="lessons/virtio-descriptors-name-device-buffers/" data-lesson="virtio-descriptors-name-device-buffers"><span>7.</span> Descriptors tell the device which memory to use</a>
+<a href="lessons/disk-completion-precedes-cache-validity/" data-lesson="disk-completion-precedes-cache-validity"><span>8.</span> A disk request completes through an interrupt</a></nav>
+      </details>
+      <a class="course-link" href="./">Course contents</a>
+    </header>
+    <main>
+      <div class="project-heading">
+        <div>
+          <p class="preview-label">
+            Chapter 10 · Interrupts and device drivers · Lesson 2 of
+            8
+          </p>
+          <h1 id="lesson-title">An enable bit controls supervisor interrupt delivery</h1>
+          <p id="lesson-subtitle">Observe the supervisor interrupt-enable state around a bounded kernel probe.</p>
+        </div>
+        <p class="privacy-note">
+          Compiler and kernel run locally.<br />Your source stays in this
+          browser.
+        </p>
+      </div>
+      <div id="storage-warning" role="status" hidden></div>
+      <article class="lesson-reading" aria-label="Lesson explanation">
+        <div id="reading-content"><p>An interrupt source can be pending while delivery is masked. The supervisor SIE bit controls whether supervisor interrupts may interrupt supervisor execution. Masking delivery does not erase the device’s request, and machine-mode interrupts are a separate privilege level.</p><p>usertrap enables interrupts before calling a syscall handler, so this narrow probe begins with SIE set. intr_off clears it; intr_on sets it again. Build and observe before=1, during=0 and after=1 through actual CPU-register reads.</p><p>This explicit off/on pair is suitable for this known starting state. General kernel critical sections need to preserve the previous state and handle nesting; xv6’s push_off/pop_off mechanism does that, and the locking chapter examines it. Enabling interrupts blindly is not a substitute for restoring the caller’s state.</p></div>
+        <details class="c-reminder"><summary>C reminder: arguments and return values</summary><div class="c-reminder-content"><p>A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.</p><pre translate="no"><code>int pid = getpid();
+printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters and return values <span class="new-tab-label">(new tab)</span></a></p></div></details>
+        <figure class="source-figure">
+          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <pre id="source-excerpt" translate="no">Loading source…</pre>
+          <p id="source-note">intr_off clears SSTATUS_SIE, while intr_get reads that bit. The native helpers execute these same register operations for the browser C compiler.</p>
+        </figure>
+        <details id="context">
+          <summary id="context-title">Read surrounding source</summary>
+          <label for="context-file">Baseline source (read-only)</label
+          ><select id="context-file"></select>
+          <pre id="context-source" translate="no"></pre>
+        </details>
+      </article>
+      <section class="experiment-intro" aria-labelledby="experiment-title">
+        <p class="preview-label">Try it in xv6</p>
+        <h2 id="experiment-title">One small experiment</h2>
+        <p id="assignment">Replace the first intr_off() with intr_on(), leaving the final intr_on() in place. Build and run. during should become 1, showing that this edit no longer masks supervisor interrupts.</p>
+        <details id="test-program-details" class="supplied-program" hidden>
+          <summary>Read the supplied user program</summary>
+          <pre id="test-program-source" translate="no"></pre>
+        </details>
+      </section>
+      <div class="workbench-grid">
+        <section class="source-pane" aria-labelledby="file-name">
+          <div class="pane-header">
+            <h2 id="file-name">kernel/sysproc.c</h2>
+            <span id="editable-label" class="editable-label"
+              >Function only</span
+            >
+          </div>
+          <div class="editor-meta">
+            <span id="draft-status" role="status">Loading source…</span
+            ><button id="restore" disabled>Restore starter</button
+            ><button id="undo-restore" hidden>Undo restore</button>
+          </div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: 440px"
+          ></div>
+          <div class="editor-bottom">
+            <span id="build-relation">No build yet</span
+            ><button id="export-source" disabled>Download source</button>
+          </div>
+          <div class="diagnostics">
+            <h3>Build messages</h3>
+            <pre id="build-messages" role="status" aria-live="polite">
+Loading the matching xv6 sources…</pre>
+          </div>
+          <details class="build-details">
+            <summary>About this build</summary>
+            <p id="build-method"></p>
+            <p>
+              These lessons compile small, freestanding C edits with a
+              WebAssembly build of Tiny C Compiler. The edited object is
+              incrementally linked into a reserved area of an otherwise
+              native-built xv6 image. This is a real compiled executable, with a
+              bounded source and object size; it is not a full
+              <code>make</code> rebuild.
+            </p>
+            <p>
+              Every run boots a fresh, disposable machine. Guest files reset;
+              source drafts stay saved.
+            </p>
+            <p>
+              Kernel instruction helpers execute the native RISC-V register and
+              atomic instructions that this C compiler cannot assemble inline.
+              Their
+              <a
+                href="https://github.com/snowch/xv6-lab/blob/main/guest/kernel/workbench.c"
+                >complete source</a
+              >
+              is included with the kernel.
+            </p>
+            <p>
+              <a href="workbench/NOTICE.md"
+                >Compiler provenance, limits and licenses</a
+              >
+            </p>
+          </details>
+        </section>
+        <section
+          id="machine-pane"
+          class="machine-pane"
+          aria-labelledby="machine-title"
+          tabindex="-1"
+        >
+          <div class="pane-header">
+            <h2 id="machine-title">Running xv6</h2>
+            <span id="run-status" role="status">Not started</span>
+          </div>
+          <p id="run-owner">Build your source to create a runnable image.</p>
+          <section
+            id="process-evidence"
+            class="process-evidence"
+            aria-labelledby="process-evidence-title"
+            hidden
+          >
+            <h3 id="process-evidence-title">Kernel process snapshot</h3>
+            <div class="process-table-area">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">PID</th>
+                    <th scope="col">Parent</th>
+                    <th scope="col">State</th>
+                  </tr>
+                </thead>
+                <tbody id="process-rows"></tbody>
+              </table>
+            </div>
+            <p id="process-note">
+              Build & run to capture the workbench processes at getpid.
+            </p>
+          </section>
+          <div id="pid-evidence" class="evidence">
+            <h3>Evidence from this run</h3>
+            <dl>
+              <div>
+                <dt>Kernel PID at syscall entry</dt>
+                <dd id="pid-entry">—</dd>
+              </div>
+              <div>
+                <dt>Kernel PID at process exit</dt>
+                <dd id="pid-exit">—</dd>
+              </div>
+              <div>
+                <dt>PID reported by the program</dt>
+                <dd id="pid-reported">—</dd>
+              </div>
+            </dl>
+            <p id="evidence-note">
+              Values will be captured from real guest state and console output.
+            </p>
+          </div>
+          <div class="console-heading">
+            <span>xv6 console</span><span>RISC-V · one hart</span>
+          </div>
+          <div class="console-area">
+            <p id="console-empty">
+              Your program’s output will appear here after Build & run.
+            </p>
+            <pre
+              id="terminal"
+              aria-label="Guest console output"
+              translate="no"
+              tabindex="0"
+            ></pre>
+          </div>
+          <p id="run-message">
+            Build & run compiles this draft, boots the image, and launches
+            <code>workbench</code> in the guest shell.
+          </p>
+        </section>
+      </div>
+      <section class="lesson-ending">
+        <h2>What this shows</h2>
+        <p id="takeaway">Masking is a CPU delivery policy; pending device state and interrupt-source configuration are separate concerns.</p>
+        <details class="reflection">
+          <summary>A question to carry forward</summary>
+          <p id="reflection">Why would always calling intr_on at the end be wrong if a caller entered with interrupts disabled?</p>
+        </details>
+        <nav class="lesson-navigation" aria-label="Previous and next lessons">
+          <a data-direction="previous" href="lessons/timer-interrupts-advance-kernel-ticks/"><small>← Previous lesson</small>Timer interrupts advance a kernel counter</a><a data-direction="next" href="lessons/claiming-and-completing-device-interrupts/"><small>Next lesson →</small>The interrupt controller identifies a device</a>
+        </nav>
+      </section>
+    </main>
+    <footer class="action-bar">
+      <div class="activity">
+        <span id="activity-dot" aria-hidden="true"></span>
+        <p id="activity-status" role="status">Loading the workbench…</p>
+        <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
+      </div>
+      <div class="actions">
+        <button id="stop" disabled>Stop run</button
+        ><button id="build-only" disabled>Build only</button
+        ><button id="run-built" disabled>Run build</button
+        ><button
+          id="build-run"
+          class="primary"
+          disabled
+          aria-keyshortcuts="Control+Enter Meta+Enter"
+        >
+          Build & run
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="workbench/app.js?v=chapter10"></script>
+  </body>
+</html>

@@ -1,4 +1,5 @@
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
+import { chapter10Lessons } from "./chapter10.js?v=chapter10";
 import { chapter9Lessons } from "./chapter9.js?v=chapter9";
 import { chapter8Lessons } from "./chapter8.js?v=chapter8";
 import { chapter7Lessons } from "./chapter7.js?v=chapter7";
@@ -250,6 +251,14 @@ chapters.push({
     "Change the real trap, dispatcher and argument-decoding functions, then follow the return to protected user execution.",
   lessonIds: Object.keys(chapter9Lessons),
 });
+chapters.push({
+  number: 10,
+  id: "chapter-ten",
+  title: "Interrupts and device drivers",
+  intro:
+    "Follow timer and device interrupts through controller acknowledgements, real UART registers, console buffering and disk completion.",
+  lessonIds: Object.keys(chapter10Lessons),
+});
 export const plannedChapters = [
   {
     number: 8,
@@ -293,6 +302,7 @@ export const lessons = {
   ...chapter7Lessons,
   ...chapter8Lessons,
   ...chapter9Lessons,
+  ...chapter10Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;
@@ -302,7 +312,7 @@ export function sourceExcerpt(files, lesson) {
   const spec = lesson.excerpt,
     lines = files[spec.file].split("\n");
   const within = spec.within
-    ? lines.findIndex((line) => line.includes(spec.within))
+    ? lines.findIndex((line) => line.startsWith(spec.within))
     : 0;
   if (within < 0)
     throw new Error("Matching source function was not found: " + spec.within);

@@ -268,23 +268,31 @@ export function linkEditedObject(baseBytes, objectBytes, target) {
           ". Restore the starter or simplify this edit.",
       );
   }
-  const edited = object.symbols.get(target),
-    original = base.symbols.get(target);
-  if (!edited || !edited.section)
-    throw new Error("The edited source must define " + target + ".");
-  if (!original || original.size < 8)
-    throw new Error("The original function has no safe redirect slot.");
-  const destination = resolve(edited),
-    at = base.offset(original.value),
-    delta = destination - original.value;
-  // AUIPC t0; JALR zero,t0 preserves the original return address and argument registers.
-  data.setUint32(at, 0x00000297, true);
-  data.setUint32(at + 4, 0x00028067, true);
-  const low = upper(original.value, delta);
-  lowI(original.value + 4, low);
+  const targets = [...new Set(Array.isArray(target) ? target : [target])];
+  if (!targets.length) throw new Error("Select a kernel function to replace.");
+  let entry;
+  for (const name of targets) {
+    const edited = object.symbols.get(name),
+      original = base.symbols.get(name);
+    if (!edited || !edited.section)
+      throw new Error("The edited source must define " + name + ".");
+    if (!original || original.size < 8)
+      throw new Error(
+        "The original function has no safe redirect slot: " + name,
+      );
+    const destination = resolve(edited),
+      at = base.offset(original.value),
+      delta = destination - original.value;
+    entry ??= destination;
+    // AUIPC t0; JALR zero,t0 preserves return address and argument registers.
+    data.setUint32(at, 0x00000297, true);
+    data.setUint32(at + 4, 0x00028067, true);
+    const low = upper(original.value, delta);
+    lowI(original.value + 4, low);
+  }
   return {
     bytes: result,
-    entry: destination,
+    entry,
     used: cursor - start + (dataStart ? dataCursor - dataStart : 0),
     capacity: end - start + (dataStart ? dataEnd - dataStart : 0),
   };

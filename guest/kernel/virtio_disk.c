@@ -313,3 +313,11 @@ virtio_disk_intr()
 
   release(&disk.vdisk_lock);
 }
+
+// Read-only lab accessor: the browser compiler cannot address the large
+// disk object's trailing metadata directly. Return the actual descriptor array.
+struct virtq_desc *
+wb_disk_descriptors(void)
+{
+  return disk.desc;
+}

@@ -70,7 +70,13 @@ The original emulator ignored PTE_U. The lab now uses a source-built permission 
 
 ## Chapter 9: Traps and system-call machinery
 
-Six lessons inspect saved registers, trace ecall causes, change the saved return-PC advance with bounded child cancellation, redirect the actual dispatch table lookup, alter decoded sleep arguments, and change the privilege chosen for return to workbench. The course now has **56 available lessons**, with six further chapters planned. A deliberate kernel panic stops the VM cleanly; restoring the starter and rebuilding boots a fresh machine.
+Six lessons inspect saved registers, trace ecall causes, change the saved return-PC advance with bounded child cancellation, redirect the actual dispatch table lookup, alter decoded sleep arguments, and change the privilege chosen for return to workbench. The next chapter follows the interrupt and device paths. A deliberate kernel panic stops the VM cleanly; restoring the starter and rebuilding boots a fresh machine.
+
+## Chapter 10: Interrupts and device drivers
+
+Eight lessons connect timer delivery to logical ticks, read the supervisor interrupt-enable bit, observe actual PLIC claim/completion IDs, query UART registers, change bytes entering its transmit ring, exercise console line editing, inspect VirtIO descriptor directions, and inspect the disk-completion/cache-validity boundary. The course now has **64 available lessons**, with five further chapters planned.
+
+The IRQ observer and its arming syscall hook are compiled together and share real kernel state. Console editing feeds the real callback directly and explicitly distinguishes that test from hardware IRQ delivery. Source excerpts select actual function definitions rather than earlier calls with the same name.
 
 ## Kernel explorer
 
@@ -99,7 +105,7 @@ npm run serve
 
 Requires Node 24; local serving uses Python 3. The checked-in assets run without installing a host compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
 
-Tests compile and execute all fifty-six source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
+Tests compile and execute all sixty-three source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
 
 ## Build or modify the guest
 
@@ -114,7 +120,7 @@ npm test
 
 The build packages the ELF, disk image, DWARF source associations, complete source text, ELF symbol addresses, host-computed process-field offsets, and hashes. Run it after any guest change so inspectors stay consistent. Compiler versions can change binary bytes and source mappings; this is a rebuildable pinned source tree, not a claim of identical output from every toolchain.
 
-Local guest changes: add `user/lab.c`, `user/workbench.c`, their Makefile entries and reserved incremental-link slots; use explicit RV64GC/LP64D, O3 flags with inlining disabled and native instruction helpers; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while retaining that separate debugger limitation in the rebuilt runtime. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
+Local guest changes: expose a read-only VirtIO descriptor pointer for compiler-compatible observation; add `user/lab.c`, `user/workbench.c`, their Makefile entries and reserved incremental-link slots; use explicit RV64GC/LP64D, O3 flags with inlining disabled and native instruction helpers; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while retaining that separate debugger limitation in the rebuilt runtime. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
 
 ## Functional scope
 

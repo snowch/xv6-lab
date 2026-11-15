@@ -1,5 +1,5 @@
 import { compileObject, prepareSource } from "./compiler.js";
-import { linkEditedObject } from "./elf.js?v=kernel2";
+import { linkEditedObject } from "./elf.js?v=kernel3";
 import { replaceGuestFile } from "./filesystem.js";
 const instructionBridges = {
   __sync_synchronize: ["void wb_fence(void);", "wb_fence"],
