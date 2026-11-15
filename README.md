@@ -74,9 +74,13 @@ Six lessons inspect saved registers, trace ecall causes, change the saved return
 
 ## Chapter 10: Interrupts and device drivers
 
-Eight lessons connect timer delivery to logical ticks, read the supervisor interrupt-enable bit, observe actual PLIC claim/completion IDs, query UART registers, change bytes entering its transmit ring, exercise console line editing, inspect VirtIO descriptor directions, and inspect the disk-completion/cache-validity boundary. The course now has **64 available lessons**, with five further chapters planned.
+Eight lessons connect timer delivery to logical ticks, read the supervisor interrupt-enable bit, observe actual PLIC claim/completion IDs, query UART registers, change bytes entering its transmit ring, exercise console line editing, inspect VirtIO descriptor directions, and inspect the disk-completion/cache-validity boundary. The course now has **70 available lessons**, with four further chapters planned.
 
 The IRQ observer and its arming syscall hook are compiled together and share real kernel state. Console editing feeds the real callback directly and explicitly distinguishes that test from hardware IRQ delivery. Source excerpts select actual function definitions rather than earlier calls with the same name.
+
+## Chapter 11: Context switching
+
+Six lessons distinguish kernel contexts from trapframes, inspect the actual saved stack pointer, observe yield's state transition, trigger a guarded invalid switch, count real user timer preemptions, and follow sleep's acquire-before-release lock handoff. Restore the deliberate panic by restoring the source and building a fresh machine.
 
 ## Kernel explorer
 

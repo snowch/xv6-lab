@@ -319,7 +319,13 @@ const topics = {
   },
 };
 const map = {
-  "virtio-descriptors-name-device-buffers":"structPointer",
+  "kernel-contexts-save-a-call-boundary": "structValue",
+  "a-saved-stack-belongs-to-the-kernel": "addressInteger",
+  "yield-hands-a-process-to-the-scheduler": "structPointer",
+  "sched-enforces-switching-invariants": "calls",
+  "timer-preemption-enters-the-scheduler": "kernelStatic",
+  "sleep-transfers-lock-protection": "structPointer",
+  "virtio-descriptors-name-device-buffers": "structPointer",
   "timer-interrupts-advance-kernel-ticks": "doWhile",
   "masking-supervisor-interrupts": "calls",
   "claiming-and-completing-device-interrupts": "kernelStatic",
