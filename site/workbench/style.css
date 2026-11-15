@@ -1152,3 +1152,48 @@ body[data-build-state="error"] .activity > span {
 .course-chapter + .course-chapter {
   margin-top: 40px;
 }
+
+.process-evidence {
+  background: #edf7f5;
+  border-block: 1px solid #d7e7e3;
+  padding: 14px 16px;
+  color: #245c56;
+}
+.process-evidence h3 {
+  font-size: 18px;
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+.process-table-area {
+  min-height: 126px;
+  overflow: auto;
+}
+.process-evidence table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+.process-evidence th {
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  padding: 7px 6px;
+  border-bottom: 1px solid #b4d4cc;
+}
+.process-evidence td {
+  padding: 8px 6px;
+  border-bottom: 1px solid #d0e4df;
+}
+.process-evidence td:first-child,
+.process-evidence td:nth-child(2) {
+  font-family: var(--mono);
+}
+.process-evidence tr[data-state="running"] td:last-child {
+  color: #086b65;
+  font-weight: 600;
+}
+.process-evidence p {
+  font-size: 16px;
+  line-height: 1.65;
+  margin: 12px 0 0;
+}

@@ -1,6 +1,6 @@
 # Source-led lesson pages
 
-The primary course now follows the useful structure of [assembly-lab](https://github.com/snowch/assembly-lab): contents, a small lesson at its own address, explanation with an embedded interactive example, and Previous/Next navigation. The first two chapters each have six pages. Later chapters are explicitly planned, not represented as completed material.
+The primary course now follows the useful structure of [assembly-lab](https://github.com/snowch/assembly-lab): contents, a small lesson at its own address, explanation with an embedded interactive example, and Previous/Next navigation. All six chapters now contain six pages each. The course contents links all thirty-six source-led lessons and the additional kernel explorer.
 
 ## Chapter 1: Programs and system calls
 
@@ -54,7 +54,7 @@ The evidence panel reads the actual process table at the first sys_getpid entry 
 
 ## Verification and review
 
-Native xv6 sources and compiler binaries are unchanged by this flow change. Tests compile and execute all twelve lesson examples and the taught byte-count, repeated-call, kernel-print, fork/wait/status, memory-copy and exec edits in the actual RISC-V emulator. Existing tests cover kernel-return changes, writable kernel data, real diagnostics and all 25 explorer experiments.
+Native xv6 sources and compiler binaries are unchanged by this flow change. Tests compile and execute all thirty-six lesson examples and the taught byte-count, repeated-call, kernel-print, fork/wait/status, memory-copy and exec edits in the actual RISC-V emulator. Existing tests cover kernel-return changes, writable kernel data, real diagnostics and all 25 explorer experiments.
 
 Chromium walks every new lesson through Next, returns through Previous and browser history, checks the contents/resume links and tests desktop, tablet, phone and small-phone widths. The existing source build/error/recovery flows run on desktop/tablet/phone. Screenshots are inspected for readable prose, source placement, navigation and overflow, and retained as CI artifacts. CI regenerates the static pages and editor bundle to catch stale committed output.
 
@@ -83,3 +83,13 @@ A Files mobile test initially copied CodeMirror’s visible DOM lines, losing an
 Six pages introduce pipe endpoints, EOF after draining and closing writers, inherited open-file references, byte-stream boundaries, blocking reads, and descriptor redirection before exec. The examples avoid assumptions about write/read message boundaries. The final reader loops over short reads into a bounded buffer, while the child runs the unchanged echo executable with its stdout pointing to the pipe.
 
 A supplied sleep(3) creates a producer delay for the blocking-read example. Its timer-tick meaning is explained, with deeper sleep/wakeup mechanics deferred to Scheduling. Source excerpts show actual pipe allocation, counters, sleep channels, inherited file references and the real shell's descriptor rewiring. Every suggested edit is compiled and executed against the guest.
+
+## Chapter 6: Scheduling
+
+The six pages separate minimum timer-tick sleep, runnable/running selection, actual sleeping state during wait, wakeup eligibility, killing a sleeper, and locking shared kernel state. Tick checks use >= rather than exact elapsed counts; multi-process labels are counted without asserting a particular interleaving. A failed kill target completes normally after its bounded eight-tick sleep.
+
+For wait, a child sleeps briefly so its parent reaches wait, then calls getpid. The emulator pauses at that actual handler and the existing process inspector reads frozen kernel records. The saved table shows workbench rows, parent PIDs and states. Parent linkage comes from the actual proc.parent pointer; no role or state is inferred from the C source. The interface labels the table as a snapshot and handles an edited-out probe without inventing rows.
+
+The lock example has two children send A/B bytes through one kernel pipe. The parent counts delivered bytes, waits for EOF and collects both children. Kernel source shows shared buffer/counter updates inside the pipe lock. The explanation distinguishes process-private user variables from shared kernel objects and avoids claims about multicore speed or race-freedom proof from one run.
+
+The roadmap is now complete: all six chapters are available. Previous/Next crosses chapter boundaries, each lesson retains its own draft, and the existing 25 kernel experiments remain accessible.

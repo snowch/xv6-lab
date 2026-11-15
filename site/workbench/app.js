@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter5";
+import { lessons, sourceExcerpt } from "./lessons.js?v=chapter6";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -86,7 +86,8 @@ function render() {
   const excerpt = sourceExcerpt(files, lesson);
   say("source-location", `${excerpt.file} · line ${excerpt.first}`);
   say("source-excerpt", excerpt.text);
-  $("pid-evidence").hidden = !lesson.observePid;
+  $("pid-evidence").hidden = !lesson.observePid || !!lesson.observeProcesses;
+  $("process-evidence").hidden = !lesson.observeProcesses;
   try {
     localStorage.setItem("xv6-last-lesson", kind);
   } catch {}
@@ -244,6 +245,34 @@ async function build(runAfter) {
   };
   worker.postMessage({ kind: lessons[exercise].mode, source });
 }
+function processEvidence() {
+  if (!lessons[kind].observeProcesses || !machine) return;
+  const rows =
+    machine.processSnapshot?.filter((row) => row.name === "workbench") || [];
+  $("process-rows").replaceChildren(
+    ...rows.map((row) => {
+      const tr = document.createElement("tr");
+      tr.dataset.pid = String(row.pid);
+      tr.dataset.state = row.state;
+      for (const value of [row.pid, row.parent ?? "—", row.state]) {
+        const td = document.createElement("td");
+        td.textContent = String(value);
+        tr.append(td);
+      }
+      return tr;
+    }),
+  );
+  say(
+    "process-note",
+    machine.processSnapshot
+      ? "Workbench processes captured at the first getpid. This saved snapshot stays visible after the run."
+      : machine.complete
+        ? "No getpid snapshot was captured. Your edit may have removed or changed the probe."
+        : machine.worker
+          ? "Waiting for the first getpid call to capture the kernel records."
+          : "The run stopped before a getpid snapshot was captured.",
+  );
+}
 function evidence() {
   if (!machine) return;
   say("pid-entry", machine.entry ?? "—");
@@ -260,6 +289,7 @@ function evidence() {
     note =
       "No complete getpid comparison was observed. Your program may have changed or removed the probe.";
   say("evidence-note", note);
+  if (machine.complete && !machine.processSnapshot) processEvidence();
 }
 function stopRun(
   message = "Run stopped. Source and the last valid build are kept.",
@@ -270,6 +300,7 @@ function stopRun(
   say("run-status", "Stopped");
   say("run-message", message);
   activity(message);
+  processEvidence();
   controls();
 }
 function runBuild(record) {
@@ -279,7 +310,7 @@ function runBuild(record) {
   }
   machine?.worker?.terminate();
   const worker = new Worker(
-    new URL("../worker.js?v=source-workbench1", import.meta.url),
+    new URL("../worker.js?v=chapter6", import.meta.url),
     { type: "module" },
   );
   const run = {
@@ -290,6 +321,7 @@ function runBuild(record) {
     started: false,
     trace: "entry",
     observePid: lessons[record.exercise].observePid,
+    processSnapshot: null,
     entry: null,
     exit: null,
     reported: null,
@@ -306,6 +338,7 @@ function runBuild(record) {
     "A fresh xv6 machine is booting. The workbench program will launch when the shell is ready.",
   );
   activity("Booting your built image…");
+  processEvidence();
   evidence();
   controls();
   const send = (type, data = {}) => worker.postMessage({ type, ...data });
@@ -381,6 +414,10 @@ function runBuild(record) {
     if (data.type === "processes") {
       const process = data.rows.find((p) => p.state === "running");
       if (run.trace === "entry") {
+        if (lessons[run.exercise].observeProcesses) {
+          run.processSnapshot = data.rows;
+          processEvidence();
+        }
         run.entry = process?.pid ?? null;
         run.trace = "exit";
         evidence();

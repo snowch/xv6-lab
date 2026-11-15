@@ -61,6 +61,25 @@ export async function run(images, observePid = true) {
       }
     }
   }
+  const stateSnapshot = [];
+  for (let i = 0; i < layout.count; i++) {
+    const at = base + BigInt(i * layout.size),
+      state = Number(
+        vm.load_doubleword(at + BigInt(layout.state), error) & 0xffffffffn,
+      );
+    if (!state) continue;
+    const pid = Number(
+        vm.load_doubleword(at + BigInt(layout.pid), error) & 0xffffffffn,
+      ),
+      parentAddress = vm.load_doubleword(at + BigInt(layout.parent), error);
+    const parent = parentAddress
+      ? Number(
+          vm.load_doubleword(parentAddress + BigInt(layout.pid), error) &
+            0xffffffffn,
+        )
+      : null;
+    stateSnapshot.push({ pid, state, parent });
+  }
   const actualPID = runningPID();
   assert.ok(actualPID > 0);
   const exitAddress = vm.get_address_of_symbol("sys_exit", error);
@@ -80,5 +99,5 @@ export async function run(images, observePid = true) {
   for (let i = 0; i < 1500 && !output.endsWith("$ "); i++) tick();
   assert.ok(output.endsWith("$ "), output);
   vm.free();
-  return { output, actualPID, exitPID };
+  return { output, actualPID, exitPID, stateSnapshot };
 }

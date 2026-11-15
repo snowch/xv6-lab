@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter5" />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
   </head>
   <body class="lesson-page" data-lesson="two-names-one-inode">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -135,6 +135,29 @@ Loading the matching xv6 sources…</pre
             <span id="run-status" role="status">Not started</span>
           </div>
           <p id="run-owner">Build your source to create a runnable image.</p>
+          <section
+            id="process-evidence"
+            class="process-evidence"
+            aria-labelledby="process-evidence-title"
+            hidden
+          >
+            <h3 id="process-evidence-title">Kernel process snapshot</h3>
+            <div class="process-table-area">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">PID</th>
+                    <th scope="col">Parent</th>
+                    <th scope="col">State</th>
+                  </tr>
+                </thead>
+                <tbody id="process-rows"></tbody>
+              </table>
+            </div>
+            <p id="process-note">
+              Build & run to capture the workbench processes at getpid.
+            </p>
+          </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
             <dl>
@@ -207,6 +230,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter5"></script>
+    <script type="module" src="workbench/app.js?v=chapter6"></script>
   </body>
 </html>

@@ -110,7 +110,8 @@ const server = http.createServer((req, res) => {
         const latestMobile =
           name !== "desktop" &&
           latest.number >= 3 &&
-          [latest.lessonIds[0], latest.lessonIds.at(-1)].includes(id);
+          ([latest.lessonIds[0], latest.lessonIds.at(-1)].includes(id) ||
+            chapter[id].observeProcesses);
         const mobileEdit =
           latestMobile ||
           (name !== "desktop" &&
@@ -163,8 +164,23 @@ const server = http.createServer((req, res) => {
           );
           assert.equal(
             await page.locator("#pid-evidence").isVisible(),
-            chapter[id].observePid,
+            chapter[id].observePid && !chapter[id].observeProcesses,
           );
+          if (chapter[id].observeProcesses) {
+            const rows = page.locator("#process-rows tr");
+            assert.equal(await rows.count(), 2);
+            const running = page.locator(
+              '#process-rows tr[data-state="running"]',
+            );
+            assert.equal(await running.count(), 1);
+            const parent = await running.locator("td").nth(1).textContent();
+            assert.equal(
+              await page
+                .locator('#process-rows tr[data-pid="' + parent + '"]')
+                .getAttribute("data-state"),
+              "sleeping",
+            );
+          }
           if (chapter[id].expectedFault)
             assert.match(
               await page.locator("#run-message").textContent(),
