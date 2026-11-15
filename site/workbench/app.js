@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter8";
+import { lessons, sourceExcerpt } from "./lessons.js?v=chapter9";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -373,6 +373,23 @@ function runBuild(record) {
       say("terminal", run.output);
       const area = $("terminal").parentElement;
       area.scrollTop = area.scrollHeight;
+      if (/panic:[^\n]*\n/.test(run.output)) {
+        run.complete = true;
+        run.worker.terminate();
+        run.worker = null;
+        say("run-status", "Kernel panic");
+        say(
+          "run-message",
+          lessons[run.exercise].teachesKernelPanic
+            ? "The kernel panicked, as this experiment explores. This stops the whole virtual machine. Restore the starter and build again to boot a fresh machine."
+            : "The kernel reported a panic. We stopped this virtual machine. Inspect your edit, then build and run a fresh machine.",
+        );
+        activity(
+          "Kernel panic. Your source and build are kept; restore or edit to try again.",
+        );
+        controls();
+        return;
+      }
       const match = run.output.match(/reported pid=(-?\d+)/);
       if (match) run.reported = Number(match[1]);
       evidence();

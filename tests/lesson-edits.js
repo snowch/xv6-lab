@@ -1,4 +1,32 @@
 export const edits = {
+  "a-trapframe-saves-user-registers": {
+    edit: (s) =>
+      s.replace("selected = p->trapframe->a7", "selected = p->trapframe->epc"),
+    expected: "selected equals syscall number=0",
+  },
+  "a-trap-cause-selects-the-path": {
+    edit: (s) => s.replace("== SYS_getpid", "== SYS_write"),
+    expected: "observed syscall=16 cause=8",
+  },
+  "ecall-must-advance-the-return-pc": {
+    edit: (s) => s.replace("LAB_GETPID_ADVANCE 4", "LAB_GETPID_ADVANCE 0"),
+    expected: "return pc child status=-1",
+    verify: (out) => !out.includes("child syscall returned"),
+  },
+  "dispatch-chooses-a-kernel-handler": {
+    edit: (s) => s.replace("? SYS_getpid : num", "? SYS_uptime : num"),
+    expected: "same result=0 changed=1",
+  },
+  "arguments-come-from-saved-registers": {
+    edit: (s) => s.replace("extra = 0", "extra = 3"),
+    expected: "decoded sleep ticks=5",
+    verify: (out) => Number(out.match(/elapsed ticks=(\d+)/)?.[1]) >= 5,
+  },
+  "returning-to-user-mode": {
+    edit: (s) => s.replace("lab_mode = 0", "lab_mode = SSTATUS_SPP"),
+    expected: "panic: usertrap: not from user mode",
+    allowPanic: true,
+  },
   "splitting-a-virtual-address": {
     edit: (s) => s.replace("0x12345678", "0x12346678"),
     expected: "vpn=0/145/326 offset=1656",

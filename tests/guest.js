@@ -9,7 +9,11 @@ export const assets = {
   user: read("site/workbench/assets/user-base.elf"),
   files: JSON.parse(read("site/source.json")).files,
 };
-export async function run(images, observePid = true) {
+export async function run(
+  images,
+  observePid = true,
+  { allowPanic = false } = {},
+) {
   await init({
     module_or_path: read("site/vendor/riscv_emu_rust_wasm_bg.wasm"),
   });
@@ -33,11 +37,16 @@ export async function run(images, observePid = true) {
     for (
       let i = 0;
       i < 1500 &&
-      (!output.slice(start).includes("workbench\n") || !output.endsWith("$ "));
+      (!output.slice(start).includes("workbench\n") ||
+        !output.endsWith("$ ")) &&
+      !(allowPanic && /panic:[^\n]*\n/.test(output));
       i++
     )
       tick();
-    assert.ok(output.endsWith("$ "), output);
+    assert.ok(
+      output.endsWith("$ ") || (allowPanic && /panic:[^\n]*\n/.test(output)),
+      output,
+    );
     vm.free();
     return { output };
   }

@@ -8,6 +8,39 @@ const escape = (value) =>
     .replaceAll('"', "&quot;");
 const base = "https://snowch.github.io/c-foundry/#/chapter/";
 const topics = {
+  integerOutput: {
+    title: "writing through an output pointer",
+    text: "An int * parameter holds the address of an integer owned by the caller. Assigning to *ip writes that integer. The function’s return value is separate: returning 0 can report success while the decoded number is delivered through the pointer.",
+    code: "int fill(int *out) {\n  *out = 7;\n  return 0;\n}",
+    links: [
+      ["Pointers as function arguments", "pointers/2"],
+      ["Parameters and results", "functions/1"],
+    ],
+  },
+  functionTable: {
+    title: "function pointers and conditional selection",
+    text: "A function pointer names callable code. In uint64 (*table[N])(void), table is an array of N pointers to functions taking no arguments and returning uint64. table[index]() calls the selected function. condition ? yes : no chooses one value without evaluating the other branch.",
+    code: "int selected = condition ? first : second;\nuint64 result = table[selected]();",
+    links: [
+      ["Function pointers and callbacks", "larger-programs/4"],
+      ["Expressions and operators", "values/3"],
+    ],
+  },
+  bitAssignment: {
+    title: "setting and clearing flag bits",
+    text: "x |= flag sets the selected bits while preserving others. x &= ~flag clears those bits: ~ complements the mask, then & keeps the remaining bits. The compound assignments update x; a comparison such as (x & flag) == 0 only reads it.",
+    code: "x &= ~flag;  // clear\nx |= flag;   // set",
+    links: [["Bitwise operations and masks", "files-bytes/2"]],
+  },
+  conditionalValue: {
+    title: "a conditional expression",
+    text: "condition ? a : b evaluates the condition and then just one of the two alternatives. Its result is a value. Parentheses can make that selection easier to read inside an assignment or array index. This differs from if, which chooses statements to execute.",
+    code: "int step = is_getpid ? lab_advance : 4;\npc += step;",
+    links: [
+      ["Expressions and operators", "values/3"],
+      ["Conditions and branches", "control-flow/1"],
+    ],
+  },
   addressBits: {
     title: "extracting fields with shifts and masks",
     text: "Right shift discards low bits, and bitwise & keeps the bits selected by a mask. 0x1ff has nine low bits set; 4095 has twelve. A cast to int makes these small extracted values suitable for printf’s %d argument.",
@@ -244,6 +277,12 @@ const topics = {
   },
 };
 const map = {
+  "a-trapframe-saves-user-registers": "structPointer",
+  "a-trap-cause-selects-the-path": "pteBits",
+  "ecall-must-advance-the-return-pc": "conditionalValue",
+  "dispatch-chooses-a-kernel-handler": "functionTable",
+  "arguments-come-from-saved-registers": "integerOutput",
+  "returning-to-user-mode": "bitAssignment",
   "splitting-a-virtual-address": "addressBits",
   "walking-three-page-table-levels": "tableIndex",
   "reading-page-permissions": "pteBits",

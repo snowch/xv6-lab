@@ -64,9 +64,13 @@ Native instruction helpers bridge RISC-V inline assembly that TCC cannot assembl
 
 ## Chapter 8: Address translation
 
-Eight lessons split virtual addresses, walk actual Sv39 entries, compare permission bits, inspect RAM/MMIO mappings, exercise a real guard-page fault, compare trampoline/trapframe mappings, and test checked copies across page boundaries. The course now has **50 available lessons**, with seven remaining chapters on the roadmap. Kernel lessons with a supplied user test program expose its exact source in an optional disclosure.
+Eight lessons split virtual addresses, walk actual Sv39 entries, compare permission bits, inspect RAM/MMIO mappings, exercise a real guard-page fault, compare trampoline/trapframe mappings, and test checked copies across page boundaries. The next chapter follows these mappings through traps and system calls. Kernel lessons with a supplied user test program expose its exact source in an optional disclosure.
 
 The original emulator ignored PTE_U. The lab now uses a source-built permission correction for U/S, SUM and MXR, with cache invalidation and five focused Rust tests. The full patched source, lockfile, dependency licenses and rebuild script are included. See [runtime provenance](site/vendor/NOTICE.md).
+
+## Chapter 9: Traps and system-call machinery
+
+Six lessons inspect saved registers, trace ecall causes, change the saved return-PC advance with bounded child cancellation, redirect the actual dispatch table lookup, alter decoded sleep arguments, and change the privilege chosen for return to workbench. The course now has **56 available lessons**, with six further chapters planned. A deliberate kernel panic stops the VM cleanly; restoring the starter and rebuilding boots a fresh machine.
 
 ## Kernel explorer
 
@@ -95,7 +99,7 @@ npm run serve
 
 Requires Node 24; local serving uses Python 3. The checked-in assets run without installing a host compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
 
-Tests compile and execute all fifty source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
+Tests compile and execute all fifty-six source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
 
 ## Build or modify the guest
 

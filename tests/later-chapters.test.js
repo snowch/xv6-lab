@@ -63,7 +63,9 @@ for (const chapter of chapters.filter((chapter) => chapter.number >= 3)) {
             assets,
             lesson.build,
           ),
-          result = await run(built, lesson.observePid);
+          result = await run(built, lesson.observePid, {
+            allowPanic: change.allowPanic,
+          });
         assert.ok(
           result.output.includes(change.expected),
           id + ": " + result.output,

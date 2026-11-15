@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#edf2f8" />
+    <meta
+      name="description"
+      content="Edit real xv6 source, compile RISC-V code in your browser, and run the result on a working kernel."
+    />
+    <title>A trapframe preserves user registers — xv6 Lab</title>
+    <link
+      rel="preload"
+      as="font"
+      href="fonts/source-sans-3-400.ttf"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter9" />
+  </head>
+  <body class="lesson-page" data-lesson="a-trapframe-saves-user-registers">
+    <a href="#source-editor" class="skip-link">Skip to editable source</a>
+    <header class="app-header">
+      <a class="brand" href="./"
+        ><span aria-hidden="true">x6_</span
+        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
+      >
+      <details class="lesson-menu">
+        <summary>
+          Chapter 9 · Lesson 1 of 6
+        </summary>
+        <nav aria-label="Chapter 9 lessons"><a href="lessons/a-trapframe-saves-user-registers/" data-lesson="a-trapframe-saves-user-registers"><span>1.</span> A trapframe preserves user registers</a>
+<a href="lessons/a-trap-cause-selects-the-path/" data-lesson="a-trap-cause-selects-the-path"><span>2.</span> The trap cause selects a handling path</a>
+<a href="lessons/ecall-must-advance-the-return-pc/" data-lesson="ecall-must-advance-the-return-pc"><span>3.</span> Returning must skip the ecall instruction</a>
+<a href="lessons/dispatch-chooses-a-kernel-handler/" data-lesson="dispatch-chooses-a-kernel-handler"><span>4.</span> Dispatch selects a kernel function</a>
+<a href="lessons/arguments-come-from-saved-registers/" data-lesson="arguments-come-from-saved-registers"><span>5.</span> Argument helpers decode saved registers</a>
+<a href="lessons/returning-to-user-mode/" data-lesson="returning-to-user-mode"><span>6.</span> Returning to user mode restores a protected context</a></nav>
+      </details>
+      <a class="course-link" href="./">Course contents</a>
+    </header>
+    <main>
+      <div class="project-heading">
+        <div>
+          <p class="preview-label">
+            Chapter 9 · Traps and system-call machinery · Lesson 1 of
+            6
+          </p>
+          <h1 id="lesson-title">A trapframe preserves user registers</h1>
+          <p id="lesson-subtitle">Read saved user state without confusing it with the kernel’s live registers.</p>
+        </div>
+        <p class="privacy-note">
+          Compiler and kernel run locally.<br />Your source stays in this
+          browser.
+        </p>
+      </div>
+      <div id="storage-warning" role="status" hidden></div>
+      <article class="lesson-reading" aria-label="Lesson explanation">
+        <div id="reading-content"><p>When user code enters the kernel, the CPU does not automatically save every general register. The trampoline’s uservec assembly saves them into the process’s <strong>trapframe</strong> before using registers for kernel work.</p><p>The saved a7 contains the user’s system-call number. The kernel’s live a7 can already mean something else while C functions execute. The observation reads p->trapframe->a7 inside getpid, and compares it with SYS_getpid from the matching header. Build and expect 1.</p><p>The saved epc is a user instruction address, not a syscall number. usertrap records it from sepc and advances it past ecall before calling the handler. Selecting epc instead should therefore make this comparison false; it does not change the process’s real PID.</p></div>
+        <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
+p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
+        <figure class="source-figure">
+          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <pre id="source-excerpt" translate="no">Loading source…</pre>
+          <p id="source-note">The stores put user register values at the offsets defined by struct trapframe. a0 temporarily holds the trapframe address; its original user value is recovered from sscratch and saved separately.</p>
+        </figure>
+        <details id="context">
+          <summary id="context-title">Read surrounding source</summary>
+          <label for="context-file">Baseline source (read-only)</label
+          ><select id="context-file"></select>
+          <pre id="context-source" translate="no"></pre>
+        </details>
+      </article>
+      <section class="experiment-intro" aria-labelledby="experiment-title">
+        <p class="preview-label">Try it in xv6</p>
+        <h2 id="experiment-title">One small experiment</h2>
+        <p id="assignment">Change selected = p-&gt;trapframe-&gt;a7 to selected = p-&gt;trapframe-&gt;epc. Build and run. selected equals syscall number should become 0: an aligned instruction address is not the syscall number 11.</p>
+        <details id="test-program-details" class="supplied-program" hidden>
+          <summary>Read the supplied user program</summary>
+          <pre id="test-program-source" translate="no"></pre>
+        </details>
+      </section>
+      <div class="workbench-grid">
+        <section class="source-pane" aria-labelledby="file-name">
+          <div class="pane-header">
+            <h2 id="file-name">kernel/sysproc.c</h2>
+            <span id="editable-label" class="editable-label"
+              >Function only</span
+            >
+          </div>
+          <div class="editor-meta">
+            <span id="draft-status" role="status">Loading source…</span
+            ><button id="restore" disabled>Restore starter</button
+            ><button id="undo-restore" hidden>Undo restore</button>
+          </div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: 420px"
+          ></div>
+          <div class="editor-bottom">
+            <span id="build-relation">No build yet</span
+            ><button id="export-source" disabled>Download source</button>
+          </div>
+          <div class="diagnostics">
+            <h3>Build messages</h3>
+            <pre id="build-messages" role="status" aria-live="polite">
+Loading the matching xv6 sources…</pre>
+          </div>
+          <details class="build-details">
+            <summary>About this build</summary>
+            <p id="build-method"></p>
+            <p>
+              These lessons compile small, freestanding C edits with a
+              WebAssembly build of Tiny C Compiler. The edited object is
+              incrementally linked into a reserved area of an otherwise
+              native-built xv6 image. This is a real compiled executable, with a
+              bounded source and object size; it is not a full
+              <code>make</code> rebuild.
+            </p>
+            <p>
+              Every run boots a fresh, disposable machine. Guest files reset;
+              source drafts stay saved.
+            </p>
+            <p>
+              Kernel instruction helpers execute the native RISC-V register and
+              atomic instructions that this C compiler cannot assemble inline.
+              Their
+              <a
+                href="https://github.com/snowch/xv6-lab/blob/main/guest/kernel/workbench.c"
+                >complete source</a
+              >
+              is included with the kernel.
+            </p>
+            <p>
+              <a href="workbench/NOTICE.md"
+                >Compiler provenance, limits and licenses</a
+              >
+            </p>
+          </details>
+        </section>
+        <section
+          id="machine-pane"
+          class="machine-pane"
+          aria-labelledby="machine-title"
+          tabindex="-1"
+        >
+          <div class="pane-header">
+            <h2 id="machine-title">Running xv6</h2>
+            <span id="run-status" role="status">Not started</span>
+          </div>
+          <p id="run-owner">Build your source to create a runnable image.</p>
+          <section
+            id="process-evidence"
+            class="process-evidence"
+            aria-labelledby="process-evidence-title"
+            hidden
+          >
+            <h3 id="process-evidence-title">Kernel process snapshot</h3>
+            <div class="process-table-area">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">PID</th>
+                    <th scope="col">Parent</th>
+                    <th scope="col">State</th>
+                  </tr>
+                </thead>
+                <tbody id="process-rows"></tbody>
+              </table>
+            </div>
+            <p id="process-note">
+              Build & run to capture the workbench processes at getpid.
+            </p>
+          </section>
+          <div id="pid-evidence" class="evidence">
+            <h3>Evidence from this run</h3>
+            <dl>
+              <div>
+                <dt>Kernel PID at syscall entry</dt>
+                <dd id="pid-entry">—</dd>
+              </div>
+              <div>
+                <dt>Kernel PID at process exit</dt>
+                <dd id="pid-exit">—</dd>
+              </div>
+              <div>
+                <dt>PID reported by the program</dt>
+                <dd id="pid-reported">—</dd>
+              </div>
+            </dl>
+            <p id="evidence-note">
+              Values will be captured from real guest state and console output.
+            </p>
+          </div>
+          <div class="console-heading">
+            <span>xv6 console</span><span>RISC-V · one hart</span>
+          </div>
+          <div class="console-area">
+            <p id="console-empty">
+              Your program’s output will appear here after Build & run.
+            </p>
+            <pre
+              id="terminal"
+              aria-label="Guest console output"
+              translate="no"
+              tabindex="0"
+            ></pre>
+          </div>
+          <p id="run-message">
+            Build & run compiles this draft, boots the image, and launches
+            <code>workbench</code> in the guest shell.
+          </p>
+        </section>
+      </div>
+      <section class="lesson-ending">
+        <h2>What this shows</h2>
+        <p id="takeaway">Saved user registers and live kernel registers are different execution contexts.</p>
+        <details class="reflection">
+          <summary>A question to carry forward</summary>
+          <p id="reflection">Why would reading the kernel’s current a7 be unreliable when you want the user’s syscall number?</p>
+        </details>
+        <nav class="lesson-navigation" aria-label="Previous and next lessons">
+          <a data-direction="previous" href="lessons/copies-check-each-page/"><small>← Previous chapter</small>A copy must check each page it crosses</a><a data-direction="next" href="lessons/a-trap-cause-selects-the-path/"><small>Next lesson →</small>The trap cause selects a handling path</a>
+        </nav>
+      </section>
+    </main>
+    <footer class="action-bar">
+      <div class="activity">
+        <span id="activity-dot" aria-hidden="true"></span>
+        <p id="activity-status" role="status">Loading the workbench…</p>
+        <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
+      </div>
+      <div class="actions">
+        <button id="stop" disabled>Stop run</button
+        ><button id="build-only" disabled>Build only</button
+        ><button id="run-built" disabled>Run build</button
+        ><button
+          id="build-run"
+          class="primary"
+          disabled
+          aria-keyshortcuts="Control+Enter Meta+Enter"
+        >
+          Build & run
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="workbench/app.js?v=chapter9"></script>
+  </body>
+</html>

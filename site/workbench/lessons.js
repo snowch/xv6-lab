@@ -1,4 +1,5 @@
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
+import { chapter9Lessons } from "./chapter9.js?v=chapter9";
 import { chapter8Lessons } from "./chapter8.js?v=chapter8";
 import { chapter7Lessons } from "./chapter7.js?v=chapter7";
 import { chapter6Lessons } from "./chapter6.js?v=chapter6";
@@ -241,6 +242,14 @@ chapters.push({
     "Walk real Sv39 entries, read permissions, compare address spaces, and connect guard faults with checked memory copies.",
   lessonIds: Object.keys(chapter8Lessons),
 });
+chapters.push({
+  number: 9,
+  id: "chapter-nine",
+  title: "Traps and system-call machinery",
+  intro:
+    "Change the real trap, dispatcher and argument-decoding functions, then follow the return to protected user execution.",
+  lessonIds: Object.keys(chapter9Lessons),
+});
 export const plannedChapters = [
   {
     number: 8,
@@ -283,6 +292,7 @@ export const lessons = {
   ...chapter6Lessons,
   ...chapter7Lessons,
   ...chapter8Lessons,
+  ...chapter9Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;
