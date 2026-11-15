@@ -63,3 +63,9 @@ The teaching review checks that processes are introduced before PIDs, return val
 Chapter 2 verification also compares the observed process PID at syscall entry and at exit after exec, checks that successful exec never reaches old-program reports, and exercises both absent and valid executable paths. Mobile browser cases edit exit status and exec arguments, compile them, and inspect actual output. Cache versions cover the changed lesson catalogue, new chapter module and generated page entry scripts.
 
 Screenshot review found that a 330px editor hid the parent branch of the longer fork examples. Those lessons now provide a taller editor, with a smaller height for the shorter exec examples. The height is fixed for each starter rather than changing while learners type, so edits do not continually shift the surrounding page.
+
+## Chapter 3: Memory
+
+The six pages trace sbrk through growproc/uvmalloc, mapping virtual pages to physical pages, explicit page zeroing, unmapping on shrink, user fault handling, and checked user-memory copies. Every starter and suggested edit is compiled and run against the real guest. Faults are confined to a child, and the parent reports its actual exit status. The interface describes the expected fault without claiming the learner's edit succeeded.
+
+Source review found consolewrite converts a failed first copy into a zero-byte result, so the final lesson teaches that exact behaviour instead of an assumed universal -1 result. The page contrasts this checked kernel path with the direct user load that triggers a page fault. Editor heights keep complete examples readable.

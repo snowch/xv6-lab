@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#edf2f8" />
+    <meta
+      name="description"
+      content="Edit real xv6 source, compile RISC-V code in your browser, and run the result on a working kernel."
+    />
+    <title>sbrk grows the process memory — xv6 Lab</title>
+    <link
+      rel="preload"
+      as="font"
+      href="fonts/source-sans-3-400.ttf"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter3" />
+  </head>
+  <body class="lesson-page" data-lesson="growing-user-memory">
+    <a href="#source-editor" class="skip-link">Skip to editable source</a>
+    <header class="app-header">
+      <a class="brand" href="./"
+        ><span aria-hidden="true">x6_</span
+        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
+      >
+      <details class="lesson-menu">
+        <summary>
+          Chapter 3 · Lesson 1 of 6
+        </summary>
+        <nav aria-label="Chapter 3 lessons"><a href="lessons/growing-user-memory/" data-lesson="growing-user-memory"><span>1.</span> sbrk grows the process memory</a>
+<a href="lessons/memory-is-mapped-in-pages/" data-lesson="memory-is-mapped-in-pages"><span>2.</span> Memory is mapped in pages</a>
+<a href="lessons/new-pages-start-at-zero/" data-lesson="new-pages-start-at-zero"><span>3.</span> New user pages start at zero</a>
+<a href="lessons/shrinking-user-memory/" data-lesson="shrinking-user-memory"><span>4.</span> Shrinking releases user pages</a>
+<a href="lessons/a-user-fault-is-contained/" data-lesson="a-user-fault-is-contained"><span>5.</span> A user fault is contained</a>
+<a href="lessons/the-kernel-checks-user-pointers/" data-lesson="the-kernel-checks-user-pointers"><span>6.</span> The kernel checks user pointers</a></nav>
+      </details>
+      <a class="course-link" href="./">Course contents</a>
+    </header>
+    <main>
+      <div class="project-heading">
+        <div>
+          <p class="preview-label">
+            Chapter 3 · Memory · Lesson 1 of
+            6
+          </p>
+          <h1 id="lesson-title">sbrk grows the process memory</h1>
+          <p id="lesson-subtitle">Request more user memory and interpret the old break returned by sbrk.</p>
+        </div>
+        <p class="privacy-note">
+          Compiler and kernel run locally.<br />Your source stays in this
+          browser.
+        </p>
+      </div>
+      <div id="storage-warning" role="status" hidden></div>
+      <article class="lesson-reading" aria-label="Lesson explanation">
+        <div id="reading-content"><p>A process has a current end to its allocated user memory, often called its <strong>break</strong>. <button class="code-link" data-focus="sbrk">sbrk(n)</button> asks xv6 to change that end by <code>n</code> bytes. On success it returns the <em>old</em> end, where newly added memory starts.</p><p><code>sbrk(0)</code> asks for no change and returns the current break. The example remembers that address, requests 4096 bytes, then writes and reads a byte in the new area. It checks the failure value <code>(char*)-1</code> before using the result.</p><p>This pinned xv6 eagerly allocates memory during sbrk. Growing a process is a kernel operation, unlike declaring another C pointer variable.</p></div>
+        <figure class="source-figure">
+          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <pre id="source-excerpt" translate="no">Loading source…</pre>
+          <p id="source-note">The handler saves the old process size, calls growproc, and returns the saved address. A pointer returned by sbrk identifies a user virtual address, not a physical RAM address.</p>
+        </figure>
+        <details id="context">
+          <summary id="context-title">Read surrounding source</summary>
+          <label for="context-file">Baseline source (read-only)</label
+          ><select id="context-file"></select>
+          <pre id="context-source" translate="no"></pre>
+        </details>
+      </article>
+      <section class="experiment-intro" aria-labelledby="experiment-title">
+        <p class="preview-label">Try it in xv6</p>
+        <h2 id="experiment-title">One small experiment</h2>
+        <p id="assignment">Change sbrk(4096) to sbrk(8192). Build and run. The reported growth should double, while the first stored byte remains 17.</p>
+      </section>
+      <div class="workbench-grid">
+        <section class="source-pane" aria-labelledby="file-name">
+          <div class="pane-header">
+            <h2 id="file-name">user/workbench.c</h2>
+            <span id="editable-label" class="editable-label"
+              >Editable C</span
+            >
+          </div>
+          <div class="editor-meta">
+            <span id="draft-status" role="status">Loading source…</span
+            ><button id="restore" disabled>Restore starter</button
+            ><button id="undo-restore" hidden>Undo restore</button>
+          </div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: 560px"
+          ></div>
+          <div class="editor-bottom">
+            <span id="build-relation">No build yet</span
+            ><button id="export-source" disabled>Download source</button>
+          </div>
+          <div class="diagnostics">
+            <h3>Build messages</h3>
+            <pre id="build-messages" role="status" aria-live="polite">
+Loading the matching xv6 sources…</pre
+            >
+          </div>
+          <details class="build-details">
+            <summary>About this build</summary>
+            <p id="build-method"></p>
+            <p>
+              These lessons compile small, freestanding C edits with a
+              WebAssembly build of Tiny C Compiler. The edited object is
+              incrementally linked into a reserved area of an otherwise
+              native-built xv6 image. This is a real compiled executable, with a
+              bounded source and object size; it is not a full
+              <code>make</code> rebuild.
+            </p>
+            <p>
+              Every run boots a fresh, disposable machine. Guest files reset;
+              source drafts stay saved.
+            </p>
+            <p>
+              <a href="workbench/NOTICE.md"
+                >Compiler provenance, limits and licenses</a
+              >
+            </p>
+          </details>
+        </section>
+        <section
+          id="machine-pane"
+          class="machine-pane"
+          aria-labelledby="machine-title"
+          tabindex="-1"
+        >
+          <div class="pane-header">
+            <h2 id="machine-title">Running xv6</h2>
+            <span id="run-status" role="status">Not started</span>
+          </div>
+          <p id="run-owner">Build your source to create a runnable image.</p>
+          <div id="pid-evidence" class="evidence">
+            <h3>Evidence from this run</h3>
+            <dl>
+              <div>
+                <dt>Kernel PID at syscall entry</dt>
+                <dd id="pid-entry">—</dd>
+              </div>
+              <div>
+                <dt>Kernel PID at process exit</dt>
+                <dd id="pid-exit">—</dd>
+              </div>
+              <div>
+                <dt>PID reported by the program</dt>
+                <dd id="pid-reported">—</dd>
+              </div>
+            </dl>
+            <p id="evidence-note">
+              Values will be captured from real guest state and console output.
+            </p>
+          </div>
+          <div class="console-heading">
+            <span>xv6 console</span><span>RISC-V · one hart</span>
+          </div>
+          <div class="console-area">
+            <p id="console-empty">
+              Your program’s output will appear here after Build & run.
+            </p>
+            <pre
+              id="terminal"
+              aria-label="Guest console output"
+              translate="no"
+              tabindex="0"
+            ></pre>
+          </div>
+          <p id="run-message">
+            Build & run compiles this draft, boots the image, and launches
+            <code>workbench</code> in the guest shell.
+          </p>
+        </section>
+      </div>
+      <section class="lesson-ending">
+        <h2>What this shows</h2>
+        <p id="takeaway">sbrk changes the process memory boundary and returns the previous boundary.</p>
+        <details class="reflection">
+          <summary>A question to carry forward</summary>
+          <p id="reflection">Why must the program check for failure before writing through the returned pointer?</p>
+        </details>
+        <nav class="lesson-navigation" aria-label="Previous and next lessons">
+          <a data-direction="previous" href="lessons/when-exec-fails/"><small>← Previous chapter</small>A failed exec leaves the caller running</a><a data-direction="next" href="lessons/memory-is-mapped-in-pages/"><small>Next lesson →</small>Memory is mapped in pages</a>
+        </nav>
+      </section>
+    </main>
+    <footer class="action-bar">
+      <div class="activity">
+        <span id="activity-dot" aria-hidden="true"></span>
+        <p id="activity-status" role="status">Loading the workbench…</p>
+        <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
+      </div>
+      <div class="actions">
+        <button id="stop" disabled>Stop run</button
+        ><button id="build-only" disabled>Build only</button
+        ><button id="run-built" disabled>Run build</button
+        ><button
+          id="build-run"
+          class="primary"
+          disabled
+          aria-keyshortcuts="Control+Enter Meta+Enter"
+        >
+          Build & run
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="workbench/app.js?v=chapter3"></script>
+  </body>
+</html>

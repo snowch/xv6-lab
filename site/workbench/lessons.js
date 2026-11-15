@@ -1,4 +1,5 @@
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
+import { chapter3Lessons } from "./chapter3.js?v=chapter3";
 import { chapter2Lessons } from "./chapter2.js?v=chapter2";
 const userProgram = (body) =>
   '#include "kernel/types.h"\n#include "user/user.h"\n\nint\nmain(void)\n{\n' +
@@ -187,7 +188,27 @@ export const chapters = [
     lessonIds: Object.keys(chapter2Lessons),
   },
 ];
-export const lessons = { ...chapter1Lessons, ...chapter2Lessons };
+chapters.push({
+  number: 3,
+  id: "chapter-three",
+  title: "Memory",
+  intro:
+    "Grow and map user memory, then follow the boundary between valid access, checked copies and process faults.",
+  lessonIds: Object.keys(chapter3Lessons),
+});
+export const plannedChapters = [
+  { number: 3, title: "Memory — address spaces and page tables" },
+  { number: 4, title: "Files — descriptors and persistent data" },
+  { number: 5, title: "Pipes — connecting processes" },
+  { number: 6, title: "Scheduling — taking turns and waiting" },
+].filter(
+  (planned) => !chapters.some((chapter) => chapter.number === planned.number),
+);
+export const lessons = {
+  ...chapter1Lessons,
+  ...chapter2Lessons,
+  ...chapter3Lessons,
+};
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;
 export const lessonIds = chapters.flatMap((chapter) => chapter.lessonIds);
