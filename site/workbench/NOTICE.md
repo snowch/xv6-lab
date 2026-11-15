@@ -1,6 +1,6 @@
 # Source workbench: provenance and limits
 
-Chapters 1–3 contain eighteen source-led lessons, each with its own page. Later chapters are planned; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
+Chapters 1–4 contain twenty-four source-led lessons, each with its own page. Later chapters are planned; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
 
 ## Compiler
 

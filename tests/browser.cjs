@@ -55,6 +55,9 @@ const server = http.createServer((req, res) => {
     } = await import("../site/workbench/lessons.js");
     const { edits } = await import("./lesson-edits.js");
     const latest = chapters.at(-1);
+    const matchingFiles = JSON.parse(
+      fs.readFileSync(path.join(root, "source.json"), "utf8"),
+    ).files;
     for (const [name, width, height] of [
       ["desktop", 1680, 1050],
       ["tablet", 1024, 1000],
@@ -114,7 +117,7 @@ const server = http.createServer((req, res) => {
             ["a-childs-exit-status", "exec-replaces-the-program"].includes(id));
         let expected = chapter[id].expected;
         if (mobileEdit) {
-          const source = await page.locator(".cm-content").innerText();
+          const source = chapter[id].starter(matchingFiles);
           await page.locator(".cm-content").click();
           await page.keyboard.press("ControlOrMeta+a");
           await page.keyboard.insertText(
@@ -143,10 +146,16 @@ const server = http.createServer((req, res) => {
           await page.locator("#build-run").click();
           await page.waitForFunction(
             () =>
+              document.body.dataset.buildState === "error" ||
               document.querySelector("#run-status").textContent ===
-              "Run complete",
+                "Run complete",
             null,
             { timeout: 60000 },
+          );
+          assert.notEqual(
+            await page.locator("body").getAttribute("data-build-state"),
+            "error",
+            id + ": " + (await page.locator("#build-messages").textContent()),
           );
           assert.ok(
             (await page.locator("#terminal").textContent()).includes(expected),

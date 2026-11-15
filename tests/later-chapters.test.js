@@ -45,6 +45,8 @@ for (const chapter of chapters.filter((chapter) => chapter.number >= 3)) {
           result.output.includes(change.expected),
           id + ": " + result.output,
         );
+        if (change.verify)
+          assert.ok(change.verify(result.output), id + ": " + result.output);
         if (lesson.expectedFault)
           assert.ok(!result.output.includes("usertrap()"));
       }

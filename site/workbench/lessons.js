@@ -1,4 +1,5 @@
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
+import { chapter4Lessons } from "./chapter4.js?v=chapter4";
 import { chapter3Lessons } from "./chapter3.js?v=chapter3";
 import { chapter2Lessons } from "./chapter2.js?v=chapter2";
 const userProgram = (body) =>
@@ -196,6 +197,14 @@ chapters.push({
     "Grow and map user memory, then follow the boundary between valid access, checked copies and process faults.",
   lessonIds: Object.keys(chapter3Lessons),
 });
+chapters.push({
+  number: 4,
+  id: "chapter-four",
+  title: "Files",
+  intro:
+    "Follow descriptors through open files and inodes, then verify bytes through the filesystem write path.",
+  lessonIds: Object.keys(chapter4Lessons),
+});
 export const plannedChapters = [
   { number: 3, title: "Memory — address spaces and page tables" },
   { number: 4, title: "Files — descriptors and persistent data" },
@@ -208,6 +217,7 @@ export const lessons = {
   ...chapter1Lessons,
   ...chapter2Lessons,
   ...chapter3Lessons,
+  ...chapter4Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;
