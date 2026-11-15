@@ -5,3 +5,7 @@
 - Lab changes: add `user/lab.c` and its build entry, explicit RV64GC/LP64D/O3 flags, and 16 MiB managed guest RAM for debugger compatibility. See the repository README for the upstream debugger bounds-check limitation.
 
 Guest images are built from those sources by `tools/build-guest.sh`; they no longer use the legacy images bundled in the emulator repository. The packaging script generates source associations, symbols, layout offsets and the asset manifest used by tests and inspectors. The course is functional, not a hardware-performance benchmark. The interface, scaffolds, worker harness and experiment programs are MIT-licensed lab code.
+
+## Interface fonts
+
+Source Sans 3 (Adobe) and IBM Plex Mono (IBM) are self-hosted in `site/fonts/`. Their SIL Open Font License notices are bundled alongside the font files.

@@ -33,6 +33,15 @@ test("all lessons navigate, grade answers, save explicit completion, and operate
   };
   await import("../site/app.js");
   const $ = (id) => document.getElementById(id);
+  $("lesson-search").value = "pipe";
+  $("lesson-search").dispatchEvent(new dom.window.Event("input"));
+  assert.ok(document.querySelectorAll(".lesson-link").length < 25);
+  assert.match(dom.window.location.search, /q=pipe/);
+  $("lesson-search").value = "no such lesson";
+  $("lesson-search").dispatchEvent(new dom.window.Event("input"));
+  assert.match($("lessons").textContent, /No lessons match/);
+  $("lesson-search").value = "";
+  $("lesson-search").dispatchEvent(new dom.window.Event("input"));
   for (const lesson of lessons) {
     dom.window.location.hash = lesson.id;
     dom.window.dispatchEvent(new dom.window.HashChangeEvent("hashchange"));
@@ -116,6 +125,15 @@ test("all lessons navigate, grade answers, save explicit completion, and operate
   $("back-lesson").click();
   assert.equal(dom.window.location.hash, route);
   const original = worker;
+  let confirmation = "";
+  dom.window.confirm = (message) => {
+    confirmation = message;
+    return false;
+  };
+  $("reset").click();
+  assert.equal(original.terminated, undefined, "cancel reset retains machine");
+  assert.match(confirmation, /discarded/);
+  dom.window.confirm = () => true;
   $("reset").click();
   assert.equal(original.terminated, true);
   assert.notEqual(worker, original);

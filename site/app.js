@@ -71,27 +71,73 @@ for (const lesson of lessons) {
   if (read("done:" + lesson.id) === "1") completed.add(lesson.id);
   notes.set(lesson.id, read("prediction:" + lesson.id) || "");
 }
+const chapters = {
+  0: "Foundations",
+  6: "Process lifecycle",
+  9: "Files and names",
+  13: "Virtual memory",
+  16: "Traps and scheduling",
+  20: "Synchronization and storage",
+  24: "Capstone",
+};
+let query = (new URLSearchParams(location.search).get("q") || "").slice(0, 80);
+function setParam(key, value) {
+  const url = new URL(location.href);
+  if (value) url.searchParams.set(key, value);
+  else url.searchParams.delete(key);
+  window.history.replaceState(null, "", url);
+}
 function navigation() {
-  $("lessons").innerHTML = lessons
-    .map(
-      (lesson, i) =>
-        `${{ 0: "Foundations", 6: "Process lifecycle", 9: "Files and names", 13: "Virtual memory", 16: "Traps and scheduling", 20: "Synchronization and storage", 24: "Capstone" }[i] ? `<span class="course-section">${{ 0: "Foundations", 6: "Process lifecycle", 9: "Files and names", 13: "Virtual memory", 16: "Traps and scheduling", 20: "Synchronization and storage", 24: "Capstone" }[i]}</span>` : ""}<a class="lesson-link ${lesson.id === selected.id ? "active" : ""}" ${lesson.id === selected.id ? 'aria-current="page"' : ""} href="#${lesson.id}"><span class="lesson-number">${completed.has(lesson.id) ? "✓" : String(i + 1).padStart(2, "0")}</span><span>${escape(lesson.title)}<small>${escape(lesson.tag)}</small></span></a>`,
-    )
-    .join("");
+  const needle = query.trim().toLowerCase();
+  let count = 0;
+  $("lessons").innerHTML =
+    lessons
+      .map((lesson, i) => {
+        if (
+          needle &&
+          !`${lesson.title} ${lesson.tag}`.toLowerCase().includes(needle)
+        )
+          return "";
+        count++;
+        return `${!needle && chapters[i] ? `<span class="course-section">${chapters[i]}</span>` : ""}<a class="lesson-link ${lesson.id === selected.id ? "active" : ""}" ${lesson.id === selected.id ? 'aria-current="page"' : ""} href="#${lesson.id}"><span class="lesson-number">${completed.has(lesson.id) ? "✓" : String(i + 1).padStart(2, "0")}</span><span>${escape(lesson.title)}<small>${escape(lesson.tag)}</small></span></a>`;
+      })
+      .join("") ||
+    '<p class="empty-search">No lessons match. Try “memory”, “files” or “pipes”, or clear the search.</p>';
+  $("search-results").textContent = needle
+    ? `${count} matching ${count === 1 ? "lesson" : "lessons"}`
+    : `${lessons.length} lessons in 7 chapters`;
   $("progress").textContent =
     `${completed.size} / ${lessons.length} explored${storageAvailable ? "" : " · session only"}`;
   $("progress-fill").style.width =
     `${(completed.size / lessons.length) * 100}%`;
 }
-function view(machine) {
+$("lesson-search").value = query;
+$("lesson-search").oninput = (e) => {
+  query = e.target.value.slice(0, 80);
+  setParam("q", query);
+  navigation();
+};
+function view(machine, persist = true) {
   document.body.classList.toggle("view-machine", machine);
   $("view-machine").setAttribute("aria-pressed", String(machine));
   $("view-lesson").setAttribute("aria-pressed", String(!machine));
+  if (persist) setParam("view", machine ? "machine" : null);
 }
 $("view-machine").onclick = () => view(true);
 $("view-lesson").onclick = () => view(false);
+window.addEventListener("popstate", () => {
+  query = new URLSearchParams(location.search).get("q") || "";
+  $("lesson-search").value = query;
+  navigation();
+  view(new URLSearchParams(location.search).get("view") === "machine", false);
+});
 function render() {
-  view(false);
+  view(
+    selected
+      ? false
+      : new URLSearchParams(location.search).get("view") === "machine",
+    false,
+  );
   const previous = selected?.id;
   selected =
     lessons.find((lesson) => lesson.id === location.hash.slice(1)) ||
@@ -100,20 +146,21 @@ function render() {
   const l = selected,
     s = learning[l.id],
     index = lessons.indexOf(l);
+  if (previous && previous !== l.id) setParam("view", null);
   document.title = `${l.title} — xv6 Lab`;
   $("current-topic").textContent = l.title;
   navigation();
   $("lesson").innerHTML = `
-    <div class="lesson-heading"><span class="tag">EXPERIMENT ${String(index + 1).padStart(2, "0")} / ${lessons.length}</span><span class="lesson-topic">${escape(l.tag)}</span></div>
+    <div class="lesson-heading"><span class="tag">Experiment ${String(index + 1).padStart(2, "0")} / ${lessons.length}</span><span class="lesson-topic">${escape(l.tag)}</span></div>
     <h2>${escape(l.title)}</h2><p class="lead">${escape(l.intro)}</p>
     <div class="learning-goal"><span class="goal-icon" aria-hidden="true">◎</span><div><strong>By the end, you can…</strong><p>${escape(s.goal)}</p></div></div>
     <p class="prerequisite">${escape(s.needs)}</p>
-    <section class="lesson-stage"><div class="stage-heading"><span class="stage-number">01</span><h3>Make a prediction</h3><span class="stage-label">THINK FIRST</span></div><p>${escape(l.predict)}</p><label class="sr-only" for="prediction">Your prediction</label><textarea id="prediction" rows="2" maxlength="2000" placeholder="I think… (a sentence is enough)">${escape(notes.get(l.id))}</textarea><p id="note-status" class="muted">${storageAvailable ? "Optional. Your notes stay in this browser." : "Optional. Notes are kept for this tab session only."}</p></section>
-    <section class="lesson-stage experiment-stage"><div class="stage-heading"><span class="stage-number">02</span><h3>Run & notice</h3><span class="stage-label">TRY IT</span></div><ol class="experiment-steps">${s.steps.map((step) => `<li>${escape(step)}</li>`).join("")}</ol><div class="example"><div class="example-heading"><span>YOUR FIRST COMMAND</span>${l.breakpoint ? `<span>STOP AT ${escape(l.breakpoint)}</span>` : "<span>IN THE XV6 SHELL</span>"}</div><code>${escape(l.command)}</code><button id="run-experiment" class="primary">Run this experiment <span aria-hidden="true">↗</span></button><button id="load-command" class="text-button">Copy to command field</button></div><p id="experiment-status" class="experiment-status" role="status"></p><div class="notice"><strong>Look closely</strong><p>${escape(s.observe)}</p></div><details class="lesson-disclosure"><summary>Need a nudge?</summary><p>${escape(s.hint)}</p></details><details class="lesson-disclosure"><summary>Expected observation</summary><p>${escape(l.expected)}</p><p>Compare this with the real console. Seeing output is evidence to reason about, not an automatic pass.</p></details></section>
-    <section class="lesson-stage"><div class="stage-heading"><span class="stage-number">03</span><h3>Connect the dots</h3><span class="stage-label">UNDERSTAND</span></div><div id="prediction-recall" class="prediction-recall" hidden><strong>You predicted</strong><blockquote id="prediction-text"></blockquote><p>What would you keep or revise after the experiment?</p></div><figure class="mechanism"><div class="flow">${s.flow.map(([label, caption], i) => `${i ? '<span class="flow-arrow" aria-hidden="true">→</span>' : ""}<div class="flow-node"><strong>${escape(label)}</strong><span>${escape(caption)}</span></div>`).join("")}</div><figcaption>A map of the idea · not a live execution trace</figcaption></figure><p>${escape(l.concept)}</p><div class="takeaway"><span aria-hidden="true">↳</span><p>${escape(s.takeaway)}</p></div><h4>Change one thing</h4><p>${escape(l.experiment)}</p></section>
+    <section class="lesson-stage"><div class="stage-heading"><span class="stage-number">01</span><h3>Make a prediction</h3><span class="stage-label">Think first</span></div><p>${escape(l.predict)}</p><label class="sr-only" for="prediction">Your prediction</label><textarea id="prediction" name="prediction" autocomplete="off" rows="2" maxlength="2000" placeholder="I think… (a sentence is enough)">${escape(notes.get(l.id))}</textarea><p id="note-status" class="muted">${storageAvailable ? "Optional. Your notes stay in this browser." : "Optional. Notes are kept for this tab session only."}</p></section>
+    <section class="lesson-stage experiment-stage"><div class="stage-heading"><span class="stage-number">02</span><h3>Run & notice</h3><span class="stage-label">Try it</span></div><ol class="experiment-steps">${s.steps.map((step) => `<li>${escape(step)}</li>`).join("")}</ol><div class="example"><div class="example-heading"><span>First command</span>${l.breakpoint ? `<span>Stop at ${escape(l.breakpoint)}</span>` : "<span>In the xv6 shell</span>"}</div><code>${escape(l.command)}</code><button id="run-experiment" class="primary" aria-describedby="run-help">Run this experiment <span aria-hidden="true">↗</span></button><button id="load-command" class="text-button">Copy to command field</button></div><p id="run-help" class="muted"></p><p id="experiment-status" class="experiment-status" role="status"></p><div class="notice"><strong>Look closely</strong><p>${escape(s.observe)}</p></div><details class="lesson-disclosure"><summary>Need a nudge?</summary><p>${escape(s.hint)}</p></details><details class="lesson-disclosure"><summary>Expected observation</summary><p>${escape(l.expected)}</p><p>Compare this with the real console. Seeing output is evidence to reason about, not an automatic pass.</p></details></section>
+    <section class="lesson-stage"><div class="stage-heading"><span class="stage-number">03</span><h3>Connect the dots</h3><span class="stage-label">Understand</span></div><div id="prediction-recall" class="prediction-recall" hidden><strong>You predicted</strong><blockquote id="prediction-text"></blockquote><p>What would you keep or revise after the experiment?</p></div><figure class="mechanism"><div class="flow">${s.flow.map(([label, caption], i) => `${i ? '<span class="flow-arrow" aria-hidden="true">→</span>' : ""}<div class="flow-node"><strong>${escape(label)}</strong><span>${escape(caption)}</span></div>`).join("")}</div><figcaption>A map of the idea · not a live execution trace</figcaption></figure><p>${escape(l.concept)}</p><div class="takeaway"><span aria-hidden="true">↳</span><p>${escape(s.takeaway)}</p></div><h4>Change one thing</h4><p>${escape(l.experiment)}</p></section>
     <section class="lesson-stage quiz"><div class="stage-heading"><span class="stage-number">04</span><h3>Check your understanding</h3></div><p>${escape(l.question)}</p><div class="answers">${l.choices.map((choice, i) => `<button data-answer="${i}" aria-pressed="false"><span class="answer-letter" aria-hidden="true">${String.fromCharCode(65 + i)}</span><span>${escape(choice)}</span><span class="answer-mark" aria-hidden="true"></span></button>`).join("")}</div><p id="feedback" class="feedback" role="status"></p><details class="lesson-disclosure retrieval"><summary>One more thought, without looking back</summary><p>${escape(s.transfer)}</p><p class="muted">Explain it in your own words, then compare.</p><button id="reveal-transfer" class="text-button" aria-expanded="false" aria-controls="transfer-answer">Compare with an explanation</button><p id="transfer-answer" hidden>${escape(s.transferAnswer)}</p></details></section>
-    <div class="completion-card"><label class="completion"><input id="complete" type="checkbox" ${completed.has(l.id) ? "checked" : ""}><span><strong>I can explain this idea</strong><small>I’ve tried the experiment and checked my understanding. Mark this lesson as explored.</small></span></label><p class="muted">This is your own learning record, not an automatic grade.</p></div>
-    <div class="lesson-navigation">${index > 0 ? `<a href="#${lessons[index - 1].id}">← Previous</a>` : "<span>Keep the machine running as you explore.</span>"}${index < lessons.length - 1 ? `<a class="next-lesson" href="#${lessons[index + 1].id}">Next experiment <span aria-hidden="true">→</span></a>` : '<a class="next-lesson" href="#boot">Revisit the beginning →</a>'}</div>
+    <div class="completion-card"><label class="completion"><input id="complete" name="complete" type="checkbox" ${completed.has(l.id) ? "checked" : ""}><span><strong>I can explain this idea</strong><small>I’ve tried the experiment and checked my understanding. Mark this lesson as explored.</small></span></label><p class="muted">This is your own learning record, not an automatic grade.</p></div>
+    <div class="lesson-navigation">${index > 0 ? `<a href="#${lessons[index - 1].id}">← Previous</a>` : "<span>Keep the machine running as you explore.</span>"}${index < lessons.length - 1 ? `<a class="next-lesson" href="#${lessons[index + 1].id}">${escape(lessons[index + 1].title)} <span aria-hidden="true">→</span></a>` : '<a class="next-lesson" href="#boot">Revisit the beginning →</a>'}</div>
     <details class="source-note" id="full-source"><summary>Read the matching source in this page</summary><pre id="full-source-code">Open to load the source file.</pre></details><details class="source-note"><summary>Go deeper: source & scope</summary><p>${escape(l.next)}</p><a href="https://github.com/snowch/xv6-lab/blob/main/guest/${l.source}" target="_blank" rel="noreferrer">Read ${escape(l.source)} ↗</a><p class="muted">This opens the matching source used to build this lab’s kernel and user programs.</p></details>`;
   function recallPrediction() {
     $("prediction-text").textContent = notes.get(l.id);
@@ -140,8 +187,11 @@ function render() {
   $("full-source").ontoggle = async () => {
     if (!$("full-source")?.open) return;
     const target = $("full-source-code");
+    target.textContent = "Loading matching source…";
     try {
-      const response = await fetch(new URL("./source.json?v=core25", import.meta.url));
+      const response = await fetch(
+        new URL("./source.json?v=core25", import.meta.url),
+      );
       if (!response.ok) throw new Error("HTTP " + response.status);
       const data = await response.json();
       target.textContent = data.files[l.source]
@@ -149,7 +199,10 @@ function render() {
         .map((line, i) => `${i + 1}: ${line}`)
         .join("\n");
     } catch (e) {
-      target.textContent = "Could not load source: " + e.message;
+      target.textContent =
+        "Could not load source: " +
+        e.message +
+        ". Close and reopen this panel to retry, or use the source link below.";
     }
   };
   $("load-command").onclick = () => {
@@ -174,7 +227,7 @@ function render() {
   };
   if (previous && previous !== selected.id) {
     $("lesson").focus({ preventScroll: true });
-    $("lesson").scrollIntoView?.({behavior:"auto",block:"start"});
+    $("lesson").scrollIntoView?.({ behavior: "auto", block: "start" });
   }
   controls();
 }
@@ -211,6 +264,25 @@ function controls() {
   for (const id of ["command", "send"])
     $(id).disabled = !ready || !running || !shellReady;
   $("machine-dot").classList.toggle("active", running);
+  $("status").dataset.mode = !worker
+    ? "idle"
+    : !ready
+      ? "busy"
+      : !running
+        ? "paused"
+        : shellReady
+          ? "ready"
+          : "busy";
+  if ($("run-help"))
+    $("run-help").textContent = pending
+      ? "Your experiment will start as soon as the shell is ready."
+      : worker && !ready
+        ? "The kernel is booting. Please wait for the shell."
+        : ready && !running
+          ? "Machine paused. Open Live machine and choose Continue, then run this experiment."
+          : ready && running && !shellReady
+            ? "A command is running. Wait for the next shell prompt, or use the console for interactive input."
+            : "Boots xv6 if needed and prepares this lesson’s command and breakpoint.";
   if ($("run-experiment"))
     $("run-experiment").disabled =
       !!pending || (!!worker && (!ready || !running || !shellReady));
@@ -232,6 +304,7 @@ function error(message) {
   $("error").hidden = false;
   pending = null;
   controls();
+  $("error").focus({ preventScroll: true });
 }
 function send(type, data = {}) {
   $("error").hidden = true;
@@ -248,7 +321,7 @@ function launchPending() {
   submitCommand(lesson.command);
   if ($("experiment-status"))
     $("experiment-status").textContent = lesson.breakpoint
-      ? `Command sent. xv6 will pause at ${lesson.breakpoint}. Follow the live machine on the right (below on small screens).`
+      ? `Command sent. xv6 will pause at ${lesson.breakpoint}. Open Live machine to inspect the stop, then choose Continue to resume.`
       : "Command sent to the real shell. Compare its output with your prediction.";
 }
 function startExperiment(lesson) {
@@ -265,7 +338,7 @@ function startExperiment(lesson) {
     behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches
       ? "auto"
       : "smooth",
-    block: "nearest",
+    block: "start",
   });
 }
 function submitCommand(text) {
@@ -379,8 +452,14 @@ function boot(keepPending = false) {
         $("memory-result").textContent = data.address + " → " + data.value;
         break;
       case "error":
-        if (data.fatal) stopWorker();
-        error(data.message);
+        if (data.fatal) {
+          stopWorker();
+          error(
+            "The emulator stopped: " +
+              data.message +
+              ". Choose Boot xv6 to start a fresh session. Saved predictions and lesson progress are kept.",
+          );
+        } else error(data.message);
         break;
     }
   };
@@ -408,7 +487,14 @@ function stopWorker() {
   controls();
 }
 $("boot").onclick = () => boot();
-$("reset").onclick = () => boot();
+$("reset").onclick = () => {
+  if (
+    window.confirm(
+      "Reset this machine? Files created in this xv6 session will be discarded. Your saved predictions and lesson progress will stay.",
+    )
+  )
+    boot();
+};
 $("pause").onclick = () => send("pause");
 $("continue").onclick = () => send("continue");
 $("step").onclick = () => send("step");
@@ -418,11 +504,16 @@ $("command-form").onsubmit = (event) => {
   if (!ready || !running || !shellReady) return;
   const text = $("command").value;
   if (text.length > 120 || /[^\x20-\x7e]/.test(text)) {
+    $("command").setAttribute("aria-invalid", "true");
+    $("command").setAttribute("aria-errormessage", "error");
     error(
-      "Use up to 120 printable ASCII characters. This xv6 console does not support Unicode input.",
+      "Use up to 120 printable ASCII characters. Replace any Unicode characters, then run the command again.",
     );
+    $("command").focus();
     return;
   }
+  $("command").removeAttribute("aria-invalid");
+  $("command").removeAttribute("aria-errormessage");
   submitCommand(text);
   $("command").value = "";
 };
@@ -457,6 +548,7 @@ window.addEventListener("hashchange", () => {
 });
 for (const [id, target] of [
   ["jump-machine", "machine"],
+  ["skip-lesson", "lesson"],
   ["current-topic", "lesson"],
   ["back-lesson", "lesson"],
 ]) {
@@ -520,3 +612,18 @@ $("breakpoint").innerHTML = [
 ]
   .map((s) => `<option>${s}</option>`)
   .join("");
+
+$("terminal").onpaste = (event) => {
+  if (!ready || !running) return;
+  const text = event.clipboardData?.getData("text").replace(/\r\n?/g, "\n");
+  if (!text) return;
+  if (text.length > 4096 || /[^\x20-\x7e\n]/.test(text)) {
+    error(
+      "Paste up to 4096 ASCII characters or lines. Use the command field for a single shell command.",
+    );
+    return;
+  }
+  shellReady = false;
+  send("input", { text });
+  controls();
+};

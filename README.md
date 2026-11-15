@@ -30,7 +30,7 @@ Learn how an operating system works, one small experiment at a time. A real xv6 
 
 Stop inside a kernel function (for example `sys_getpid`) before reading processes or walking page tables. Refresh selects `lab` when present. CPU registers and saved user registers are different contexts. Optimization can associate multiple instructions with one source line; stepping is at instruction level.
 
-Reading text is 18px on larger screens and 17px on phones. Tablets use a full-width Lesson/Live machine switch and a collapsed curriculum instead of a fixed sidebar. Advanced tools remain in disclosures. Lesson/machine jumps, keyboard focus, coarse-pointer touch targets and reduced-motion preferences are supported.
+Reading text is at least 18px on desktop, tablet and phone. Tablets use a full-width Lesson/Live machine switch and a collapsed curriculum instead of a fixed sidebar. Advanced tools remain in disclosures. Lesson/machine jumps, keyboard focus, coarse-pointer touch targets and reduced-motion preferences are supported.
 
 ## Run and test
 
@@ -64,10 +64,22 @@ Local guest changes: add `user/lab.c` and its Makefile entry; use explicit RV64G
 
 This is a single-hart functional lab. It does not claim hardware timing, real multicore contention or weak-memory coverage. Logging lessons execute filesystem operations and examine actual commit/recovery code, but do not claim a physical power-loss experiment. Reset discards session disk changes and boots the original image; it is not crash replay. Draft predictions and progress persist locally with a session-only fallback when storage is unavailable.
 
-Browser-side C compilation, C source-line stepping, persistent disk snapshots and multi-hart emulation are not supplied. Guest C can be edited and rebuilt with the included toolchain setup. Readability and functional checks are automated; rendered browser/device and assistive-technology verification still need an available browser runner.
+Browser-side C compilation, C source-line stepping, persistent disk snapshots and multi-hart emulation are not supplied. Guest C can be edited and rebuilt with the included toolchain setup. Functional and Chromium rendering checks are automated. Safari, Firefox, physical-device and assistive-technology verification remain unperformed.
 
 ## Provenance
 
 [Runtime notice](site/vendor/NOTICE.md) · [Asset/build manifest](docs/assets.json) · [Design and learning review](docs/design-learning-review.md)
 
 New code is MIT licensed. xv6 and riscv-rust retain their MIT licenses. The RISC-V assembly lab is a separate project.
+
+## Design and browser UX checks
+
+The [design and UX review](docs/design-ux-review.md) records the Frontend Design and Web Interface Guidelines skills used for this pass. The interface now uses self-hosted Source Sans 3 and IBM Plex Mono, clear lesson search, shareable workspace views and reset confirmation.
+
+```sh
+# Debian/Ubuntu: sudo apt-get install chromium
+npm run test:browser
+# Or: CHROMIUM_PATH=/path/to/chromium npm run test:browser
+```
+
+The browser runner serves the site on an ephemeral local port, executes real guest interactions and saves previews under `.artifacts/`. CI repeats these checks at desktop, tablet and phone viewport sizes. Font licenses are in `site/fonts/`.

@@ -10,3 +10,4 @@ guest/user/initcode.out
 guest/kernel/kernel
 guest/mkfs/mkfs
 guest/fs.img
+.artifacts/
