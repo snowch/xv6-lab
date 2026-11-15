@@ -1,4 +1,5 @@
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
+import { chapter7Lessons } from "./chapter7.js?v=chapter7";
 import { chapter6Lessons } from "./chapter6.js?v=chapter6";
 import { chapter5Lessons } from "./chapter5.js?v=chapter5";
 import { chapter4Lessons } from "./chapter4.js?v=chapter4";
@@ -223,11 +224,44 @@ chapters.push({
     "Observe timer waits, process states, wakeups, cancellation and the locks protecting shared kernel objects.",
   lessonIds: Object.keys(chapter6Lessons),
 });
+chapters.push({
+  number: 7,
+  id: "chapter-seven",
+  title: "Boot and kernel organization",
+  intro:
+    "Go inside the kernel: change its real boot function, then follow stacks, privilege, paging, allocation and the first user process.",
+  lessonIds: Object.keys(chapter7Lessons),
+});
 export const plannedChapters = [
-  { number: 3, title: "Memory — address spaces and page tables" },
-  { number: 4, title: "Files — descriptors and persistent data" },
-  { number: 5, title: "Pipes — connecting processes" },
-  { number: 6, title: "Scheduling — taking turns and waiting" },
+  {
+    number: 8,
+    title: "Address translation — Sv39 walks, mappings and permissions",
+  },
+  {
+    number: 9,
+    title: "Traps — saved registers, dispatch and return to user mode",
+  },
+  {
+    number: 10,
+    title: "Interrupts and drivers — timers, UART, PLIC and VirtIO",
+  },
+  {
+    number: 11,
+    title: "Context switching — kernel stacks and scheduler invariants",
+  },
+  {
+    number: 12,
+    title: "Locks and coordination — atomic operations and sleep handoff",
+  },
+  {
+    number: 13,
+    title: "Filesystem structure — cache, inodes, paths and allocation",
+  },
+  {
+    number: 14,
+    title: "Logging and recovery — commits, replay and interrupted writes",
+  },
+  { number: 15, title: "Loading programs — ELF, stacks, exec and integration" },
 ].filter(
   (planned) => !chapters.some((chapter) => chapter.number === planned.number),
 );
@@ -238,6 +272,7 @@ export const lessons = {
   ...chapter4Lessons,
   ...chapter5Lessons,
   ...chapter6Lessons,
+  ...chapter7Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;

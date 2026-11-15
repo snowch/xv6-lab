@@ -54,6 +54,25 @@ test(
     );
   },
 );
+test(
+  "a kernel lesson can supply a real compiled user test program",
+  { timeout: 120000 },
+  async () => {
+    const built = await buildExercise(
+      "kernel",
+      "uint64 sys_getpid(void) { return myproc()->pid + 10; }",
+      assets,
+      {
+        target: "sys_getpid",
+        probe:
+          '#include "kernel/types.h"\n#include "user/user.h"\nint main(void) { int first = getpid(); int second = getpid(); printf("probe agrees=%d\\n", first == second); exit(0); }',
+      },
+    );
+    const result = await run(built, false);
+    assert.match(result.output, /probe agrees=1/);
+    assert.ok(!result.output.includes("Hello from my xv6 program"));
+  },
+);
 test("compile and link failures report the edited source rather than producing fake success", async () => {
   await assert.rejects(
     () =>

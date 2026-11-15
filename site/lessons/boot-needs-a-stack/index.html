@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#edf2f8" />
+    <meta
+      name="description"
+      content="Edit real xv6 source, compile RISC-V code in your browser, and run the result on a working kernel."
+    />
+    <title>C needs a stack before it can run — xv6 Lab</title>
+    <link
+      rel="preload"
+      as="font"
+      href="fonts/source-sans-3-400.ttf"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
+  </head>
+  <body class="lesson-page" data-lesson="boot-needs-a-stack">
+    <a href="#source-editor" class="skip-link">Skip to editable source</a>
+    <header class="app-header">
+      <a class="brand" href="./"
+        ><span aria-hidden="true">x6_</span
+        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
+      >
+      <details class="lesson-menu">
+        <summary>
+          Chapter 7 · Lesson 2 of 6
+        </summary>
+        <nav aria-label="Chapter 7 lessons"><a href="lessons/editing-the-kernel-boot/" data-lesson="editing-the-kernel-boot"><span>1.</span> The kernel boots before user programs</a>
+<a href="lessons/boot-needs-a-stack/" data-lesson="boot-needs-a-stack"><span>2.</span> C needs a stack before it can run</a>
+<a href="lessons/boot-turns-on-paging/" data-lesson="boot-turns-on-paging"><span>3.</span> Paging is enabled during boot</a>
+<a href="lessons/boot-prepares-physical-pages/" data-lesson="boot-prepares-physical-pages"><span>4.</span> The allocator supplies physical pages</a>
+<a href="lessons/initialization-is-not-execution/" data-lesson="initialization-is-not-execution"><span>5.</span> Initialized records are not running processes</a>
+<a href="lessons/boot-creates-the-first-user-process/" data-lesson="boot-creates-the-first-user-process"><span>6.</span> Boot prepares the first user process</a></nav>
+      </details>
+      <a class="course-link" href="./">Course contents</a>
+    </header>
+    <main>
+      <div class="project-heading">
+        <div>
+          <p class="preview-label">
+            Chapter 7 · Boot and kernel organization · Lesson 2 of
+            6
+          </p>
+          <h1 id="lesson-title">C needs a stack before it can run</h1>
+          <p id="lesson-subtitle">Follow the initial per-hart stack calculation in the entry assembly.</p>
+        </div>
+        <p class="privacy-note">
+          Compiler and kernel run locally.<br />Your source stays in this
+          browser.
+        </p>
+      </div>
+      <div id="storage-warning" role="status" hidden></div>
+      <article class="lesson-reading" aria-label="Lesson explanation">
+        <div id="reading-content"><p>Ordinary C calls need a <strong>stack</strong> for saved registers and local values. Before calling start, entry.S loads the address of <code>stack0</code>, computes a per-hart slice and installs its top in the stack-pointer register <code>sp</code>.</p><p>Each slice has 4096 bytes. The calculation uses <code>hartid + 1</code> because a stack grows down from the top of its slice. For hart 0, the top is stack0 + 4096 and the bottom is stack0.</p><p>The supplied C observation repeats that source calculation using the real stack0 address and current hart ID. Its result is an offset from the array’s base, <em>not a measurement of the live sp register</em>. Build and find an offset of 4096. Later process kernel stacks are separate allocations; they do not reuse this initial boot stack.</p></div>
+        <details class="c-reminder"><summary>C reminder: pointer arithmetic and indexing</summary><div class="c-reminder-content"><p>p[i] means *(p + i). Adding one to a char pointer advances one byte; other pointer types advance by their element size. Keep accesses within the live allocated region. Moving a pointer does not allocate more memory.</p><pre translate="no"><code>char *next = p + 1;  // the next char address
+p[0] = 17;           // write through the pointer</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays, pointers and pointer arithmetic <span class="new-tab-label">(new tab)</span></a></p></div></details>
+        <figure class="source-figure">
+          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <pre id="source-excerpt" translate="no">Loading source…</pre>
+          <p id="source-note">la loads the array address, csrr reads the hart ID, mul computes the slice size, and add selects its top. Only after this setup does entry.S call C.</p>
+        </figure>
+        <details id="context">
+          <summary id="context-title">Read surrounding source</summary>
+          <label for="context-file">Baseline source (read-only)</label
+          ><select id="context-file"></select>
+          <pre id="context-source" translate="no"></pre>
+        </details>
+      </article>
+      <section class="experiment-intro" aria-labelledby="experiment-title">
+        <p class="preview-label">Try it in xv6</p>
+        <h2 id="experiment-title">One small experiment</h2>
+        <p id="assignment">In the printf argument, replace top - (uint64)stack0 with top - (uint64)stack0 - PGSIZE. The reported offset should become 0: the bottom of hart 0’s slice. This changes the observation, not the assembly’s installed stack pointer.</p>
+      </section>
+      <div class="workbench-grid">
+        <section class="source-pane" aria-labelledby="file-name">
+          <div class="pane-header">
+            <h2 id="file-name">kernel/main.c</h2>
+            <span id="editable-label" class="editable-label"
+              >Function only</span
+            >
+          </div>
+          <div class="editor-meta">
+            <span id="draft-status" role="status">Loading source…</span
+            ><button id="restore" disabled>Restore starter</button
+            ><button id="undo-restore" hidden>Undo restore</button>
+          </div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: 820px"
+          ></div>
+          <div class="editor-bottom">
+            <span id="build-relation">No build yet</span
+            ><button id="export-source" disabled>Download source</button>
+          </div>
+          <div class="diagnostics">
+            <h3>Build messages</h3>
+            <pre id="build-messages" role="status" aria-live="polite">
+Loading the matching xv6 sources…</pre>
+          </div>
+          <details class="build-details">
+            <summary>About this build</summary>
+            <p id="build-method"></p>
+            <p>
+              These lessons compile small, freestanding C edits with a
+              WebAssembly build of Tiny C Compiler. The edited object is
+              incrementally linked into a reserved area of an otherwise
+              native-built xv6 image. This is a real compiled executable, with a
+              bounded source and object size; it is not a full
+              <code>make</code> rebuild.
+            </p>
+            <p>
+              Every run boots a fresh, disposable machine. Guest files reset;
+              source drafts stay saved.
+            </p>
+            <p>
+              Kernel instruction helpers execute the native RISC-V register and
+              atomic instructions that this C compiler cannot assemble inline.
+              Their
+              <a
+                href="https://github.com/snowch/xv6-lab/blob/main/guest/kernel/workbench.c"
+                >complete source</a
+              >
+              is included with the kernel.
+            </p>
+            <p>
+              <a href="workbench/NOTICE.md"
+                >Compiler provenance, limits and licenses</a
+              >
+            </p>
+          </details>
+        </section>
+        <section
+          id="machine-pane"
+          class="machine-pane"
+          aria-labelledby="machine-title"
+          tabindex="-1"
+        >
+          <div class="pane-header">
+            <h2 id="machine-title">Running xv6</h2>
+            <span id="run-status" role="status">Not started</span>
+          </div>
+          <p id="run-owner">Build your source to create a runnable image.</p>
+          <section
+            id="process-evidence"
+            class="process-evidence"
+            aria-labelledby="process-evidence-title"
+            hidden
+          >
+            <h3 id="process-evidence-title">Kernel process snapshot</h3>
+            <div class="process-table-area">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">PID</th>
+                    <th scope="col">Parent</th>
+                    <th scope="col">State</th>
+                  </tr>
+                </thead>
+                <tbody id="process-rows"></tbody>
+              </table>
+            </div>
+            <p id="process-note">
+              Build & run to capture the workbench processes at getpid.
+            </p>
+          </section>
+          <div id="pid-evidence" class="evidence">
+            <h3>Evidence from this run</h3>
+            <dl>
+              <div>
+                <dt>Kernel PID at syscall entry</dt>
+                <dd id="pid-entry">—</dd>
+              </div>
+              <div>
+                <dt>Kernel PID at process exit</dt>
+                <dd id="pid-exit">—</dd>
+              </div>
+              <div>
+                <dt>PID reported by the program</dt>
+                <dd id="pid-reported">—</dd>
+              </div>
+            </dl>
+            <p id="evidence-note">
+              Values will be captured from real guest state and console output.
+            </p>
+          </div>
+          <div class="console-heading">
+            <span>xv6 console</span><span>RISC-V · one hart</span>
+          </div>
+          <div class="console-area">
+            <p id="console-empty">
+              Your program’s output will appear here after Build & run.
+            </p>
+            <pre
+              id="terminal"
+              aria-label="Guest console output"
+              translate="no"
+              tabindex="0"
+            ></pre>
+          </div>
+          <p id="run-message">
+            Build & run compiles this draft, boots the image, and launches
+            <code>workbench</code> in the guest shell.
+          </p>
+        </section>
+      </div>
+      <section class="lesson-ending">
+        <h2>What this shows</h2>
+        <p id="takeaway">Startup assembly establishes the execution environment that ordinary C function calls assume.</p>
+        <details class="reflection">
+          <summary>A question to carry forward</summary>
+          <p id="reflection">What would go wrong if two simultaneously running harts used the same stack slice?</p>
+        </details>
+        <nav class="lesson-navigation" aria-label="Previous and next lessons">
+          <a data-direction="previous" href="lessons/editing-the-kernel-boot/"><small>← Previous lesson</small>The kernel boots before user programs</a><a data-direction="next" href="lessons/boot-turns-on-paging/"><small>Next lesson →</small>Paging is enabled during boot</a>
+        </nav>
+      </section>
+    </main>
+    <footer class="action-bar">
+      <div class="activity">
+        <span id="activity-dot" aria-hidden="true"></span>
+        <p id="activity-status" role="status">Loading the workbench…</p>
+        <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
+      </div>
+      <div class="actions">
+        <button id="stop" disabled>Stop run</button
+        ><button id="build-only" disabled>Build only</button
+        ><button id="run-built" disabled>Run build</button
+        ><button
+          id="build-run"
+          class="primary"
+          disabled
+          aria-keyshortcuts="Control+Enter Meta+Enter"
+        >
+          Build & run
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="workbench/app.js?v=chapter7"></script>
+  </body>
+</html>

@@ -11,6 +11,7 @@ OBJS = \
   $K/spinlock.o \
   $K/string.o \
   $K/main.o \
+  $K/workbench.o \
   $K/vm.o \
   $K/proc.o \
   $K/swtch.o \
@@ -58,6 +59,8 @@ OBJDUMP = $(TOOLPREFIX)objdump
 
 CFLAGS = -std=gnu17 -Wall -Wno-infinite-recursion -O3 -fno-omit-frame-pointer -g -march=rv64gc -mabi=lp64d
 CFLAGS += -MD
+# Preserve function boundaries so source lessons can replace real kernel units.
+CFLAGS += -fno-inline
 CFLAGS += -mcmodel=medany
 CFLAGS += -ffreestanding -fno-common -nostdlib -mno-relax
 CFLAGS += -I.

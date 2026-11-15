@@ -81,7 +81,7 @@ function resume() {
 }
 async function asset(path) {
   const response = await fetch(
-    new URL(path + "?v=source-workbench1", import.meta.url),
+    new URL(path + "?v=kernel2", import.meta.url),
   );
   if (!response.ok)
     throw new Error(`Could not load ${path}: HTTP ${response.status}`);

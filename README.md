@@ -52,9 +52,15 @@ Six lessons teach pipe endpoints, EOF, inherited references, byte streams, block
 
 The final six lessons cover timer sleep, runnable processes, the sleeping parent in wait, wakeup channels, killing a sleeper, and locks protecting shared kernel pipe state. The wait lesson displays a saved snapshot read from actual process records, including parent PIDs. The final example combines two writers, byte-stream reads, EOF and child collection while tracing the protected pipe counters.
 
-All six planned chapters are available: **36 source-led lessons**. The contents page links every lesson; the kernel explorer supplies 25 additional inspection experiments. Functional scope remains one emulated hart, bounded incremental C builds and disposable guest filesystems.
+The six foundation chapters contain **36 source-led lessons**. The comprehensive kernel course continues below; [its coverage plan](docs/comprehensive-course.md) distinguishes the remaining work from available chapters. The contents page links every lesson; the kernel explorer supplies 25 additional inspection experiments. Functional scope remains one emulated hart, bounded incremental C builds and disposable guest filesystems.
 
 To regenerate the committed lesson pages after changing `site/workbench/lessons.js`, `site/workbench/chapter2.js` or `tools/workbench-page.html`, run `npm run build:lessons`. To regenerate the CodeMirror bundle after changing its source, run `npm run build:editor`. CI verifies both generated outputs. The existing guest build regenerates the matching workbench baseline ELF.
+
+## Chapter 7: Boot and kernel organization
+
+Six lessons now replace the actual kernel main function: change boot output, follow the initial stack calculation, read the real paging-mode register before/after installation, allocate/free a physical page, inspect the initialized process table, and find the first runnable user process. There are **42 available lessons**, with eight further chapters planned through to journal recovery and program loading.
+
+Native instruction helpers bridge RISC-V inline assembly that TCC cannot assemble. The baseline preserves function boundaries for incremental kernel edits; kernel globals use real ELF symbols and reserved GOT pointer cells. The compiler and runtime binaries remain unchanged.
 
 ## Kernel explorer
 
@@ -83,7 +89,7 @@ npm run serve
 
 Requires Node 24; local serving uses Python 3. The checked-in assets run without installing a host compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
 
-Tests compile and execute all thirty-six source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
+Tests compile and execute all forty-two source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
 
 ## Build or modify the guest
 
@@ -98,7 +104,7 @@ npm test
 
 The build packages the ELF, disk image, DWARF source associations, complete source text, ELF symbol addresses, host-computed process-field offsets, and hashes. Run it after any guest change so inspectors stay consistent. Compiler versions can change binary bytes and source mappings; this is a rebuildable pinned source tree, not a claim of identical output from every toolchain.
 
-Local guest changes: add `user/lab.c`, `user/workbench.c`, their Makefile entries and reserved incremental-link slots; use explicit RV64GC/LP64D, O3 flags; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while leaving the upstream Wasm unchanged. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
+Local guest changes: add `user/lab.c`, `user/workbench.c`, their Makefile entries and reserved incremental-link slots; use explicit RV64GC/LP64D, O3 flags with inlining disabled and native instruction helpers; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while leaving the upstream Wasm unchanged. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
 
 ## Functional scope
 

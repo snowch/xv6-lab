@@ -1,4 +1,36 @@
 export const edits = {
+  "editing-the-kernel-boot": {
+    edit: (s) => s.replace("xv6 kernel is booting", "Hello from my kernel"),
+    expected: "Hello from my kernel",
+  },
+  "boot-needs-a-stack": {
+    edit: (s) =>
+      s.replace("top - (uint64)stack0)", "top - (uint64)stack0 - PGSIZE)"),
+    expected: "boot stack top offset=0",
+  },
+  "boot-turns-on-paging": {
+    edit: (s) => {
+      const line = s
+        .split("\n")
+        .find((line) => line.includes('printf("boot paging mode='));
+      return s
+        .replace(line + "\n", "")
+        .replace(/(^.*kvminithart\(\);.*$)/m, "$1\n" + line);
+    },
+    expected: "boot paging mode=8",
+  },
+  "boot-prepares-physical-pages": {
+    edit: (s) => s.replace("page[0] = 'A'", "page[0] = 'Z'"),
+    expected: "allocated byte=90",
+  },
+  "initialization-is-not-execution": {
+    edit: (s) => s.replace("== UNUSED", "== RUNNABLE"),
+    expected: "boot matching slots=0",
+  },
+  "boot-creates-the-first-user-process": {
+    edit: (s) => s.replace("== RUNNABLE", "== UNUSED"),
+    expected: "initial runnable=63",
+  },
   "sleep-counts-guest-ticks": {
     edit: (s) => s.replace("requested = 3", "requested = 5"),
     expected: "requested=5 at_least=1 sleep_result=0",
