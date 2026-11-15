@@ -1,4 +1,5 @@
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
+import { chapter8Lessons } from "./chapter8.js?v=chapter8";
 import { chapter7Lessons } from "./chapter7.js?v=chapter7";
 import { chapter6Lessons } from "./chapter6.js?v=chapter6";
 import { chapter5Lessons } from "./chapter5.js?v=chapter5";
@@ -232,6 +233,14 @@ chapters.push({
     "Go inside the kernel: change its real boot function, then follow stacks, privilege, paging, allocation and the first user process.",
   lessonIds: Object.keys(chapter7Lessons),
 });
+chapters.push({
+  number: 8,
+  id: "chapter-eight",
+  title: "Address translation",
+  intro:
+    "Walk real Sv39 entries, read permissions, compare address spaces, and connect guard faults with checked memory copies.",
+  lessonIds: Object.keys(chapter8Lessons),
+});
 export const plannedChapters = [
   {
     number: 8,
@@ -273,6 +282,7 @@ export const lessons = {
   ...chapter5Lessons,
   ...chapter6Lessons,
   ...chapter7Lessons,
+  ...chapter8Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;

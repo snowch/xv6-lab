@@ -58,9 +58,15 @@ To regenerate the committed lesson pages after changing `site/workbench/lessons.
 
 ## Chapter 7: Boot and kernel organization
 
-Six lessons now replace the actual kernel main function: change boot output, follow the initial stack calculation, read the real paging-mode register before/after installation, allocate/free a physical page, inspect the initialized process table, and find the first runnable user process. There are **42 available lessons**, with eight further chapters planned through to journal recovery and program loading.
+Six lessons now replace the actual kernel main function: change boot output, follow the initial stack calculation, read the real paging-mode register before/after installation, allocate/free a physical page, inspect the initialized process table, and find the first runnable user process. This completes the first kernel-internals chapter; the course continues with address translation below.
 
-Native instruction helpers bridge RISC-V inline assembly that TCC cannot assemble. The baseline preserves function boundaries for incremental kernel edits; kernel globals use real ELF symbols and reserved GOT pointer cells. The compiler and runtime binaries remain unchanged.
+Native instruction helpers bridge RISC-V inline assembly that TCC cannot assemble. The baseline preserves function boundaries for incremental kernel edits; kernel globals use real ELF symbols and reserved GOT pointer cells. The C compiler binary remains unchanged.
+
+## Chapter 8: Address translation
+
+Eight lessons split virtual addresses, walk actual Sv39 entries, compare permission bits, inspect RAM/MMIO mappings, exercise a real guard-page fault, compare trampoline/trapframe mappings, and test checked copies across page boundaries. The course now has **50 available lessons**, with seven remaining chapters on the roadmap. Kernel lessons with a supplied user test program expose its exact source in an optional disclosure.
+
+The original emulator ignored PTE_U. The lab now uses a source-built permission correction for U/S, SUM and MXR, with cache invalidation and five focused Rust tests. The full patched source, lockfile, dependency licenses and rebuild script are included. See [runtime provenance](site/vendor/NOTICE.md).
 
 ## Kernel explorer
 
@@ -89,7 +95,7 @@ npm run serve
 
 Requires Node 24; local serving uses Python 3. The checked-in assets run without installing a host compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
 
-Tests compile and execute all forty-two source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
+Tests compile and execute all fifty source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
 
 ## Build or modify the guest
 
@@ -104,7 +110,7 @@ npm test
 
 The build packages the ELF, disk image, DWARF source associations, complete source text, ELF symbol addresses, host-computed process-field offsets, and hashes. Run it after any guest change so inspectors stay consistent. Compiler versions can change binary bytes and source mappings; this is a rebuildable pinned source tree, not a claim of identical output from every toolchain.
 
-Local guest changes: add `user/lab.c`, `user/workbench.c`, their Makefile entries and reserved incremental-link slots; use explicit RV64GC/LP64D, O3 flags with inlining disabled and native instruction helpers; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while leaving the upstream Wasm unchanged. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
+Local guest changes: add `user/lab.c`, `user/workbench.c`, their Makefile entries and reserved incremental-link slots; use explicit RV64GC/LP64D, O3 flags with inlining disabled and native instruction helpers; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while retaining that separate debugger limitation in the rebuilt runtime. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
 
 ## Functional scope
 

@@ -587,7 +587,7 @@ function boot(keepPending = false) {
   guide(
     "Booting a real kernel. This can take a little while; you don’t need to type anything yet.",
   );
-  worker = new Worker(new URL("./worker.js?v=kernel2", import.meta.url), {
+  worker = new Worker(new URL("./worker.js?v=mmu2", import.meta.url), {
     type: "module",
   });
   worker.onmessage = ({ data }) => {

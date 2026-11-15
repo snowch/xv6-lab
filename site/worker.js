@@ -1,4 +1,4 @@
-import init, { WasmRiscv } from "./vendor/riscv_emu_rust_wasm.js";
+import init, { WasmRiscv } from "./vendor/riscv_emu_rust_wasm.js?v=mmu2";
 let layout,
   source,
   vm,
@@ -80,9 +80,7 @@ function resume() {
   tick();
 }
 async function asset(path) {
-  const response = await fetch(
-    new URL(path + "?v=kernel2", import.meta.url),
-  );
+  const response = await fetch(new URL(path + "?v=mmu2", import.meta.url));
   if (!response.ok)
     throw new Error(`Could not load ${path}: HTTP ${response.status}`);
   return new Uint8Array(await response.arrayBuffer());
@@ -90,7 +88,9 @@ async function asset(path) {
 onmessage = async ({ data }) => {
   try {
     if (data.type === "boot") {
-      await init(await asset("./vendor/riscv_emu_rust_wasm_bg.wasm"));
+      await init({
+        module_or_path: await asset("./vendor/riscv_emu_rust_wasm_bg.wasm"),
+      });
       const [kernel, disk] = await Promise.all([
         data.kernel
           ? Promise.resolve(new Uint8Array(data.kernel))

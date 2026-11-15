@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter7";
+import { lessons, sourceExcerpt } from "./lessons.js?v=chapter8";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -81,6 +81,8 @@ function render() {
     lesson.mode === "kernel" ? "Function only" : "Editable C",
   );
   say("reflection", lesson.reflection);
+  $("test-program-details").hidden = !lesson.build?.probe;
+  say("test-program-source", lesson.build?.probe || "");
   $("reading-content").innerHTML = lesson.reading;
   say("context-title", lesson.contextTitle);
   const excerpt = sourceExcerpt(files, lesson);
@@ -156,10 +158,9 @@ async function build(runAfter) {
   if (buildJob || !files) return;
   const exercise = kind,
     source = drafts.get(kind),
-    worker = new Worker(
-      new URL("./build-worker.js?v=kernel2", import.meta.url),
-      { type: "module" },
-    ),
+    worker = new Worker(new URL("./build-worker.js?v=mmu2", import.meta.url), {
+      type: "module",
+    }),
     job = { worker, exercise, source, runAfter };
   buildJob = job;
   document.body.dataset.buildState = "building";
@@ -313,10 +314,9 @@ function runBuild(record) {
     return;
   }
   machine?.worker?.terminate();
-  const worker = new Worker(
-    new URL("../worker.js?v=kernel2", import.meta.url),
-    { type: "module" },
-  );
+  const worker = new Worker(new URL("../worker.js?v=mmu2", import.meta.url), {
+    type: "module",
+  });
   const run = {
     worker,
     exercise: record.exercise,

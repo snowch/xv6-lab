@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#edf2f8" />
+    <meta
+      name="description"
+      content="Edit real xv6 source, compile RISC-V code in your browser, and run the result on a working kernel."
+    />
+    <title>A page-table walk follows physical page addresses — xv6 Lab</title>
+    <link
+      rel="preload"
+      as="font"
+      href="fonts/source-sans-3-400.ttf"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter8" />
+  </head>
+  <body class="lesson-page" data-lesson="walking-three-page-table-levels">
+    <a href="#source-editor" class="skip-link">Skip to editable source</a>
+    <header class="app-header">
+      <a class="brand" href="./"
+        ><span aria-hidden="true">x6_</span
+        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
+      >
+      <details class="lesson-menu">
+        <summary>
+          Chapter 8 · Lesson 2 of 8
+        </summary>
+        <nav aria-label="Chapter 8 lessons"><a href="lessons/splitting-a-virtual-address/" data-lesson="splitting-a-virtual-address"><span>1.</span> A virtual address selects indices and an offset</a>
+<a href="lessons/walking-three-page-table-levels/" data-lesson="walking-three-page-table-levels"><span>2.</span> A page-table walk follows physical page addresses</a>
+<a href="lessons/reading-page-permissions/" data-lesson="reading-page-permissions"><span>3.</span> A valid mapping still has access permissions</a>
+<a href="lessons/kernel-mappings-include-devices/" data-lesson="kernel-mappings-include-devices"><span>4.</span> The kernel maps RAM and device registers</a>
+<a href="lessons/a-guard-page-denies-user-access/" data-lesson="a-guard-page-denies-user-access"><span>5.</span> A guard page catches an invalid user access</a>
+<a href="lessons/trampoline-mappings-cross-address-spaces/" data-lesson="trampoline-mappings-cross-address-spaces"><span>6.</span> The trampoline has a shared virtual location</a>
+<a href="lessons/checked-copies-translate-user-addresses/" data-lesson="checked-copies-translate-user-addresses"><span>7.</span> The kernel translates user pointers before copying</a>
+<a href="lessons/copies-check-each-page/" data-lesson="copies-check-each-page"><span>8.</span> A copy must check each page it crosses</a></nav>
+      </details>
+      <a class="course-link" href="./">Course contents</a>
+    </header>
+    <main>
+      <div class="project-heading">
+        <div>
+          <p class="preview-label">
+            Chapter 8 · Address translation · Lesson 2 of
+            8
+          </p>
+          <h1 id="lesson-title">A page-table walk follows physical page addresses</h1>
+          <p id="lesson-subtitle">Read the real entries along a mapped user address’s translation path.</p>
+        </div>
+        <p class="privacy-note">
+          Compiler and kernel run locally.<br />Your source stays in this
+          browser.
+        </p>
+      </div>
+      <div id="storage-warning" role="status" hidden></div>
+      <article class="lesson-reading" aria-label="Lesson explanation">
+        <div id="reading-content"><p>The process record points to its top-level page table. A valid <strong>branch entry</strong> identifies the physical page containing the next table. A <strong>leaf entry</strong> identifies the physical page containing the program’s bytes and carries access permissions.</p><p>The observation follows the same indices and PTE2PA conversion used by walk, reading actual entries without allocating anything. A set V bit marks a valid entry. R, W or X marks a leaf; an intermediate entry has V set without those permission bits.</p><p>Address 0 contains the supplied program’s code. Build and expect valid entries at levels 2, 1 and 0. The kernel can read the table pages through its direct mapping of physical RAM. A missing intermediate entry would stop this read-only inspection; walk’s alloc argument separately controls whether the real kernel routine may create missing tables.</p></div>
+        <details class="c-reminder"><summary>C reminder: array entries versus their addresses</summary><div class="c-reminder-content"><p>table[index] reads an entry through a pointer. &amp;table[index] instead gives the address of that entry, so a function can return it or change it. p-&gt;pagetable first reads a member of the process struct; that member’s value is itself a pointer to a table.</p><pre translate="no"><code>pte_t value = table[index];
+pte_t *address = &amp;table[index];</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays and pointers <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a></p></div></details>
+        <figure class="source-figure">
+          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <pre id="source-excerpt" translate="no">Loading source…</pre>
+          <p id="source-note">walk follows two intermediate tables, optionally allocating missing pages, then returns the address of the level-0 PTE. Returning a PTE address does not itself guarantee that the leaf is valid.</p>
+        </figure>
+        <details id="context">
+          <summary id="context-title">Read surrounding source</summary>
+          <label for="context-file">Baseline source (read-only)</label
+          ><select id="context-file"></select>
+          <pre id="context-source" translate="no"></pre>
+        </details>
+      </article>
+      <section class="experiment-intro" aria-labelledby="experiment-title">
+        <p class="preview-label">Try it in xv6</p>
+        <h2 id="experiment-title">One small experiment</h2>
+        <p id="assignment">Change va from 0 to PGSIZE. Build and run. This program has another mapped code page, so the leaf report should become level=0 index=1 valid=1. The intermediate indices remain zero.</p>
+        <details id="test-program-details" class="supplied-program" hidden>
+          <summary>Read the supplied user program</summary>
+          <pre id="test-program-source" translate="no"></pre>
+        </details>
+      </section>
+      <div class="workbench-grid">
+        <section class="source-pane" aria-labelledby="file-name">
+          <div class="pane-header">
+            <h2 id="file-name">kernel/sysproc.c</h2>
+            <span id="editable-label" class="editable-label"
+              >Function only</span
+            >
+          </div>
+          <div class="editor-meta">
+            <span id="draft-status" role="status">Loading source…</span
+            ><button id="restore" disabled>Restore starter</button
+            ><button id="undo-restore" hidden>Undo restore</button>
+          </div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: 620px"
+          ></div>
+          <div class="editor-bottom">
+            <span id="build-relation">No build yet</span
+            ><button id="export-source" disabled>Download source</button>
+          </div>
+          <div class="diagnostics">
+            <h3>Build messages</h3>
+            <pre id="build-messages" role="status" aria-live="polite">
+Loading the matching xv6 sources…</pre>
+          </div>
+          <details class="build-details">
+            <summary>About this build</summary>
+            <p id="build-method"></p>
+            <p>
+              These lessons compile small, freestanding C edits with a
+              WebAssembly build of Tiny C Compiler. The edited object is
+              incrementally linked into a reserved area of an otherwise
+              native-built xv6 image. This is a real compiled executable, with a
+              bounded source and object size; it is not a full
+              <code>make</code> rebuild.
+            </p>
+            <p>
+              Every run boots a fresh, disposable machine. Guest files reset;
+              source drafts stay saved.
+            </p>
+            <p>
+              Kernel instruction helpers execute the native RISC-V register and
+              atomic instructions that this C compiler cannot assemble inline.
+              Their
+              <a
+                href="https://github.com/snowch/xv6-lab/blob/main/guest/kernel/workbench.c"
+                >complete source</a
+              >
+              is included with the kernel.
+            </p>
+            <p>
+              <a href="workbench/NOTICE.md"
+                >Compiler provenance, limits and licenses</a
+              >
+            </p>
+          </details>
+        </section>
+        <section
+          id="machine-pane"
+          class="machine-pane"
+          aria-labelledby="machine-title"
+          tabindex="-1"
+        >
+          <div class="pane-header">
+            <h2 id="machine-title">Running xv6</h2>
+            <span id="run-status" role="status">Not started</span>
+          </div>
+          <p id="run-owner">Build your source to create a runnable image.</p>
+          <section
+            id="process-evidence"
+            class="process-evidence"
+            aria-labelledby="process-evidence-title"
+            hidden
+          >
+            <h3 id="process-evidence-title">Kernel process snapshot</h3>
+            <div class="process-table-area">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">PID</th>
+                    <th scope="col">Parent</th>
+                    <th scope="col">State</th>
+                  </tr>
+                </thead>
+                <tbody id="process-rows"></tbody>
+              </table>
+            </div>
+            <p id="process-note">
+              Build & run to capture the workbench processes at getpid.
+            </p>
+          </section>
+          <div id="pid-evidence" class="evidence">
+            <h3>Evidence from this run</h3>
+            <dl>
+              <div>
+                <dt>Kernel PID at syscall entry</dt>
+                <dd id="pid-entry">—</dd>
+              </div>
+              <div>
+                <dt>Kernel PID at process exit</dt>
+                <dd id="pid-exit">—</dd>
+              </div>
+              <div>
+                <dt>PID reported by the program</dt>
+                <dd id="pid-reported">—</dd>
+              </div>
+            </dl>
+            <p id="evidence-note">
+              Values will be captured from real guest state and console output.
+            </p>
+          </div>
+          <div class="console-heading">
+            <span>xv6 console</span><span>RISC-V · one hart</span>
+          </div>
+          <div class="console-area">
+            <p id="console-empty">
+              Your program’s output will appear here after Build & run.
+            </p>
+            <pre
+              id="terminal"
+              aria-label="Guest console output"
+              translate="no"
+              tabindex="0"
+            ></pre>
+          </div>
+          <p id="run-message">
+            Build & run compiles this draft, boots the image, and launches
+            <code>workbench</code> in the guest shell.
+          </p>
+        </section>
+      </div>
+      <section class="lesson-ending">
+        <h2>What this shows</h2>
+        <p id="takeaway">A walk follows entries stored in real memory; a valid branch and a valid leaf play different roles.</p>
+        <details class="reflection">
+          <summary>A question to carry forward</summary>
+          <p id="reflection">Why must a read-only inspector check V before following the address in an entry?</p>
+        </details>
+        <nav class="lesson-navigation" aria-label="Previous and next lessons">
+          <a data-direction="previous" href="lessons/splitting-a-virtual-address/"><small>← Previous lesson</small>A virtual address selects indices and an offset</a><a data-direction="next" href="lessons/reading-page-permissions/"><small>Next lesson →</small>A valid mapping still has access permissions</a>
+        </nav>
+      </section>
+    </main>
+    <footer class="action-bar">
+      <div class="activity">
+        <span id="activity-dot" aria-hidden="true"></span>
+        <p id="activity-status" role="status">Loading the workbench…</p>
+        <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
+      </div>
+      <div class="actions">
+        <button id="stop" disabled>Stop run</button
+        ><button id="build-only" disabled>Build only</button
+        ><button id="run-built" disabled>Run build</button
+        ><button
+          id="build-run"
+          class="primary"
+          disabled
+          aria-keyshortcuts="Control+Enter Meta+Enter"
+        >
+          Build & run
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="workbench/app.js?v=chapter8"></script>
+  </body>
+</html>

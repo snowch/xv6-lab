@@ -67,14 +67,14 @@ const sections = chapters
 fs.writeFileSync(
   "site/index.html",
   `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#edf2f8"><meta name="description" content="Learn how xv6 works through small source-led lessons. Read real code, make a change, compile RISC-V, and run it in your browser."><title>xv6 Lab — Learn through the source</title><link rel="stylesheet" href="workbench/style.css?v=c-reminders1"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#edf2f8"><meta name="description" content="Learn how xv6 works through small source-led lessons. Read real code, make a change, compile RISC-V, and run it in your browser."><title>xv6 Lab — Learn through the source</title><link rel="stylesheet" href="workbench/style.css?v=chapter8"></head>
 <body class="course-page"><a class="skip-link" href="#chapter-one">Skip to the lessons</a>
 <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><a class="course-link" href="explorer/">Kernel explorer ↗</a></header>
 <main class="course-main"><section class="course-intro"><p class="preview-label">A small operating system. One idea at a time.</p><h1>Understand an OS<br>by changing its code.</h1><p>Read a little xv6 source, make one small change, and run the result on a real kernel. Each lesson introduces one concept and builds on the last.</p><div class="course-actions"><a class="primary" href="${lessonHref(lessonIds[0])}">Start Chapter 1 →</a><a id="resume-lesson" hidden>Resume your last lesson →</a></div><p class="course-requirements">Basic C reading is a prerequisite. <a href="#c-prerequisites">See the C skills and refreshers below ↓</a>. The compiler and RISC-V machine run in your browser.</p></section>
 ${prerequisiteSection}
 ${sections}
 ${plannedChapters.length ? `<section class="course-roadmap"><h2>Where the course goes next</h2><p>These chapters are planned. The chapters above are available now.</p><ol start="${plannedChapters[0].number}">${plannedChapters.map((chapter) => `<li>${escape(chapter.title)}</li>`).join("")}</ol></section>` : `<section class="course-roadmap"><h2>Keep exploring</h2><p>All ${chapters.length} chapters are available. Revisit any lesson, make another change, or use the <a href="explorer/">kernel explorer</a> for deeper experiments with the running kernel.</p></section>`}
-<footer class="course-footer"><a href="https://snowch.github.io/computer-systems/">Companion book ↗</a><a href="https://github.com/snowch/xv6-lab">Source on GitHub ↗</a><a href="workbench/NOTICE.md">Runtime & licenses</a></footer></main><script type="module" src="workbench/course.js?v=chapter7"></script></body></html>\n`,
+<footer class="course-footer"><a href="https://snowch.github.io/computer-systems/">Companion book ↗</a><a href="https://github.com/snowch/xv6-lab">Source on GitHub ↗</a><a href="workbench/NOTICE.md">Runtime & licenses</a></footer></main><script type="module" src="workbench/course.js?v=chapter8"></script></body></html>\n`,
 );
 console.log(
   "Generated course contents and " + lessonIds.length + " lesson pages.",

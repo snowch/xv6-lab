@@ -1,6 +1,6 @@
 # Source workbench: provenance and limits
 
-Seven available chapters contain forty-two source-led lesson pages. Further chapters are listed on the published roadmap; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
+Eight available chapters contain fifty source-led lesson pages. Further chapters are listed on the published roadmap; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
 
 ## Compiler
 
@@ -25,3 +25,5 @@ xv6 and riscv-rust retain their MIT notices in [the main runtime notice](../vend
 The Scheduling wait lesson additionally captures actual workbench process rows and parent PIDs at its first getpid handler. The table is a saved snapshot, not a claim that those processes still exist after the run. Sleep experiments use guest tick conditions; they do not measure browser or hardware performance.
 
 Kernel lessons can replace the function named in their build context, including kernel main. Native `guest/kernel/workbench.c` helpers execute the CSR, fence and atomic primitives unsupported by TCC inline assembly. The baseline disables inlining to retain editable function boundaries. External kernel globals use real ELF symbols through a reserved global address table; no struct offsets or register results are fabricated.
+
+The emulator is now rebuilt with the page-permission correction documented in the main runtime notice. The compiler binary remains unmodified. Address-translation exercises use real PTE reads, CPU protection faults and checked-copy results; the optional supplied-program disclosure shows the exact user test harness.

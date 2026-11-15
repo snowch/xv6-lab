@@ -8,6 +8,57 @@ const escape = (value) =>
     .replaceAll('"', "&quot;");
 const base = "https://snowch.github.io/c-foundry/#/chapter/";
 const topics = {
+  addressBits: {
+    title: "extracting fields with shifts and masks",
+    text: "Right shift discards low bits, and bitwise & keeps the bits selected by a mask. 0x1ff has nine low bits set; 4095 has twelve. A cast to int makes these small extracted values suitable for printf’s %d argument.",
+    code: "int index = (int)((va >> 12) & 0x1ff);\nint offset = (int)(va & 4095);",
+    links: [
+      ["Bitwise operations and masks", "files-bytes/2"],
+      ["Conversions and casts", "values/4"],
+    ],
+  },
+  tableIndex: {
+    title: "array entries versus their addresses",
+    text: "table[index] reads an entry through a pointer. &table[index] instead gives the address of that entry, so a function can return it or change it. p->pagetable first reads a member of the process struct; that member’s value is itself a pointer to a table.",
+    code: "pte_t value = table[index];\npte_t *address = &table[index];",
+    links: [
+      ["Arrays and pointers", "pointers/3"],
+      ["Pointers to structs", "structured-data/4"],
+    ],
+  },
+  pteBits: {
+    title: "bit masks and short-circuit checks",
+    text: "The bitwise & operator selects flag bits. A selected flag can have a value such as 16, so compare with zero when you want a printed 0 or 1. Logical && evaluates its right side only if the left side is true; entry && (*entry & PTE_V) therefore avoids dereferencing a null pointer.",
+    code: "int user = (flags & PTE_U) != 0;\nint valid = entry && (*entry & PTE_V);",
+    links: [
+      ["Bitwise operations and masks", "files-bytes/2"],
+      ["Expressions and operators", "values/3"],
+    ],
+  },
+  volatileRead: {
+    title: "casts, dereferences and volatile",
+    text: "The cast converts an address value to a pointer type. The leading * then performs the memory access. volatile requires this read to occur, but it does not grant permission to the address or make an invalid access valid. The experiment confines that deliberate access to a child process.",
+    code: "volatile char value = *(volatile char*)address;",
+    links: [
+      ["Addresses and dereferencing", "pointers/1"],
+      ["Conversions and casts", "values/4"],
+    ],
+  },
+  copyDestination: {
+    title: "a destination passed by address",
+    text: "&byte supplies the address of the kernel’s local variable, letting copyin write into it. The function’s returned integer is a separate result. Check that result before treating the destination as successfully filled; an initialized local value alone does not prove the copy succeeded.",
+    code: "char byte = 0;\nint result = copyin(table, &byte, source, 1);",
+    links: [["Pointers as function arguments", "pointers/2"]],
+  },
+  arraySeed: {
+    title: "array initializers and comparisons",
+    text: "char bytes[2] reserves two elements, indexed 0 and 1. The initializer gives each the value 7, so later comparisons can detect which elements changed. != compares values; it does not assign. These are raw bytes, with no C-string terminator implied.",
+    code: "char bytes[2] = {7, 7};\nint changed = bytes[0] != 7;",
+    links: [
+      ["Array indexing and bounds", "arrays-strings/1"],
+      ["Conditions and comparisons", "control-flow/1"],
+    ],
+  },
   addressInteger: {
     title: "addresses and integer casts",
     text: "In this RV64 kernel, uint64 holds 64-bit values, including its address values. The cast converts a pointer to that integer type for a byte-offset calculation. Adding 4096 to this integer advances by 4096 bytes; adding to a typed pointer would instead count its element size. This calculation does not allocate storage or change the CPU’s stack pointer.",
@@ -193,6 +244,14 @@ const topics = {
   },
 };
 const map = {
+  "splitting-a-virtual-address": "addressBits",
+  "walking-three-page-table-levels": "tableIndex",
+  "reading-page-permissions": "pteBits",
+  "kernel-mappings-include-devices": "addressBits",
+  "a-guard-page-denies-user-access": "volatileRead",
+  "trampoline-mappings-cross-address-spaces": "pteBits",
+  "checked-copies-translate-user-addresses": "copyDestination",
+  "copies-check-each-page": "arraySeed",
   "editing-the-kernel-boot": "basics",
   "boot-needs-a-stack": "addressInteger",
   "boot-turns-on-paging": "bits",

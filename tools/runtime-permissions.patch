@@ -1,0 +1,154 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 75bb96c..9a4492f 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -20,4 +20,9 @@ members = [".", "cli", "wasm"]
+ travis-ci = { repository = "takahirox/riscv-rust" }
+ 
+ [dependencies]
+-fnv = "1.0.7"
+\ No newline at end of file
++fnv = "1.0.7"
++
++[profile.release]
++lto = true
++codegen-units = 1
++panic = "abort"
+diff --git a/src/mmu.rs b/src/mmu.rs
+index 82104ae..857d04f 100644
+--- a/src/mmu.rs
++++ b/src/mmu.rs
+@@ -200,6 +200,10 @@ impl Mmu {
+ 	/// # Arguments
+ 	/// * `mstatus`
+ 	pub fn update_mstatus(&mut self, mstatus: u64) {
++		// SUM and MXR change whether an already translated page is accessible.
++		if (self.mstatus ^ mstatus) & ((1 << 18) | (1 << 19)) != 0 {
++			self.clear_page_cache();
++		}
+ 		self.mstatus = mstatus;
+ 	}
+ 
+@@ -764,7 +768,7 @@ impl Mmu {
+ 		let d = (pte >> 7) & 1;
+ 		let a = (pte >> 6) & 1;
+ 		let _g = (pte >> 5) & 1;
+-		let _u = (pte >> 4) & 1;
++		let u = (pte >> 4) & 1;
+ 		let x = (pte >> 3) & 1;
+ 		let w = (pte >> 2) & 1;
+ 		let r = (pte >> 1) & 1;
+@@ -784,6 +788,19 @@ impl Mmu {
+ 		}
+ 
+ 		// Leaf page found
++		// U-mode requires U=1. S-mode may access user data only with SUM,
++		// and may never execute a user page. Debug inspection is not a CPU access.
++		if !matches!(access_type, MemoryAccessType::DontCare) {
++			match self.privilege_mode {
++				PrivilegeMode::User if u == 0 => return Err(()),
++				PrivilegeMode::Supervisor if u != 0 => {
++					if matches!(access_type, MemoryAccessType::Execute) || self.mstatus & (1 << 18) == 0 {
++						return Err(());
++					}
++				},
++				_ => {}
++			}
++		}
+ 
+ 		if a == 0 || (match access_type { MemoryAccessType::Write => d == 0, _ => false }) {
+ 			let new_pte = pte | (1 << 6) | (match access_type {
+@@ -803,7 +820,7 @@ impl Mmu {
+ 				}
+ 			},
+ 			MemoryAccessType::Read => {
+-				if r == 0 {
++				if r == 0 && !(x != 0 && self.mstatus & (1 << 19) != 0) {
+ 					return Err(());
+ 				}
+ 			},
+@@ -872,6 +889,66 @@ pub struct MemoryWrapper {
+ 	memory: Memory
+ }
+ 
++#[cfg(test)]
++mod page_permissions_tests {
++	use super::*;
++	use terminal::DummyTerminal;
++	fn mapped(user: bool, permissions: u64, mode: PrivilegeMode) -> Mmu {
++		let mut mmu = Mmu::new(Xlen::Bit64, Box::new(DummyTerminal::new()));
++		mmu.init_memory(4 * 4096);
++		mmu.store_doubleword_raw(DRAM_BASE, (((DRAM_BASE + 4096) >> 12) << 10) | 1);
++		mmu.store_doubleword_raw(DRAM_BASE + 4096, (((DRAM_BASE + 8192) >> 12) << 10) | 1);
++		mmu.store_doubleword_raw(DRAM_BASE + 8192, (((DRAM_BASE + 12288) >> 12) << 10) | permissions | if user { 16 } else { 0 } | 1);
++		mmu.ppn = DRAM_BASE >> 12;
++		mmu.update_addressing_mode(AddressingMode::SV39);
++		mmu.update_privilege_mode(mode);
++		mmu
++	}
++	#[test]
++	fn user_cannot_read_write_or_execute_supervisor_pages() {
++		let mut mmu = mapped(false, 2 | 4 | 8, PrivilegeMode::User);
++		for access in [MemoryAccessType::Read, MemoryAccessType::Write, MemoryAccessType::Execute] {
++			assert_eq!(mmu.translate_address(0, &access), Err(()));
++		}
++	}
++	#[test]
++	fn user_can_access_permitted_user_pages() {
++		let mut mmu = mapped(true, 2 | 4 | 8, PrivilegeMode::User);
++		for access in [MemoryAccessType::Read, MemoryAccessType::Write, MemoryAccessType::Execute] {
++			assert_eq!(mmu.translate_address(0, &access), Ok(DRAM_BASE + 12288));
++		}
++	}
++	#[test]
++	fn supervisor_sum_allows_user_data_but_never_user_execution() {
++		let mut mmu = mapped(true, 2 | 4 | 8, PrivilegeMode::Supervisor);
++		assert_eq!(mmu.translate_address(0, &MemoryAccessType::Read), Err(()));
++		assert_eq!(mmu.translate_address(0, &MemoryAccessType::Write), Err(()));
++		mmu.update_mstatus(1 << 18);
++		assert_eq!(mmu.translate_address(0, &MemoryAccessType::Read), Ok(DRAM_BASE + 12288));
++		assert_eq!(mmu.translate_address(0, &MemoryAccessType::Write), Ok(DRAM_BASE + 12288));
++		assert_eq!(mmu.translate_address(0, &MemoryAccessType::Execute), Err(()));
++	}
++	#[test]
++	fn sum_change_invalidates_a_cached_user_data_translation() {
++		let mut mmu = mapped(true, 2 | 4 | 8, PrivilegeMode::Supervisor);
++		mmu.page_cache_enabled = true;
++		mmu.update_mstatus(1 << 18);
++		assert!(mmu.translate_address(0, &MemoryAccessType::Read).is_ok());
++		mmu.update_mstatus(0);
++		assert_eq!(mmu.translate_address(0, &MemoryAccessType::Read), Err(()));
++	}
++	#[test]
++	fn mxr_controls_reads_from_execute_only_pages_and_flushes_cache() {
++		let mut mmu = mapped(true, 8, PrivilegeMode::User);
++		mmu.page_cache_enabled = true;
++		assert_eq!(mmu.translate_address(0, &MemoryAccessType::Read), Err(()));
++		mmu.update_mstatus(1 << 19);
++		assert!(mmu.translate_address(0, &MemoryAccessType::Read).is_ok());
++		mmu.update_mstatus(0);
++		assert_eq!(mmu.translate_address(0, &MemoryAccessType::Read), Err(()));
++	}
++}
++
+ impl MemoryWrapper {
+ 	fn new() -> Self {
+ 		MemoryWrapper {
+diff --git a/wasm/Cargo.toml b/wasm/Cargo.toml
+index 98c1182..518c02c 100644
+--- a/wasm/Cargo.toml
++++ b/wasm/Cargo.toml
+@@ -4,10 +4,10 @@ version = "0.1.0"
+ authors = ["Takahiro"]
+ 
+ [dependencies]
+-wasm-bindgen = "0.2.55"
++wasm-bindgen = "=0.2.100"
+ riscv_emu_rust = {path = "../"}
+ 
+ [lib]
+ name = "riscv_emu_rust_wasm"
+ path = "src/lib.rs"
+-crate-type = ["cdylib"]
+\ No newline at end of file
++crate-type = ["cdylib"]
