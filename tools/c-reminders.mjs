@@ -8,6 +8,33 @@ const escape = (value) =>
     .replaceAll('"', "&quot;");
 const base = "https://snowch.github.io/c-foundry/#/chapter/";
 const topics = {
+  addressInteger: {
+    title: "addresses and integer casts",
+    text: "In this RV64 kernel, uint64 holds 64-bit values, including its address values. The cast converts a pointer to that integer type for a byte-offset calculation. Adding 4096 to this integer advances by 4096 bytes; adding to a typed pointer would instead count its element size. This calculation does not allocate storage or change the CPU’s stack pointer.",
+    code: "uint64 base = (uint64)stack0;\nuint64 top = base + 4096;\nint offset = (int)(top - base);",
+    links: [
+      ["Addresses and pointer arithmetic", "pointers/3"],
+      ["Conversions and casts", "values/4"],
+    ],
+  },
+  bits: {
+    title: "shifts, masks and casts",
+    text: "Right-shifting an unsigned 64-bit value moves its high bits down. A mask selects particular bits; a cast converts the resulting value to the requested C type. Here shifting by 60 extracts the top four mode bits, then the int cast supplies printf’s %d argument.",
+    code: "int mode = (int)(value >> 60);",
+    links: [
+      ["Bitwise operations and masks", "files-bytes/2"],
+      ["Conversions and casts", "values/4"],
+    ],
+  },
+  ownership: {
+    title: "allocated memory and lifetime",
+    text: "A successful allocation gives you a pointer to live storage. Test for failure before dereferencing it. Releasing the allocation ends your right to use those bytes; a pointer variable can still hold the old address afterwards. xv6’s kalloc and kfree are kernel interfaces introduced in this lesson.",
+    code: "char *page = kalloc();\nif (page != 0) {\n  page[0] = 65;\n  kfree(page);\n}",
+    links: [
+      ["Allocation and storage", "allocation/1"],
+      ["Dangling pointers and lifetime", "allocation/4"],
+    ],
+  },
   basics: {
     title: "reading a small C program",
     text: "main is the program’s entry function. Statements end with semicolons, and braces group a function or branch body. In printf, %d formats an integer and \\n starts a new line.",
@@ -166,6 +193,12 @@ const topics = {
   },
 };
 const map = {
+  "editing-the-kernel-boot": "basics",
+  "boot-needs-a-stack": "addressInteger",
+  "boot-turns-on-paging": "bits",
+  "boot-prepares-physical-pages": "ownership",
+  "initialization-is-not-execution": "loops",
+  "boot-creates-the-first-user-process": "loops",
   "running-a-program": "basics",
   "writing-bytes": "strings",
   "a-system-call-result": "calls",

@@ -1,6 +1,6 @@
 # Source workbench: provenance and limits
 
-All six chapters contain thirty-six source-led lessons, each with its own page; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
+Seven available chapters contain forty-two source-led lesson pages. Further chapters are listed on the published roadmap; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
 
 ## Compiler
 
@@ -10,7 +10,7 @@ The upstream adapter has 8192-byte file buffers and a bounded allocator. The lab
 
 ## Linking and running
 
-The browser compiler emits an actual ELF64 RISC-V object. The JavaScript incremental linker resolves its relocations against a matching, native-built xv6 image and installs the edited code into reserved executable space. Kernel writable globals use a separate reserved writable region. The original function entry redirects to the new compiled function. The user program is installed as `workbench` in a fresh xv6 filesystem image; the kernel exercise uses a fixed user probe.
+The browser compiler emits an actual ELF64 RISC-V object. The JavaScript incremental linker resolves its relocations against a matching, native-built xv6 image and installs the edited code into reserved executable space. Kernel writable globals use a separate reserved writable region. The original function entry redirects to the new compiled function. The user program is installed as `workbench` in a fresh xv6 filesystem image; kernel exercises use a supplied user probe (compiled per lesson when needed).
 
 This is an incremental selected-unit build, not a full browser `make` build. The native baseline includes 64 KiB executable link slots and a 16 KiB writable kernel slot. Slot addresses and symbol values are read from the actual ELF. Existing xv6 libraries, startup assembly and all other functions remain native-built from the pinned source in the repository’s `guest/` tree. No source-text substitutions simulate guest output or PID values.
 
@@ -23,3 +23,5 @@ A fresh machine is used for each run. Guest files are disposable. Source drafts 
 xv6 and riscv-rust retain their MIT notices in [the main runtime notice](../vendor/NOTICE.md). CodeMirror and its dependencies are MIT licensed; bundled [editor notices](EDITOR-LICENSES.txt) accompany the browser editor. Interface fonts retain their bundled SIL Open Font License notices in `../fonts/`. New workbench code is MIT licensed.
 
 The Scheduling wait lesson additionally captures actual workbench process rows and parent PIDs at its first getpid handler. The table is a saved snapshot, not a claim that those processes still exist after the run. Sleep experiments use guest tick conditions; they do not measure browser or hardware performance.
+
+Kernel lessons can replace the function named in their build context, including kernel main. Native `guest/kernel/workbench.c` helpers execute the CSR, fence and atomic primitives unsupported by TCC inline assembly. The baseline disables inlining to retain editable function boundaries. External kernel globals use real ELF symbols through a reserved global address table; no struct offsets or register results are fabricated.

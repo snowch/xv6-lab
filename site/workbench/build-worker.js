@@ -1,4 +1,4 @@
-import { buildExercise } from "./build.js";
+import { buildExercise } from "./build.js?v=kernel2";
 async function bytes(path) {
   const response = await fetch(new URL(path, import.meta.url));
   if (!response.ok)
@@ -16,20 +16,25 @@ onmessage = async ({ data }) => {
     postMessage({ type: "progress", phase: "loading" });
     const [compiler, kernel, disk, user, source] = await Promise.all([
       bytes("./compiler/tcc.wasm"),
-      bytes("../images/kernel?v=source-workbench1"),
-      bytes("../images/fs.img?v=source-workbench1"),
-      bytes("./assets/user-base.elf?v=source-workbench1"),
-      bytes("../source.json?v=source-workbench1"),
+      bytes("../images/kernel?v=kernel2"),
+      bytes("../images/fs.img?v=kernel2"),
+      bytes("./assets/user-base.elf?v=kernel2"),
+      bytes("../source.json?v=kernel2"),
     ]);
     const files = JSON.parse(new TextDecoder().decode(source)).files;
     postMessage({ type: "progress", phase: "compile" });
-    const result = await buildExercise(data.kind, data.source, {
-      compiler,
-      kernel,
-      disk,
-      user,
-      files,
-    });
+    const result = await buildExercise(
+      data.kind,
+      data.source,
+      {
+        compiler,
+        kernel,
+        disk,
+        user,
+        files,
+      },
+      data.context,
+    );
     postMessage(
       { type: "built", ...result },
       [

@@ -14,18 +14,18 @@
     },
     {
       "path": "site/images/kernel",
-      "bytes": 376816,
-      "sha256": "4a0a1555faa8160bf5e445cbb95af73d6cff28f1a45257db98e30417dc4507af"
+      "bytes": 329256,
+      "sha256": "73f509ca94bf7ed7a55c5d5913e38c3825997dcf32ff3ff0f819a202ce1683b3"
     },
     {
       "path": "site/images/fs.img",
       "bytes": 1024000,
-      "sha256": "90397a946f1a5d458361df39e54056512f083b2a3fb3ecf750889a4eed6d0d4b"
+      "sha256": "3e1891416df63754abeea476ef0ae1934a99617baf0cec651eff89c826116128"
     },
     {
       "path": "site/workbench/assets/user-base.elf",
-      "bytes": 96720,
-      "sha256": "b76c4c21f749367bfbc86a6be3d41e6745a59e7a24b846d993bf4b3cdc067719"
+      "bytes": 90152,
+      "sha256": "4ba2c660ecef51f75d73bea78d9cd9776e4d9e16b932568c8e3a65d160a65949"
     },
     {
       "path": "site/workbench/compiler/tcc.wasm",
@@ -41,7 +41,7 @@
   "guest": {
     "commit": "d7c0a1b7a703f7366942092f9cf421b6cd111a36",
     "source": "guest/",
-    "changes": "user/lab.c and user/workbench.c; Makefile: lab/workbench programs, explicit RV64GC/O3 flags; workbench executable slots and separate writable kernel data slot; memlayout.h: 16 MiB guest RAM for upstream debugger compatibility"
+    "changes": "user/lab.c and user/workbench.c; Makefile: lab/workbench programs, explicit RV64GC/O3/no-inline flags; kernel/workbench.c native instruction bridges; workbench executable slots and separate writable kernel data slot; memlayout.h: 16 MiB guest RAM for upstream debugger compatibility"
   },
   "compiler": {
     "upstream": "https://github.com/lupyuen/tcc-riscv32-wasm",

@@ -113,6 +113,16 @@ Loading the matching xv6 sources…</pre>
               source drafts stay saved.
             </p>
             <p>
+              Kernel instruction helpers execute the native RISC-V register and
+              atomic instructions that this C compiler cannot assemble inline.
+              Their
+              <a
+                href="https://github.com/snowch/xv6-lab/blob/main/guest/kernel/workbench.c"
+                >complete source</a
+              >
+              is included with the kernel.
+            </p>
+            <p>
               <a href="workbench/NOTICE.md"
                 >Compiler provenance, limits and licenses</a
               >
@@ -225,6 +235,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter6"></script>
+    <script type="module" src="workbench/app.js?v=chapter7"></script>
   </body>
 </html>

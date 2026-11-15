@@ -168,9 +168,25 @@ export function linkEditedObject(baseBytes, objectBytes, target) {
       relocations.push({ type, symbol, addend, place });
     }
   }
+  // GOT_HI20 addresses a pointer cell, followed by a paired PCREL_LO12 load.
+  // Keep these cells in the reserved data area alongside edited kernel globals.
+  const got = new Map();
+  for (const r of relocations.filter((r) => r.type === 20)) {
+    const value = resolve(r.symbol) + r.addend;
+    if (got.has(value)) continue;
+    const address = align(dataStart ? dataCursor : cursor, 8);
+    if (dataStart) dataCursor = address + 8;
+    else cursor = address + 8;
+    if ((dataStart && dataCursor > dataEnd) || cursor > end)
+      throw new Error("Global address table exceeds the exercise link slot.");
+    got.set(value, address);
+    data.setBigUint64(base.offset(address), BigInt(value), true);
+  }
   const hi = new Map();
   for (const r of relocations)
     if (r.type === 23) hi.set(r.place, resolve(r.symbol) + r.addend - r.place);
+    else if (r.type === 20)
+      hi.set(r.place, got.get(resolve(r.symbol) + r.addend) - r.place);
   function upper(where, value) {
     const at = base.offset(where),
       old = data.getUint32(at, true),
@@ -207,6 +223,7 @@ export function linkEditedObject(baseBytes, objectBytes, target) {
       const low = upper(r.place, relative);
       lowI(r.place + 4, low);
     } else if (r.type === 23) upper(r.place, relative);
+    else if (r.type === 20) upper(r.place, hi.get(r.place));
     else if ([24, 25].includes(r.type)) {
       const delta = hi.get(value);
       if (delta === undefined)

@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter6";
+import { lessons, sourceExcerpt } from "./lessons.js?v=chapter7";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -146,7 +146,7 @@ function render() {
     "build-method",
     lesson.mode === "user"
       ? "This builds the editable user program and links it with the matching xv6 user library."
-      : "This builds the editable sys_getpid function. A fixed user program probes its return value; all other kernel code comes from the matching native build.",
+      : `This compiles the editable ${lesson.build?.target || "sys_getpid"} function into the real kernel. The supplied user program runs after boot; all other functions come from the matching native build.`,
   );
   document.title = lesson.title + " — xv6 Lab";
   activity("Ready to edit " + lesson.file);
@@ -157,7 +157,7 @@ async function build(runAfter) {
   const exercise = kind,
     source = drafts.get(kind),
     worker = new Worker(
-      new URL("./build-worker.js?v=source1", import.meta.url),
+      new URL("./build-worker.js?v=kernel2", import.meta.url),
       { type: "module" },
     ),
     job = { worker, exercise, source, runAfter };
@@ -243,7 +243,11 @@ async function build(runAfter) {
     controls();
     if (runAfter && current) runBuild(record);
   };
-  worker.postMessage({ kind: lessons[exercise].mode, source });
+  worker.postMessage({
+    kind: lessons[exercise].mode,
+    source,
+    context: lessons[exercise].build,
+  });
 }
 function processEvidence() {
   if (!lessons[kind].observeProcesses || !machine) return;
@@ -310,7 +314,7 @@ function runBuild(record) {
   }
   machine?.worker?.terminate();
   const worker = new Worker(
-    new URL("../worker.js?v=chapter6", import.meta.url),
+    new URL("../worker.js?v=kernel2", import.meta.url),
     { type: "module" },
   );
   const run = {
@@ -471,7 +475,9 @@ $("export-source").onclick = () => {
     link = document.createElement("a");
   link.href = url;
   link.download =
-    lessons[kind].mode === "user" ? "workbench.c" : "sys_getpid.c";
+    lessons[kind].mode === "user"
+      ? "workbench.c"
+      : (lessons[kind].build?.target || "sys_getpid") + ".c";
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
@@ -502,7 +508,7 @@ window.addEventListener("pagehide", () => {
 });
 try {
   const response = await fetch(
-    new URL("../source.json?v=source-workbench1", import.meta.url),
+    new URL("../source.json?v=kernel2", import.meta.url),
   );
   if (!response.ok) throw new Error("HTTP " + response.status);
   files = (await response.json()).files;

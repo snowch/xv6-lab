@@ -16,6 +16,7 @@ for (const chapter of chapters.filter((chapter) => chapter.number >= 3)) {
             lesson.mode,
             lesson.starter(assets.files),
             assets,
+            lesson.build,
           ),
           result = await run(built, lesson.observePid);
         assert.ok(
@@ -56,7 +57,12 @@ for (const chapter of chapters.filter((chapter) => chapter.number >= 3)) {
         assert.ok(change, id + ": taught edit exists");
         const source = change.edit(lesson.starter(assets.files));
         assert.notEqual(source, lesson.starter(assets.files));
-        const built = await buildExercise(lesson.mode, source, assets),
+        const built = await buildExercise(
+            lesson.mode,
+            source,
+            assets,
+            lesson.build,
+          ),
           result = await run(built, lesson.observePid);
         assert.ok(
           result.output.includes(change.expected),

@@ -98,4 +98,12 @@ For wait, a child sleeps briefly so its parent reaches wait, then calls getpid. 
 
 The lock example has two children send A/B bytes through one kernel pipe. The parent counts delivered bytes, waits for EOF and collects both children. Kernel source shows shared buffer/counter updates inside the pipe lock. The explanation distinguishes process-private user variables from shared kernel objects and avoids claims about multicore speed or race-freedom proof from one run.
 
-The roadmap is now complete: all six chapters are available. Previous/Next crosses chapter boundaries, each lesson retains its own draft, and the existing 25 kernel experiments remain accessible.
+The original six-chapter foundation is available; the comprehensive kernel course continues through the additional chapters in the coverage plan. Previous/Next crosses chapter boundaries, each lesson retains its own draft, and the existing 25 kernel experiments remain accessible.
+
+## Chapter 7: Boot and kernel organization
+
+Six pages compile and replace the actual kernel main function rather than simulating boot messages. Starter and taught edits exercise native global references, initial-stack address calculations, real satp reads on both sides of kvminithart, physical allocation/free, and process-table states before/after userinit. The initial-stack calculation is explicitly distinguished from reading the live stack-pointer register.
+
+The build context names the replaced function and source line, chooses declarations from the matching defs.h, and provides selected constants and native instruction bridges. Optional lesson-specific user probes are also compiled and installed into the disposable disk image. Native function inlining is disabled so later lessons can edit real function boundaries; GOT_HI20 relocations allocate real pointer cells inside the reserved data region. All baseline images, metadata and hashes are rebuilt together.
+
+The [comprehensive coverage plan](comprehensive-course.md) maps the nine kernel chapters to the remaining xv6 subsystems. The contents page lists only available lesson links and separately identifies planned chapters.
