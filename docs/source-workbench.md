@@ -137,3 +137,9 @@ Six pages connect the native swtch ABI to real saved context fields. A supplied 
 Seven pages run native atomic exchanges and the actual spin/sleep lock routines. Ownership samples respect holding's interrupt-off requirement. Nested push/pop experiments restore the known syscall state after measuring the saved policy. Publication uses the real lock protocol; text explicitly avoids treating a sequential one-hart result as weak-memory proof.
 
 A shared compiled condition hook blocks a child under a real spinlock. Its parent publishes ready and wakes either the matching or a different channel; bounded kill/wait cleanup reports actual status 0 or -1. Recursive acquisition triggers the native panic, followed by a fresh restored run in browser checks. Source from this pinned wait implementation supplies the parent/child lock-order reasoning.
+
+## Chapter 13: Filesystem structure
+
+Eight pages inspect actual superblock fields, cache objects, pin deltas, inode validity and bitmap bits. Data-region size is explicitly distinct from currently free space. Buffer experiments balance pins and release content locks before helpers that reacquire them. Source shows the MRU/LRU recycling policy without accessing the compiler-incompatible large trailing cache-global offset.
+
+A supplied file contains thirteen data blocks; the edited kernel probe calls native bmap for logical block 11 or 12 and compares the real returned physical block. User programs exercise cwd versus root traversal and O_TRUNC versus retaining the file. Truncation source covers direct data, indirect entries and the table itself.

@@ -74,7 +74,7 @@ Six lessons inspect saved registers, trace ecall causes, change the saved return
 
 ## Chapter 10: Interrupts and device drivers
 
-Eight lessons connect timer delivery to logical ticks, read the supervisor interrupt-enable bit, observe actual PLIC claim/completion IDs, query UART registers, change bytes entering its transmit ring, exercise console line editing, inspect VirtIO descriptor directions, and inspect the disk-completion/cache-validity boundary. The course now has **77 available lessons**, with three further chapters planned.
+Eight lessons connect timer delivery to logical ticks, read the supervisor interrupt-enable bit, observe actual PLIC claim/completion IDs, query UART registers, change bytes entering its transmit ring, exercise console line editing, inspect VirtIO descriptor directions, and inspect the disk-completion/cache-validity boundary. The course now has **85 available lessons**, with two further chapters planned.
 
 The IRQ observer and its arming syscall hook are compiled together and share real kernel state. Console editing feeds the real callback directly and explicitly distinguishes that test from hardware IRQ delivery. Source excerpts select actual function definitions rather than earlier calls with the same name.
 
@@ -85,6 +85,10 @@ Six lessons distinguish kernel contexts from trapframes, inspect the actual save
 ## Chapter 12: Locks and coordination
 
 Seven source-led pages exercise atomic exchange, CPU ownership, nested interrupt restoration, protected publication, sleeping locks, channel/predicate coordination and lock order. Bounded child cleanup makes a mismatched wakeup observable, and recursive acquisition deliberately triggers the native guard. Memory-ordering explanations distinguish the implementation guarantee from what a one-hart run can demonstrate.
+
+## Chapter 13: Filesystem structure
+
+Eight pages follow the superblock, buffer identity and pins, lazy inode metadata, relative and absolute paths, bitmap allocation, direct/indirect block mapping and truncation. Probes use actual kernel objects; the supplied thirteen-block file exercises both mapping paths.
 
 ## Kernel explorer
 

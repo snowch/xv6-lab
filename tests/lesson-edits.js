@@ -1,4 +1,39 @@
 export const edits = {
+  "the-superblock-describes-disk-regions": {
+    edit: (s) => s.replace("count = sb.size", "count = sb.nblocks"),
+    expected: "selected block count=954",
+  },
+  "the-buffer-cache-reuses-block-identity": {
+    edit: (s) =>
+      s.replace("second = bread(ROOTDEV, 1)", "second = bread(ROOTDEV, 2)"),
+    expected: "same cache object=0",
+  },
+  "references-keep-cache-buffers-resident": {
+    edit: (s) => s.replace("PINS 1", "PINS 2"),
+    expected: "added cache references=2",
+  },
+  "inode-references-and-loaded-metadata-differ": {
+    edit: (s) => s.replace("observed = before", "observed = after"),
+    expected: "inode metadata loaded=1",
+  },
+  "paths-start-at-root-or-the-current-directory": {
+    edit: (s) => s.replace('selected = "item"', 'selected = "/item"'),
+    expected: "selected file byte=R",
+  },
+  "the-bitmap-tracks-block-ownership": {
+    edit: (s) => s.replace("observed = before", "observed = after"),
+    expected: "allocation bit=0",
+  },
+  "direct-and-indirect-blocks-map-file-offsets": {
+    edit: (s) => s.replace("logical = 11", "logical = 12"),
+    expected: "maps last direct block=0 indirect table present=1",
+  },
+  "truncation-releases-a-files-block-map": {
+    edit: (s) =>
+      s.replace('open("trim", O_RDWR | O_TRUNC)', 'open("trim", O_RDWR)'),
+    expected: "size after reopening=13312 links=1",
+  },
+
   "an-atomic-swap-returns-the-old-value": {
     edit: (s) =>
       s.replace(

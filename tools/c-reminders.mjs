@@ -319,6 +319,14 @@ const topics = {
   },
 };
 const map = {
+  "the-superblock-describes-disk-regions": "structValue",
+  "the-buffer-cache-reuses-block-identity": "structPointer",
+  "references-keep-cache-buffers-resident": "loops",
+  "inode-references-and-loaded-metadata-differ": "structPointer",
+  "paths-start-at-root-or-the-current-directory": "strings",
+  "the-bitmap-tracks-block-ownership": "bits",
+  "direct-and-indirect-blocks-map-file-offsets": "structPointer",
+  "truncation-releases-a-files-block-map": "flags",
   "an-atomic-swap-returns-the-old-value": "calls",
   "a-lock-records-its-owner": "structPointer",
   "nested-critical-sections-restore-interrupts": "calls",
