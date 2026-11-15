@@ -1,3 +1,4 @@
+import { chapter11Lessons } from "./chapter11.js?v=chapter11";
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
 import { chapter10Lessons } from "./chapter10.js?v=chapter10";
 import { chapter9Lessons } from "./chapter9.js?v=chapter9";
@@ -259,6 +260,14 @@ chapters.push({
     "Follow timer and device interrupts through controller acknowledgements, real UART registers, console buffering and disk completion.",
   lessonIds: Object.keys(chapter10Lessons),
 });
+chapters.push({
+  number: 11,
+  id: "chapter-eleven",
+  title: "Context switching",
+  intro:
+    "Follow saved kernel contexts, stack ownership, scheduler contracts, timer preemption and the sleep lock handoff.",
+  lessonIds: Object.keys(chapter11Lessons),
+});
 export const plannedChapters = [
   {
     number: 8,
@@ -303,6 +312,7 @@ export const lessons = {
   ...chapter8Lessons,
   ...chapter9Lessons,
   ...chapter10Lessons,
+  ...chapter11Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;

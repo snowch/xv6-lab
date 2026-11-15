@@ -1,8 +1,43 @@
 export const edits = {
+  "kernel-contexts-save-a-call-boundary": {
+    edit: (s) =>
+      s.replace("sizeof(struct context)", "sizeof(struct trapframe)"),
+    expected: "saved words=36",
+  },
+  "a-saved-stack-belongs-to-the-kernel": {
+    edit: (s) => s.replace("saved = p->context.sp", "saved = p->trapframe->sp"),
+    expected: "saved pointer inside kernel stack=0",
+  },
+  "yield-hands-a-process-to-the-scheduler": {
+    edit: (s) =>
+      s.replace(
+        '  if (strncmp(p->name, "workbench", 9) == 0)\n    printf("runnable at observation=%d\\n", p->state == RUNNABLE);\n  sched();',
+        '  sched();\n  if (strncmp(p->name, "workbench", 9) == 0)\n    printf("runnable at observation=%d\\n", p->state == RUNNABLE);',
+      ),
+    expected: "runnable at observation=0",
+  },
+  "sched-enforces-switching-invariants": {
+    edit: (s) => s.replace("yield();", "sched();"),
+    expected: "panic: sched p->lock",
+    allowPanic: true,
+  },
+  "timer-preemption-enters-the-scheduler": {
+    edit: (s) => s.replace("PREEMPT 1", "PREEMPT 0"),
+    expected: "user timer preemptions observed=0",
+  },
+  "sleep-transfers-lock-protection": {
+    edit: (s) =>
+      s.replace(
+        '    if (lk == &tickslock && strncmp(p->name, "workbench", 9) == 0)\n      printf("handoff condition lock=%d\\n", holding(lk));\n    release(lk);',
+        '    release(lk);\n    if (lk == &tickslock && strncmp(p->name, "workbench", 9) == 0)\n      printf("handoff condition lock=%d\\n", holding(lk));',
+      ),
+    expected: "handoff condition lock=0",
+  },
+
   "virtio-descriptors-name-device-buffers": {
-    edit:s=>s.replace("WATCH_WRITE 0","WATCH_WRITE 1"),
-    expected:"request write=1 device writes data=0",
-    verify:out=>out.includes("device operation finished"),
+    edit: (s) => s.replace("WATCH_WRITE 0", "WATCH_WRITE 1"),
+    expected: "request write=1 device writes data=0",
+    verify: (out) => out.includes("device operation finished"),
   },
   "timer-interrupts-advance-kernel-ticks": {
     edit: (s) => s.replace("ticks += 1", "ticks += 2"),

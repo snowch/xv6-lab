@@ -127,3 +127,7 @@ Eight pages cover timer forwarding, supervisor masking, PLIC claim/completion, U
 The disk fixture creates a new file so its allocation needs a cold data block. An actual bread replacement observes b->disk cleared after virtio_disk_rw but before b->valid is set, then moves the observation after that assignment. Both variants read back D. Source selection now anchors a function signature at the beginning of its definition line, avoiding earlier devintr() calls being mistaken for its definition. Panic/restore checks remain active in later browser suites.
 
 The front page uses a conceptual OS illustration and native, keyboard-accessible chapter accordions, initially collapsed. Start and Resume bypass the contents, and a chapter hash opens its matching group. The descriptor lesson reads the actual completed chain before recycling through a source-visible read-only pointer accessor; this avoids the compiler’s large-global-offset limit without changing device behavior.
+
+## Chapter 11: Context switching
+
+Six pages connect the native swtch ABI to real saved context fields. A supplied yield hook makes before/after state observations deterministic. A bounded user computation counts actual timer-driven usertrap yields; disabling that selected path does not claim to disable kerneltrap preemption or measure hardware speed. The scheduler contract edit deliberately panics and restores into a fresh machine. A sleep replacement observes the real condition lock on both sides of its release, leaving the acquire-before-release ordering intact.
