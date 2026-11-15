@@ -77,3 +77,9 @@ The six pages distinguish descriptor slots, open-file objects with offsets, dire
 The final lesson writes a known 6000-byte pattern, clears the C buffer, reads the file back and verifies every returned byte. Its suggested 13000-byte edit crosses the direct-block boundary and uses the existing bmap/log paths. Static storage keeps the buffer off xv6's small user stack. The text explains that large writes can span multiple bounded transactions and describes readback within one run rather than claiming a physical crash experiment.
 
 A Files mobile test initially copied CodeMirror’s visible DOM lines, losing an offscreen closing brace. The test now uses the complete lesson source for pasted edits and fails immediately on compiler diagnostics. Production draft saving/export already reads the editor document rather than its viewport.
+
+## Chapter 5: Pipes
+
+Six pages introduce pipe endpoints, EOF after draining and closing writers, inherited open-file references, byte-stream boundaries, blocking reads, and descriptor redirection before exec. The examples avoid assumptions about write/read message boundaries. The final reader loops over short reads into a bounded buffer, while the child runs the unchanged echo executable with its stdout pointing to the pipe.
+
+A supplied sleep(3) creates a producer delay for the blocking-read example. Its timer-tick meaning is explained, with deeper sleep/wakeup mechanics deferred to Scheduling. Source excerpts show actual pipe allocation, counters, sleep channels, inherited file references and the real shell's descriptor rewiring. Every suggested edit is compiled and executed against the guest.

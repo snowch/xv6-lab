@@ -1,4 +1,5 @@
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
+import { chapter5Lessons } from "./chapter5.js?v=chapter5";
 import { chapter4Lessons } from "./chapter4.js?v=chapter4";
 import { chapter3Lessons } from "./chapter3.js?v=chapter3";
 import { chapter2Lessons } from "./chapter2.js?v=chapter2";
@@ -205,6 +206,14 @@ chapters.push({
     "Follow descriptors through open files and inodes, then verify bytes through the filesystem write path.",
   lessonIds: Object.keys(chapter4Lessons),
 });
+chapters.push({
+  number: 5,
+  id: "chapter-five",
+  title: "Pipes",
+  intro:
+    "Connect processes with byte streams, close their ends correctly, and build a small redirected pipeline.",
+  lessonIds: Object.keys(chapter5Lessons),
+});
 export const plannedChapters = [
   { number: 3, title: "Memory — address spaces and page tables" },
   { number: 4, title: "Files — descriptors and persistent data" },
@@ -218,6 +227,7 @@ export const lessons = {
   ...chapter2Lessons,
   ...chapter3Lessons,
   ...chapter4Lessons,
+  ...chapter5Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;
