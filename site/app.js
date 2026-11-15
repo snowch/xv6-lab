@@ -362,7 +362,7 @@ function render() {
     target.textContent = "Loading matching source…";
     try {
       const response = await fetch(
-        new URL("./source.json?v=core25", import.meta.url),
+        new URL("./source.json?v=guest3", import.meta.url),
       );
       if (!response.ok) throw new Error("HTTP " + response.status);
       const data = await response.json();
