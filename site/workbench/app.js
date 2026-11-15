@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter13";
+import { lessons, sourceExcerpt } from "./lessons.js?v=chapter14";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -162,7 +162,7 @@ async function build(runAfter) {
   if (buildJob || !files) return;
   const exercise = kind,
     source = drafts.get(kind),
-    worker = new Worker(new URL("./build-worker.js?v=mmu2", import.meta.url), {
+    worker = new Worker(new URL("./build-worker.js?v=journal1", import.meta.url), {
       type: "module",
     }),
     job = { worker, exercise, source, runAfter };

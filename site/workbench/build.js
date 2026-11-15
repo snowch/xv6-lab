@@ -1,6 +1,9 @@
 import { compileObject, prepareSource } from "./compiler.js";
 import { linkEditedObject } from "./elf.js?v=kernel3";
-import { replaceGuestFile } from "./filesystem.js";
+import {
+  replaceGuestFile,
+  prepareRecoveryImage,
+} from "./filesystem.js?v=journal1";
 const instructionBridges = {
   __sync_synchronize: ["void wb_fence(void);", "wb_fence"],
   __sync_lock_test_and_set: [
@@ -41,6 +44,21 @@ export function kernelPrelude(files, context) {
         "typedef uint64 *pagetable_t;\nstruct context {",
       ) + "\nstruct proc *myproc(void);\nvoid printf(char*,...);\n";
   if (!context) return base;
+  // Keep private native layouts tied to the exact matching source.
+  const sourceTypes = (context.typeSources || [])
+    .map((spec) => {
+      const source = files[spec.file];
+      const first = source.indexOf(spec.start),
+        last = source.indexOf(spec.end, first);
+      if (first < 0 || last < first)
+        throw new Error("Missing native type block: " + spec.file);
+      return source
+        .slice(first, last + spec.end.length)
+        .replace(/^(struct\s+\w+\s+\w+;)$/gm, "extern $1")
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/\/\/[^\n]*/g, "");
+    })
+    .join("\n");
   const declarations = (context.functions || [])
     .map((name) => {
       const declaration = files["kernel/defs.h"]
@@ -75,6 +93,7 @@ export function kernelPrelude(files, context) {
     .join("\n");
   return (
     base +
+    sourceTypes +
     "\ntypedef uint64 pte_t;\n" +
     macros +
     "\n" +
@@ -124,6 +143,7 @@ export async function buildExercise(kind, source, assets, context) {
       linkEditedObject(assets.user, probe.bytes, "main").bytes,
     );
   }
+  if (context?.fixture === "committed-redo") disk = prepareRecoveryImage(disk);
   return {
     kernel: kind === "kernel" ? linked.bytes : new Uint8Array(assets.kernel),
     disk,

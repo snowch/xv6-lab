@@ -74,7 +74,7 @@ Six lessons inspect saved registers, trace ecall causes, change the saved return
 
 ## Chapter 10: Interrupts and device drivers
 
-Eight lessons connect timer delivery to logical ticks, read the supervisor interrupt-enable bit, observe actual PLIC claim/completion IDs, query UART registers, change bytes entering its transmit ring, exercise console line editing, inspect VirtIO descriptor directions, and inspect the disk-completion/cache-validity boundary. The course now has **85 available lessons**, with two further chapters planned.
+Eight lessons connect timer delivery to logical ticks, read the supervisor interrupt-enable bit, observe actual PLIC claim/completion IDs, query UART registers, change bytes entering its transmit ring, exercise console line editing, inspect VirtIO descriptor directions, and inspect the disk-completion/cache-validity boundary. The course now has **91 available lessons**, with one further chapter planned.
 
 The IRQ observer and its arming syscall hook are compiled together and share real kernel state. Console editing feeds the real callback directly and explicitly distinguishes that test from hardware IRQ delivery. Source excerpts select actual function definitions rather than earlier calls with the same name.
 
@@ -89,6 +89,10 @@ Seven source-led pages exercise atomic exchange, CPU ownership, nested interrupt
 ## Chapter 13: Filesystem structure
 
 Eight pages follow the superblock, buffer identity and pins, lazy inode metadata, relative and absolute paths, bitmap allocation, direct/indirect block mapping and truncation. Probes use actual kernel objects; the supplied thirteen-block file exercises both mapping paths.
+
+## Chapter 14: Logging and recovery
+
+Six pages cover reservations, absorption, the last outstanding operation, the header commit point, actual boot replay and redo idempotence. Recovery uses an explicit prepared committed journal whose README home byte is O and logged replacement is R; the kernel performs the replay. Skipping installation leaves O, and two real replay passes still produce R.
 
 ## Kernel explorer
 

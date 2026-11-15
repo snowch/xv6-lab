@@ -143,3 +143,9 @@ A shared compiled condition hook blocks a child under a real spinlock. Its paren
 Eight pages inspect actual superblock fields, cache objects, pin deltas, inode validity and bitmap bits. Data-region size is explicitly distinct from currently free space. Buffer experiments balance pins and release content locks before helpers that reacquire them. Source shows the MRU/LRU recycling policy without accessing the compiler-incompatible large trailing cache-global offset.
 
 A supplied file contains thirteen data blocks; the edited kernel probe calls native bmap for logical block 11 or 12 and compares the real returned physical block. User programs exercise cwd versus root traversal and O_TRUNC versus retaining the file. Truncation source covers direct data, indirect entries and the table itself.
+
+## Chapter 14: Logging and recovery
+
+Six source-led pages inspect native log.outstanding and log.lh, absorption's pin behavior, last-operation commit and the actual header before/after write_head. The compiler prelude obtains private log layouts from the matching source and declares the existing native global extern; it does not duplicate or guess its layout. A fresh compiler-worker cache version includes the new build behavior.
+
+prepareRecoveryImage constructs an explicit one-entry committed redo journal after installing the supplied user probe. README's home block contains O and its journal payload contains R. Native recover_from_log performs all replay and header clearing at boot. The broken skip-install edit leaves O; one and two actual install_trans passes both yield R. This is a committed interrupted-install fixture, not a physical power-cut simulation.

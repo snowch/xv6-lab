@@ -78,3 +78,41 @@ export function replaceGuestFile(baseBytes, name, payload) {
   put(at + 8, payload.length);
   return disk;
 }
+
+// A committed redo entry whose home block has not yet been installed.
+// The actual xv6 recovery code, not this helper, performs the replay.
+export function prepareRecoveryImage(baseBytes) {
+  const disk = replaceGuestFile(baseBytes, "README", new Uint8Array([79]));
+  const view = new DataView(disk.buffer),
+    B = 1024;
+  const u32 = (at) => view.getUint32(at, true);
+  const inodeStart = u32(B + 24),
+    logStart = u32(B + 20);
+  const inode = (n) => inodeStart * B + n * 64;
+  const root = inode(1),
+    size = u32(root + 8),
+    directory = u32(root + 12) * B;
+  if (size > B || u32(B + 16) < 2)
+    throw new Error("Unsupported recovery fixture layout.");
+  let number = 0;
+  for (let i = 0; i < size; i += 16) {
+    const at = directory + i;
+    const name = new TextDecoder()
+      .decode(disk.subarray(at + 2, at + 16))
+      .replace(/\0.*$/, "");
+    if (name === "README") {
+      number = view.getUint16(at, true);
+      break;
+    }
+  }
+  if (!number) throw new Error("Recovery fixture file is missing.");
+  const home = u32(inode(number) + 12);
+  const dataStart = u32(B + 28) + Math.ceil(u32(B + 4) / (B * 8));
+  if (home < dataStart || home >= u32(B + 4))
+    throw new Error("Invalid recovery home block.");
+  disk.fill(0, logStart * B, (logStart + 2) * B);
+  view.setUint32(logStart * B, 1, true);
+  view.setUint32(logStart * B + 4, home, true);
+  disk[(logStart + 1) * B] = 82;
+  return disk;
+}
