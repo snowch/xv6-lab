@@ -34,7 +34,11 @@ These examples compile real user programs and exercise xv6's process implementat
 
 Six lessons cover growing user memory, page mappings, zeroed pages, shrinking memory, a contained child page fault, and checked kernel copies. Each includes a complete compiled experiment and the matching allocation, translation or trap-handling source. The invalid console pointer example teaches this pinned kernel's actual zero-byte result.
 
-Files, pipes and scheduling chapters remain planned and are labelled accordingly on the contents page.
+## Chapter 4: Files
+
+Six lessons connect process-local descriptors to open-file offsets, shared file objects, inode lifetime, hard links and transaction-backed writes. Suggested edits include replacing dup with an independent open, retaining an unlinked name, observing link counts, and verifying a 13,000-byte file beyond the direct-block boundary.
+
+Pipes and scheduling chapters remain planned and are labelled accordingly on the contents page.
 
 To regenerate the committed lesson pages after changing `site/workbench/lessons.js`, `site/workbench/chapter2.js` or `tools/workbench-page.html`, run `npm run build:lessons`. To regenerate the CodeMirror bundle after changing its source, run `npm run build:editor`. CI verifies both generated outputs. The existing guest build regenerates the matching workbench baseline ELF.
 
@@ -65,7 +69,7 @@ npm run serve
 
 Requires Node 24; local serving uses Python 3. The checked-in assets run without installing a host compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
 
-Tests compile and execute the eighteen source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
+Tests compile and execute the twenty-four source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
 
 ## Build or modify the guest
 

@@ -69,3 +69,11 @@ Screenshot review found that a 330px editor hid the parent branch of the longer 
 The six pages trace sbrk through growproc/uvmalloc, mapping virtual pages to physical pages, explicit page zeroing, unmapping on shrink, user fault handling, and checked user-memory copies. Every starter and suggested edit is compiled and run against the real guest. Faults are confined to a child, and the parent reports its actual exit status. The interface describes the expected fault without claiming the learner's edit succeeded.
 
 Source review found consolewrite converts a failed first copy into a zero-byte result, so the final lesson teaches that exact behaviour instead of an assumed universal -1 result. The page contrasts this checked kernel path with the direct user load that triggers a page fault. Editor heights keep complete examples readable.
+
+## Chapter 4: Files
+
+The six pages distinguish descriptor slots, open-file objects with offsets, directory names and inodes. The exercises observe slot reuse after close, sequential reads, shared offsets through dup versus separate opens, open-file lifetime after unlink, and hard-link inode identity/link counts through real fstat calls. All file operations run inside fresh guest images.
+
+The final lesson writes a known 6000-byte pattern, clears the C buffer, reads the file back and verifies every returned byte. Its suggested 13000-byte edit crosses the direct-block boundary and uses the existing bmap/log paths. Static storage keeps the buffer off xv6's small user stack. The text explains that large writes can span multiple bounded transactions and describes readback within one run rather than claiming a physical crash experiment.
+
+A Files mobile test initially copied CodeMirror’s visible DOM lines, losing an offscreen closing brace. The test now uses the complete lesson source for pasted edits and fails immediately on compiler diagnostics. Production draft saving/export already reads the editor document rather than its viewport.
