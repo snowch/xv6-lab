@@ -1,9 +1,9 @@
 # Comprehensive functional xv6 course
 
-The original six chapters teach user-visible foundations. The next nine revisit
-those behaviours inside the kernel, following the core subsystems of the pinned
-xv6 RISC-V implementation. This is a spiral curriculum: experience a mechanism,
-then explain and change its implementation.
+All **15 chapters and 99 lessons** are implemented. The first six teach
+user-visible foundations; nine further chapters revisit those behaviors inside
+the pinned xv6 RISC-V implementation. This is a spiral curriculum: experience
+a mechanism, then explain and change its implementation.
 
 | Chapter | Subject                          | Required coverage                                                                                                                          |
 | ------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -19,8 +19,8 @@ then explain and change its implementation.
 | 15      | Loading programs and integration | ELF validation/segments, BSS, argv and user stack, exec commit/failure, shell composition, source-led capstone                             |
 
 Each new chapter is implemented, tested and merged before starting the next.
-The contents page distinguishes available chapters from the remaining roadmap;
-the course must not claim comprehensive coverage until this matrix is fulfilled.
+The contents page links every chapter. This matrix defines the completed
+functional scope; it does not claim every OS extension or hardware model.
 
 ## Lesson acceptance criteria
 

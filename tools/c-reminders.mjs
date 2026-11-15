@@ -319,6 +319,14 @@ const topics = {
   },
 };
 const map = {
+  "elf-headers-identify-an-executable": "structPointer",
+  "segments-separate-file-bytes-from-memory-size": "structValue",
+  "the-loader-zeroes-real-bss-memory": "storage",
+  "exec-builds-a-new-argument-vector": "arguments",
+  "exec-establishes-the-entry-stack": "addressInteger",
+  "failed-exec-preserves-the-old-image": "calls",
+  "the-shell-composes-kernel-interfaces": "descriptors",
+  "capstone-follow-a-byte-from-process-to-disk": "readLoop",
   "filesystem-operations-reserve-log-space": "loops",
   "the-log-absorbs-repeated-block-updates": "structPointer",
   "the-last-operation-triggers-commit": "loops",

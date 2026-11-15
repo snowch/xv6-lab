@@ -9,8 +9,8 @@
     },
     {
       "path": "site/vendor/riscv_emu_rust_wasm_bg.wasm",
-      "bytes": 146238,
-      "sha256": "69376adea2ffe8a7ac255501d2587129cd8be378af78250753fef3daad9160cf"
+      "bytes": 146236,
+      "sha256": "054ec14ee70cec7e85a1a75097e3d5ebfcf16acfd74d6cb0a79477f4b73ad4de"
     },
     {
       "path": "site/images/kernel",
@@ -20,7 +20,7 @@
     {
       "path": "site/images/fs.img",
       "bytes": 1024000,
-      "sha256": "3e1891416df63754abeea476ef0ae1934a99617baf0cec651eff89c826116128"
+      "sha256": "33c587c2c19c938078264f7b377114a274da23365bd6446e7ece6a127270a026"
     },
     {
       "path": "site/workbench/assets/user-base.elf",
@@ -39,8 +39,8 @@
     },
     {
       "path": "site/vendor/riscv-rust-source.tar.gz",
-      "bytes": 47092,
-      "sha256": "d4588dd80fd16f359bb2500875f88323d36684e27cc28a5168b51f6fa0a1e1c6"
+      "bytes": 47615,
+      "sha256": "3ed41209c819c330f3c0cfcf7dcfd0f81523a655864b0b5875368b59372b9f1e"
     },
     {
       "path": "site/vendor/LICENSES-runtime-dependencies.txt",
@@ -51,7 +51,7 @@
   "guest": {
     "commit": "d7c0a1b7a703f7366942092f9cf421b6cd111a36",
     "source": "guest/",
-    "changes": "user/lab.c and user/workbench.c; Makefile: lab/workbench programs, explicit RV64GC/O3/no-inline flags; kernel/workbench.c native instruction bridges; virtio_disk.c read-only descriptor accessor; workbench executable slots and separate writable kernel data slot; memlayout.h: 16 MiB guest RAM for upstream debugger compatibility"
+    "changes": "user/lab.c, user/workbench.c and native NOBITS user/bssprobe.c; Makefile: lab/workbench programs, explicit RV64GC/O3/no-inline flags; kernel/workbench.c native instruction bridges; virtio_disk.c read-only descriptor accessor; workbench executable slots and separate writable kernel data slot; memlayout.h: 16 MiB guest RAM for upstream debugger compatibility"
   },
   "compiler": {
     "upstream": "https://github.com/lupyuen/tcc-riscv32-wasm",
@@ -63,7 +63,7 @@
   },
   "emulator": {
     "base_commit": "8ee69d7a5dc7ef6d8b2bda96bf86d2923f2cf176",
-    "changes": "Enforce PTE_U and supervisor SUM/MXR access; invalidate permission-dependent cached translations",
+    "changes": "Enforce PTE_U and supervisor SUM/MXR access; invalidate permission-dependent translations; preserve hardware-pending bits when acknowledging supervisor software interrupts",
     "source": "site/vendor/riscv-rust-source.tar.gz",
     "patch": "tools/runtime-permissions.patch",
     "rust": "1.85.0",

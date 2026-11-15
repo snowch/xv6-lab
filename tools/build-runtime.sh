@@ -1,5 +1,5 @@
 #!/bin/sh
-# Rebuild the permission-corrected emulator from the complete bundled source.
+# Rebuild the corrected emulator from the complete bundled source.
 # Requires Rust 1.85.0 with wasm32-unknown-unknown and wasm-bindgen-cli 0.2.100.
 set -eu
 cd "$(dirname "$0")/.."

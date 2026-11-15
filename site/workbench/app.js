@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter14";
+import { lessons, sourceExcerpt } from "./lessons.js?v=chapter15";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -162,7 +162,7 @@ async function build(runAfter) {
   if (buildJob || !files) return;
   const exercise = kind,
     source = drafts.get(kind),
-    worker = new Worker(new URL("./build-worker.js?v=journal1", import.meta.url), {
+    worker = new Worker(new URL("./build-worker.js?v=guest4", import.meta.url), {
       type: "module",
     }),
     job = { worker, exercise, source, runAfter };
@@ -318,7 +318,7 @@ function runBuild(record) {
     return;
   }
   machine?.worker?.terminate();
-  const worker = new Worker(new URL("../worker.js?v=guest3", import.meta.url), {
+  const worker = new Worker(new URL("../worker.js?v=guest4", import.meta.url), {
     type: "module",
   });
   const run = {
@@ -529,7 +529,7 @@ window.addEventListener("pagehide", () => {
 });
 try {
   const response = await fetch(
-    new URL("../source.json?v=guest3", import.meta.url),
+    new URL("../source.json?v=guest4", import.meta.url),
   );
   if (!response.ok) throw new Error("HTTP " + response.status);
   files = (await response.json()).files;

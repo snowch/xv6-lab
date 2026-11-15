@@ -1,19 +1,57 @@
-diff --git a/Cargo.toml b/Cargo.toml
-index 75bb96c..9a4492f 100644
---- a/Cargo.toml
-+++ b/Cargo.toml
-@@ -20,4 +20,9 @@ members = [".", "cli", "wasm"]
- travis-ci = { repository = "takahirox/riscv-rust" }
+diff --git a/src/cpu.rs b/src/cpu.rs
+index aa20266..4ac1f13 100644
+--- a/src/cpu.rs
++++ b/src/cpu.rs
+@@ -734,8 +734,11 @@ impl Cpu {
+ 				self.csr[CSR_MIE_ADDRESS as usize] |= value & 0x222;
+ 			},
+ 			CSR_SIP_ADDRESS => {
+-				self.csr[CSR_MIP_ADDRESS as usize] &= !0x222;
+-				self.csr[CSR_MIP_ADDRESS as usize] |= value & 0x222;
++				// Only SSIP is software-writable through the supervisor alias.
++				// SEIP/STIP reflect hardware: a stale timer acknowledgement must
++				// not erase an external interrupt arriving after the SIP read.
++				self.csr[CSR_MIP_ADDRESS as usize] &= !MIP_SSIP;
++				self.csr[CSR_MIP_ADDRESS as usize] |= value & MIP_SSIP;
+ 			},
+ 			CSR_MIDELEG_ADDRESS => {
+ 				self.csr[address as usize] = value & 0x666; // from qemu
+@@ -3564,6 +3567,35 @@ mod test_cpu {
+ 		Cpu::new(Box::new(DummyTerminal::new()))
+ 	}
  
- [dependencies]
--fnv = "1.0.7"
-\ No newline at end of file
-+fnv = "1.0.7"
++	#[test]
++	fn software_interrupt_ack_preserves_a_new_external_interrupt() {
++		let mut cpu = create_cpu();
++		cpu.privilege_mode = PrivilegeMode::Supervisor;
++		cpu.write_csr_raw(CSR_MIP_ADDRESS, MIP_SSIP);
++		let ack = cpu.read_csr_raw(CSR_SIP_ADDRESS) & !MIP_SSIP;
++		// A disk completion arrives between xv6's r_sip() and w_sip().
++		cpu.write_csr_raw(CSR_MIP_ADDRESS, MIP_SSIP | MIP_SEIP);
++		assert!(cpu.write_csr(CSR_SIP_ADDRESS, ack).is_ok());
++		assert_eq!(cpu.read_csr_raw(CSR_MIP_ADDRESS), MIP_SEIP);
++	}
 +
-+[profile.release]
-+lto = true
-+codegen-units = 1
-+panic = "abort"
++	#[test]
++	fn sip_cannot_forge_hardware_pending_bits() {
++		let mut cpu = create_cpu();
++		cpu.privilege_mode = PrivilegeMode::Supervisor;
++		assert!(cpu.write_csr(CSR_SIP_ADDRESS, MIP_SSIP | MIP_STIP | MIP_SEIP).is_ok());
++		assert_eq!(cpu.read_csr_raw(CSR_MIP_ADDRESS), MIP_SSIP);
++	}
++
++	#[test]
++	fn sip_ack_preserves_timer_and_machine_pending_bits() {
++		let mut cpu = create_cpu();
++		let hardware = MIP_STIP | MIP_SEIP | MIP_MSIP | MIP_MTIP | MIP_MEIP;
++		cpu.write_csr_raw(CSR_MIP_ADDRESS, hardware | MIP_SSIP);
++		assert!(cpu.write_csr(CSR_SIP_ADDRESS, 0).is_ok());
++		assert_eq!(cpu.read_csr_raw(CSR_MIP_ADDRESS), hardware);
++	}
++
+ 	#[test]
+ 	fn initialize() {
+ 		let _cpu = create_cpu();
 diff --git a/src/mmu.rs b/src/mmu.rs
 index 82104ae..857d04f 100644
 --- a/src/mmu.rs
@@ -134,21 +172,3 @@ index 82104ae..857d04f 100644
  impl MemoryWrapper {
  	fn new() -> Self {
  		MemoryWrapper {
-diff --git a/wasm/Cargo.toml b/wasm/Cargo.toml
-index 98c1182..518c02c 100644
---- a/wasm/Cargo.toml
-+++ b/wasm/Cargo.toml
-@@ -4,10 +4,10 @@ version = "0.1.0"
- authors = ["Takahiro"]
- 
- [dependencies]
--wasm-bindgen = "0.2.55"
-+wasm-bindgen = "=0.2.100"
- riscv_emu_rust = {path = "../"}
- 
- [lib]
- name = "riscv_emu_rust_wasm"
- path = "src/lib.rs"
--crate-type = ["cdylib"]
-\ No newline at end of file
-+crate-type = ["cdylib"]

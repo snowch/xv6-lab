@@ -1,6 +1,6 @@
 # Source-led lesson pages
 
-The primary course now follows the useful structure of [assembly-lab](https://github.com/snowch/assembly-lab): contents, a small lesson at its own address, explanation with an embedded interactive example, and Previous/Next navigation. All six chapters now contain six pages each. The course contents links all thirty-six source-led lessons and the additional kernel explorer.
+The primary course now follows the useful structure of [assembly-lab](https://github.com/snowch/assembly-lab): contents, a small lesson at its own address, explanation with an embedded interactive example, and Previous/Next navigation. All fifteen chapters contain 99 source-led lessons. The first six foundation chapters have six pages each; nine further chapters cover the core kernel subsystems. The course contents links every lesson and the additional kernel explorer.
 
 ## Chapter 1: Programs and system calls
 
@@ -60,7 +60,7 @@ The evidence panel reads the actual process table at the first sys_getpid entry 
 
 ## Verification and review
 
-Native xv6 sources and compiler binaries are unchanged by this flow change. Tests compile and execute every available lesson example and the taught byte-count, repeated-call, kernel-print, fork/wait/status, memory-copy and exec edits in the actual RISC-V emulator. Existing tests cover kernel-return changes, writable kernel data, real diagnostics and all 25 explorer experiments.
+The compiler binary is unchanged; native baseline additions and their provenance are documented below. Tests compile and execute every available lesson example and the taught byte-count, repeated-call, kernel-print, fork/wait/status, memory-copy and exec edits in the actual RISC-V emulator. Existing tests cover kernel-return changes, writable kernel data, real diagnostics and all 25 explorer experiments.
 
 Chromium walks every new lesson through Next, returns through Previous and browser history, checks the contents/resume links and tests desktop, tablet, phone and small-phone widths. The existing source build/error/recovery flows run on desktop/tablet/phone. Screenshots are inspected for readable prose, source placement, navigation and overflow, and retained as CI artifacts. CI regenerates the static pages and editor bundle to catch stale committed output.
 
@@ -98,7 +98,7 @@ For wait, a child sleeps briefly so its parent reaches wait, then calls getpid. 
 
 The lock example has two children send A/B bytes through one kernel pipe. The parent counts delivered bytes, waits for EOF and collects both children. Kernel source shows shared buffer/counter updates inside the pipe lock. The explanation distinguishes process-private user variables from shared kernel objects and avoids claims about multicore speed or race-freedom proof from one run.
 
-The original six-chapter foundation is available; the comprehensive kernel course continues through the additional chapters in the coverage plan. Previous/Next crosses chapter boundaries, each lesson retains its own draft, and the existing 25 kernel experiments remain accessible.
+All fifteen chapters are available: six user-visible foundations and nine kernel chapters. Previous/Next crosses chapter boundaries, each lesson retains its own draft, and the existing 25 kernel experiments remain accessible.
 
 ## Chapter 7: Boot and kernel organization
 
@@ -106,7 +106,7 @@ Six pages compile and replace the actual kernel main function rather than simula
 
 The build context names the replaced function and source line, chooses declarations from the matching defs.h, and provides selected constants and native instruction bridges. Optional lesson-specific user probes are also compiled and installed into the disposable disk image. Native function inlining is disabled so later lessons can edit real function boundaries; GOT_HI20 relocations allocate real pointer cells inside the reserved data region. All baseline images, metadata and hashes are rebuilt together.
 
-The [comprehensive coverage plan](comprehensive-course.md) maps the nine kernel chapters to the remaining xv6 subsystems. The contents page lists only available lesson links and separately identifies planned chapters.
+The [comprehensive coverage plan](comprehensive-course.md) maps the nine kernel chapters to the core xv6 subsystems. The contents page links all fifteen available chapters.
 
 ## Chapter 8: Address translation
 
@@ -149,3 +149,22 @@ A supplied file contains thirteen data blocks; the edited kernel probe calls nat
 Six source-led pages inspect native log.outstanding and log.lh, absorption's pin behavior, last-operation commit and the actual header before/after write_head. The compiler prelude obtains private log layouts from the matching source and declares the existing native global extern; it does not duplicate or guess its layout. A fresh compiler-worker cache version includes the new build behavior.
 
 prepareRecoveryImage constructs an explicit one-entry committed redo journal after installing the supplied user probe. README's home block contains O and its journal payload contains R. Native recover_from_log performs all replay and header clearing at boot. The broken skip-install edit leaves O; one and two actual install_trans passes both yield R. This is a committed interrupted-install fixture, not a physical power-cut simulation.
+
+## Chapter 15: Loading programs and integration
+
+Eight pages inspect actual ELF magic and PT_LOAD sizes, execute a native NOBITS BSS fixture, reconstruct argv, edit the complete native exec function, preserve the old image on failure, compose redirection and integrate pipe/file/exec paths in a capstone. This kernel's ordinary user pages remain RWX, as earlier lessons explain; ELF flags are not falsely presented as enforced per-segment permissions.
+
+The native bssprobe has a volatile 4096-byte uninitialized object. readelf confirms NOBITS and a LOAD file size of 0x1038 versus memory size 0x2050 in the local reference build; sizes can vary by compiler. The edited uvmalloc changes actual zero-fill only while workbench execs the fixture: 0 yields BSS byte=0, while 7 exposes 7 in the native object's absent file tail. This avoids treating a browser link slot as evidence of BSS loading.
+
+The full exec edit biases only workbench's saved entry sp by eight bytes and observes its actual modulo-16 alignment. The integer fixture may still run while violating the ABI; no relaxed alignment guarantee is inferred. The capstone transfers actual pipe bytes into a file and execs the unchanged cat to read them back. All native images, source metadata and hashes are rebuilt together, with guest4 cache versions including the compiler-worker entry URL.
+
+The context-switch chapter also explicitly traces kernelvec/kerneltrap saving and restoring sepc/sstatus across a possible kernel timer yield, distinct from restoring a user trapframe.
+
+Full-course regression found a disk-notification race in the upstream emulator:
+SIP writes could clear SEIP if completion arrived between a software-timer handler's
+SIP read and write. Frozen guest inspection showed device used index 67, driver
+index 66 and a sleeping I/O waiter. The source correction makes only SSIP writable
+through SIP. Three Rust regressions fail before the correction and pass afterward;
+the complete source archive, patch, rebuilt engine and provenance are updated.
+The native BSS executable is appended after existing programs to retain their
+filesystem identities and block locations.

@@ -1,7 +1,8 @@
+import { chapter15Lessons } from "./chapter15.js?v=chapter15";
 import { chapter14Lessons } from "./chapter14.js?v=chapter14";
 import { chapter13Lessons } from "./chapter13.js?v=chapter13";
 import { chapter12Lessons } from "./chapter12.js?v=chapter12";
-import { chapter11Lessons } from "./chapter11.js?v=chapter11";
+import { chapter11Lessons } from "./chapter11.js?v=chapter15";
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
 import { chapter10Lessons } from "./chapter10.js?v=chapter10";
 import { chapter9Lessons } from "./chapter9.js?v=chapter9";
@@ -295,6 +296,14 @@ chapters.push({
     "Reserve journal capacity, absorb block updates, find the commit point and run actual boot replay.",
   lessonIds: Object.keys(chapter14Lessons),
 });
+chapters.push({
+  number: 15,
+  id: "chapter-fifteen",
+  title: "Loading programs and integration",
+  intro:
+    "Load real ELF segments, initialize BSS, construct arguments and entry state, handle exec failure and connect the complete system.",
+  lessonIds: Object.keys(chapter15Lessons),
+});
 export const plannedChapters = [
   {
     number: 8,
@@ -343,6 +352,7 @@ export const lessons = {
   ...chapter12Lessons,
   ...chapter13Lessons,
   ...chapter14Lessons,
+  ...chapter15Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;
