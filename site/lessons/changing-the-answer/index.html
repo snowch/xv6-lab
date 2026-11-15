@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <base href="../../" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#edf2f8" />
+    <meta
+      name="description"
+      content="Edit real xv6 source, compile RISC-V code in your browser, and run the result on a working kernel."
+    />
+    <title>A returned value is not the stored value — xv6 Lab</title>
+    <link
+      rel="preload"
+      as="font"
+      href="fonts/source-sans-3-400.ttf"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter1" />
+  </head>
+  <body class="lesson-page" data-lesson="changing-the-answer">
+    <a href="#source-editor" class="skip-link">Skip to editable source</a>
+    <header class="app-header">
+      <a class="brand" href="./"
+        ><span aria-hidden="true">x6_</span
+        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
+      >
+      <details class="lesson-menu">
+        <summary>Lesson 6 of 6</summary>
+        <nav aria-label="Chapter 1 lessons"><a href="lessons/running-a-program/" data-lesson="running-a-program"><span>1.</span> A running program is a process</a>
+<a href="lessons/writing-bytes/" data-lesson="writing-bytes"><span>2.</span> The kernel writes your bytes</a>
+<a href="lessons/a-system-call-result/" data-lesson="a-system-call-result"><span>3.</span> A system call returns a result</a>
+<a href="lessons/entering-the-kernel/" data-lesson="entering-the-kernel"><span>4.</span> ecall crosses into the kernel</a>
+<a href="lessons/the-current-process/" data-lesson="the-current-process"><span>5.</span> The kernel finds the current process</a>
+<a href="lessons/changing-the-answer/" data-lesson="changing-the-answer"><span>6.</span> A returned value is not the stored value</a></nav>
+      </details>
+      <a class="course-link" href="./">Course contents</a>
+    </header>
+    <main>
+      <div class="project-heading">
+        <div>
+          <p class="preview-label">
+            Chapter 1 · Programs and system calls · Lesson 6 of
+            6
+          </p>
+          <h1 id="lesson-title">A returned value is not the stored value</h1>
+          <p id="lesson-subtitle">Change the system-call answer while leaving the process record unchanged.</p>
+        </div>
+        <p class="privacy-note">
+          Compiler and kernel run locally.<br />Your source stays in this
+          browser.
+        </p>
+      </div>
+      <div id="storage-warning" role="status" hidden></div>
+      <article class="lesson-reading" aria-label="Lesson explanation">
+        <div id="reading-content"><p>The handler currently returns the value stored in <code>myproc()->pid</code>. A <button class="code-link" data-focus="return">return</button> expression computes an answer for the caller. It does not automatically assign that answer back into the process record.</p><p>Change it to <code>return myproc()->pid + 1000;</code>. When compiled, this kernel will read the PID, add 1000, and return the sum. The user program prints that sum. The evidence panel independently reads the process record at system-call entry and at process exit.</p><p>The dispatcher puts the handler’s returned value in the saved user <code>a0</code> register, as shown below. The kernel keeps the user registers in a saved record called a trapframe while it handles the call. Setting its <code>a0</code> field delivers the answer as the calling C function’s result.</p></div>
+        <figure class="source-figure">
+          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <pre id="source-excerpt" translate="no">Loading source…</pre>
+          <p id="source-note">syscalls[num]() invokes the chosen handler. Assigning its result to the saved a0 register delivers it to the user program when execution returns there.</p>
+        </figure>
+        <details id="context">
+          <summary id="context-title">Read surrounding source</summary>
+          <label for="context-file">Baseline source (read-only)</label
+          ><select id="context-file"></select>
+          <pre id="context-source" translate="no"></pre>
+        </details>
+      </article>
+      <section class="experiment-intro" aria-labelledby="experiment-title">
+        <p class="preview-label">Try it in xv6</p>
+        <h2 id="experiment-title">One small experiment</h2>
+        <p id="assignment">Add + 1000 to the return expression. Build and run. Compare the reported PID with both kernel snapshots. Then restore the starter and repeat to recover the original answer.</p>
+      </section>
+      <div class="workbench-grid">
+        <section class="source-pane" aria-labelledby="file-name">
+          <div class="pane-header">
+            <h2 id="file-name">user/workbench.c</h2>
+            <span id="editable-label" class="editable-label">Editable C</span>
+          </div>
+          <div class="editor-meta">
+            <span id="draft-status" role="status">Loading source…</span
+            ><button id="restore" disabled>Restore starter</button
+            ><button id="undo-restore" hidden>Undo restore</button>
+          </div>
+          <div id="source-editor" tabindex="-1"></div>
+          <div class="editor-bottom">
+            <span id="build-relation">No build yet</span
+            ><button id="export-source" disabled>Download source</button>
+          </div>
+          <div class="diagnostics">
+            <h3>Build messages</h3>
+            <pre id="build-messages" role="status" aria-live="polite">
+Loading the matching xv6 sources…</pre
+            >
+          </div>
+          <details class="build-details">
+            <summary>About this build</summary>
+            <p id="build-method"></p>
+            <p>
+              These lessons compile small, freestanding C edits with a
+              WebAssembly build of Tiny C Compiler. The edited object is
+              incrementally linked into a reserved area of an otherwise
+              native-built xv6 image. This is a real compiled executable, with a
+              bounded source and object size; it is not a full
+              <code>make</code> rebuild.
+            </p>
+            <p>
+              Every run boots a fresh, disposable machine. Guest files reset;
+              source drafts stay saved.
+            </p>
+            <p>
+              <a href="workbench/NOTICE.md"
+                >Compiler provenance, limits and licenses</a
+              >
+            </p>
+          </details>
+        </section>
+        <section
+          id="machine-pane"
+          class="machine-pane"
+          aria-labelledby="machine-title"
+          tabindex="-1"
+        >
+          <div class="pane-header">
+            <h2 id="machine-title">Running xv6</h2>
+            <span id="run-status" role="status">Not started</span>
+          </div>
+          <p id="run-owner">Build your source to create a runnable image.</p>
+          <div id="pid-evidence" class="evidence">
+            <h3>Evidence from this run</h3>
+            <dl>
+              <div>
+                <dt>Kernel PID at syscall entry</dt>
+                <dd id="pid-entry">—</dd>
+              </div>
+              <div>
+                <dt>Kernel PID at process exit</dt>
+                <dd id="pid-exit">—</dd>
+              </div>
+              <div>
+                <dt>PID reported by the program</dt>
+                <dd id="pid-reported">—</dd>
+              </div>
+            </dl>
+            <p id="evidence-note">
+              Values will be captured from real guest state and console output.
+            </p>
+          </div>
+          <div class="console-heading">
+            <span>xv6 console</span><span>RISC-V · one hart</span>
+          </div>
+          <div class="console-area">
+            <p id="console-empty">
+              Your program’s output will appear here after Build & run.
+            </p>
+            <pre
+              id="terminal"
+              aria-label="Guest console output"
+              translate="no"
+              tabindex="0"
+            ></pre>
+          </div>
+          <p id="run-message">
+            Build & run compiles this draft, boots the image, and launches
+            <code>workbench</code> in the guest shell.
+          </p>
+        </section>
+      </div>
+      <section class="lesson-ending">
+        <h2>What this shows</h2>
+        <p id="takeaway">Changing an interface’s answer and changing the underlying state are different operations. return pid + 1000 changes the answer; assigning to pid would change state.</p>
+        <details class="reflection">
+          <summary>A question to carry forward</summary>
+          <p id="reflection">If you changed the stored pid itself, would you still expect the kernel PID at process exit to match the value at syscall entry?</p>
+        </details>
+        <nav class="lesson-navigation" aria-label="Previous and next lessons">
+          <a data-direction="previous" href="lessons/the-current-process/"><small>← Previous lesson</small>The kernel finds the current process</a><a data-direction="next" href="./"><small>End of Chapter 1 →</small>Back to course contents</a>
+        </nav>
+      </section>
+    </main>
+    <footer class="action-bar">
+      <div class="activity">
+        <span id="activity-dot" aria-hidden="true"></span>
+        <p id="activity-status" role="status">Loading the workbench…</p>
+        <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
+      </div>
+      <div class="actions">
+        <button id="stop" disabled>Stop run</button
+        ><button id="build-only" disabled>Build only</button
+        ><button id="run-built" disabled>Run build</button
+        ><button
+          id="build-run"
+          class="primary"
+          disabled
+          aria-keyshortcuts="Control+Enter Meta+Enter"
+        >
+          Build & run
+        </button>
+      </div>
+    </footer>
+    <script type="module" src="workbench/app.js?v=chapter1"></script>
+  </body>
+</html>

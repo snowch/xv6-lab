@@ -1,38 +1,42 @@
-# Source workbench preview
+# Source-led lesson pages
 
-The course needs a different centre of gravity when learners can edit xv6. A fixed prediction/observation/check wizard hides the source while the learner needs to compare explanation, code and behaviour. This preview starts a new interface at `/workbench/` rather than replacing the existing 25 lessons before the model is proven.
+The primary course now follows the useful structure of [assembly-lab](https://github.com/snowch/assembly-lab): contents, a small lesson at its own address, explanation with an embedded interactive example, and Previous/Next navigation. The opening chapter has six pages. Later chapters are explicitly planned, not represented as completed material.
 
-## Design and teaching decisions
+## Chapter 1: Programs and system calls
 
-The desktop workspace has three stable regions: a short source explanation and assignment, the editable C file with its build messages, and the actual running machine with observed state. The code remains mounted during builds and runs. There is no required sequence of prediction forms, tabs or completion gates. Learners can read, edit, compile, inspect and repeat as needed.
+| Page | New idea | Small experiment | Matching source |
+| --- | --- | --- | --- |
+| 1 | Program versus process | Change a greeting and run a program that exits | `user/user.h`: exit declaration |
+| 2 | write follows a byte count | Write three bytes from `hello\n` | `kernel/sysfile.c`: sys_write |
+| 3 | System calls return values | Compare getpid's result with actual kernel state | `user/user.h`: getpid declaration |
+| 4 | ecall enters the kernel | Call getpid twice from the same process | `user/usys.S`: real getpid stub |
+| 5 | The current process has a kernel record | Print myproc()->pid inside the handler | `kernel/proc.c`: myproc |
+| 6 | A returned answer differs from stored state | Add 1000 to the result and compare process snapshots | `kernel/syscall.c`: saved a0 assignment |
 
-The first exercise changes `user/workbench.c`, then runs that compiled program on xv6. It introduces the user/kernel boundary through `getpid()` and links to matching syscall declarations, assembly and handler source. The second edits the actual `sys_getpid` function from `kernel/sysproc.c`. Adding 1000 to its return expression changes an interface result while leaving the stored process identity alone. The explanation distinguishes returning a field from assigning to it; the evidence panel makes the distinction observable. Reflection is optional and anchored in the experiment, without imposing a separate workflow.
+Each page states one objective, explains the required vocabulary before the experiment, shows a short excerpt loaded from the matching xv6 build, gives one change to try, then states the takeaway. Surrounding source and a reflection question are optional details. There is no required predict/run/explain wizard, quiz gate or automatic claim of mastery.
 
-Supporting source is explicitly labelled **baseline source (read-only)**. It is useful context, not a claim that the whole source tree is editable. The kernel editor says **function only**, uses original source line numbers, and exposes matching types and kernel declarations through the bounded build context.
+The first two pages show console evidence without introducing PID comparisons early. Later pages add the real process-entry/exit observations when identity becomes the subject. Kernel editing starts only after the user interface, return value and kernel-entry mechanism have been introduced. The final page separates reading a process field, computing a returned value and assigning to state.
 
-The visual direction extends the engineering workbook palette: pale blue paper, white code surfaces, blue actions, teal explanations, Source Sans 3 prose and IBM Plex Mono code. Prose stays at 18px, editable C at 16px. Horizontal panes collapse into explanation above an editor/console pair on tablets, then a full-width stack on phones. Main actions remain fixed and a result anchor becomes available when a run starts. No automatic page jump is required. Native controls, keyboard shortcuts, visible focus, a skip link, accessible editor labels, live build/status messages, reduced-motion support and safe-area spacing support keyboard and touch use.
+## Layout and navigation
 
-These decisions apply the previously used [Frontend Design skill](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md) and [Web Interface Guidelines skill](https://github.com/vercel-labs/agent-skills/blob/main/skills/web-design-guidelines/SKILL.md): deliberate visual hierarchy, readable text, stable navigation, explicit feedback and testing the actual responsive interface.
+The root is the single course contents page. Each lesson has a static page at `lessons/<concept>/`, a chapter position, a chapter menu and Previous/Next links. The lesson's prose is visible as a readable article; the editable C and actual guest console sit together below its experiment instructions. On phones they stack with a persistent result anchor. A last-visited link resumes a lesson without treating a visit as completion.
 
-## State and recovery
+The existing 25 experiments live at `/explorer/` and retain their original functionality and saved progress. Root `#<old-lesson>` links retain query parameters while redirecting there. `/workbench/#user` and `/workbench/#kernel` redirect to their corresponding source lessons and migrate the old drafts without deleting them.
 
-- Each exercise has its own browser-saved draft. A storage failure leaves the draft in the tab and explains how to download it.
-- Restore starter offers an immediate undo. The current source can be downloaded independently of build success.
-- Builds run in a disposable worker with separate download and compilation timeouts. Cancel build keeps the draft and last valid image. Compilation diagnostics use edited file names and line numbers.
-- A successful build is tied to a source snapshot. Editing during compilation cannot automatically run an outdated build as though it matched the draft.
-- Compiler errors preserve the last valid build and existing console. Stop run interrupts a loop or waiting program and preserves source and output.
-- Each run starts from a fresh disposable guest. A completed guest is retired to avoid consuming CPU while the learner reads. The console remains visible and identifies its source exercise.
+The visual direction retains readable 18–19px prose, 16px editable C, Source Sans 3, IBM Plex Mono, quiet blue paper and teal source explanations. Decisions follow the previously applied [Frontend Design skill](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md) and [Web Interface Guidelines skill](https://github.com/vercel-labs/agent-skills/blob/main/skills/web-design-guidelines/SKILL.md). Required explanations remain visible; supplemental source and reflection can be expanded.
 
-## Implementation boundary
+## Build and state boundaries
 
-This is a working two-exercise preview, not a port of the full curriculum. The browser compiles freestanding C with an unchanged WebAssembly build of Tiny C Compiler targeting RV64. A small ELF linker relocates the edited object against the matching native baseline and redirects the original function entry to a reserved executable slot. Kernel globals have a separate writable slot. User programs replace the existing guest file in a disposable xv6 filesystem image.
+All compilation and guest execution happen locally. This is an incremental selected-unit build, not a full browser make build. An unchanged WebAssembly TCC binary emits RV64 objects; the JavaScript ELF linker resolves them against matching native xv6 images and installs code into reserved executable slots. Kernel globals use a separate writable region. Compiler licenses, complete corresponding source and limits remain in the [runtime notice](../site/workbench/NOTICE.md).
 
-It is an incremental selected-unit build, not a full browser `make` rebuild. Source/object limits, unsupported relocations and unresolved symbols produce explicit errors. The compiler, LGPL license, complete corresponding source archive and revision are included with the static site; see [the runtime notice](../site/workbench/NOTICE.md). Asset hashes cover the compiler, archive and matching baseline as well as the existing guest/runtime.
+Each lesson saves its own draft; new pages start with focused examples rather than silently inheriting the previous page's changes. Download and restore/undo work independently of compilation. Failed builds preserve the last valid image and output. Builds are tied to source snapshots, so an edit during compilation cannot automatically run an outdated image as though it matched. Build cancellation and stop controls preserve source. Leaving a lesson cancels background work and leaves controls usable when returning through browser history.
 
-The evidence panel reads the real process table at syscall entry and process exit. It compares those observations with the probe's actual UART output, rather than manufacturing results from the edited source. Removing the probe, changing process control flow or faulting can leave partial or different observations; the panel explains missing comparisons.
+The evidence panel reads the actual process table at the first sys_getpid entry and process exit, and parses real UART output. It does not infer results from source text. Removing the probe or changing process control flow can leave partial or different evidence. Each run boots a fresh disposable guest.
 
-## Verification
+## Verification and review
 
-Node tests compile and execute edited user code and kernel code in the actual RISC-V WebAssembly emulator, exercise writable kernel globals, and reject genuine compiler/linker errors. The existing course tests still exercise all 25 lessons and real guest kernel inspection.
+Native xv6 sources and compiler binaries are unchanged by this flow change. Tests compile and execute all six lesson examples and the taught byte-count, repeated-call and kernel-print edits in the actual RISC-V emulator. Existing tests cover kernel-return changes, writable kernel data, real diagnostics and all 25 explorer experiments.
 
-Chromium tests cover wide desktop, tablet and phone workbenches: source editing, compilation, actual output and process evidence, error recovery, restore/undo, runtime errors and horizontal overflow. Existing course viewport and inline inspection checks run in the same suite. CI rebuilds xv6 from pinned sources and checks the committed CodeMirror bundle against its source; screenshots are uploaded as the `browser-previews` artifact.
+Chromium walks every new lesson through Next, returns through Previous and browser history, checks the contents/resume links and tests desktop, tablet, phone and small-phone widths. The existing source build/error/recovery flows run on desktop/tablet/phone. Screenshots are inspected for readable prose, source placement, navigation and overflow, and retained as CI artifacts. CI regenerates the static pages and editor bundle to catch stale committed output.
+
+The teaching review checks that processes are introduced before PIDs, return values before the handler, and the system-call boundary before kernel editing. Source terms such as noreturn, register, trap, dispatcher and trapframe are explained at first use. CPU interrupt bracketing is identified as a later topic so it does not become an unannounced prerequisite for reading myproc.

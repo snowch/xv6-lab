@@ -4,31 +4,28 @@
 
 Learn how an operating system works, one small experiment at a time. A real xv6 RISC-V kernel executes locally in a WebAssembly worker. Its console, process records, trapframes and page tables come from actual guest execution.
 
-## Source workbench preview
+## Chapter 1: Programs and system calls
 
-**[Open the source workbench](https://snowch.github.io/xv6-lab/workbench/)** to edit real C, compile it to RISC-V locally, and boot the result. Two connected exercises introduce the model: change a user program, then change `sys_getpid` and compare its returned value with actual kernel process state. Explanation, editor, diagnostics and console share one workspace; no fixed prediction/check wizard is required.
+The main entry point is a course contents page. Six short lesson pages each teach one concept through explanation, matching xv6 source, one runnable experiment and a takeaway. Previous/Next links connect the pages; the chapter menu allows direct access without gates. Drafts are saved separately for each lesson.
 
-This preview compiles the selected user program or kernel function with a WebAssembly build of TCC and incrementally links it against a matching native-built baseline. It does **not** rebuild all of xv6 in the browser or migrate all 25 lessons. Drafts persist independently; each run uses a disposable machine. See [design decisions](docs/source-workbench.md) and [compiler provenance and limits](site/workbench/NOTICE.md).
+1. A running program is a process.
+2. The kernel writes your bytes.
+3. A system call returns a result.
+4. `ecall` crosses into the kernel.
+5. The kernel finds the current process.
+6. A returned value is not the stored value.
 
-To regenerate the committed CodeMirror editor bundle after changing `tools/workbench-editor.js`, run `npm ci && npm run build:editor`. The existing guest build also regenerates the matching workbench baseline ELF.
+The browser compiles real C to RISC-V using a WebAssembly build of TCC and incrementally links the selected program or kernel function against a matching native-built baseline. It does **not** rebuild all of xv6 in the browser. Each run uses a disposable machine. See [design decisions](docs/source-workbench.md) and [compiler provenance and limits](site/workbench/NOTICE.md).
 
-## Complete core curriculum
+Later chapters on processes, memory, files, pipes and scheduling are planned. They are labelled as planned on the contents page; Chapter 1 is the available source-led chapter.
 
-25 lessons follow **predict → run and observe → explain → vary → retrieve**. Each has a concrete outcome, saved prediction, guided experiment, concept map, optional hints and expected observations, misconception-specific quiz feedback and a transfer question. Completion is the learner’s explicit choice; neither output nor a quiz answer automatically grants mastery.
+To regenerate the committed lesson pages after changing `site/workbench/lessons.js` or `tools/workbench-page.html`, run `npm run build:lessons`. To regenerate the CodeMirror bundle after changing its source, run `npm run build:editor`. CI verifies both generated outputs. The existing guest build regenerates the matching workbench baseline ELF.
 
-| Experiments | Focus |
-| --- | --- |
-| 1–6 | Boot, system calls, fork, pipes, redirection, instruction stepping |
-| 7–9 | PID, exec identity, exit/wait and memory isolation |
-| 10–13 | dup/shared offsets, unlink lifetime, hard links, pathname traversal |
-| 14–16 | sbrk, real Sv39 page-table walks, contained user faults |
-| 17–20 | Saved trapframes, scheduling, timer sleep/wakeup, blocking pipes and EOF |
-| 21–24 | Spinlocks, buffer cache, indirect blocks, transaction commit and recovery reasoning |
-| 25 | End-to-end capstone connecting processes, VM, IPC, scheduling and exit |
+## Kernel explorer
 
-**Run experiment** in the fixed step bar moves from your prediction into the observation task, boots if necessary, waits for the shell and prepares the command/breakpoint. Each lesson follows **Predict → Run & inspect → Explain → Try a change → Check**. One task is visible at a time, and the console stays mounted in the same workspace. The bar offers **Continue execution** at a stop and **Explain this result** after the shell returns. A breakpoint is global: shell or other kernel activity can reach it first. Continue resumes the same machine. Commands wait for a shell prompt; interactive programs accept direct console input, including Ctrl-D.
+The [existing 25 kernel experiments](https://snowch.github.io/xv6-lab/explorer/) remain available as a separate exploration tool. They cover boot, process creation and identity, files, pipes, memory, traps, scheduling, locks, cache, indirect blocks and transaction reasoning. Their original guided prediction/inspection/check workflow is preserved there. Existing root lesson deep links and the old workbench links redirect to the appropriate destination.
 
-## Inspect the real kernel
+## Inspect the real kernel in the explorer
 
 - Pause/continue, instruction step, one-shot named breakpoints, registers and disassembly.
 - A matching source excerpt for the current kernel instruction, plus an in-page full source reader.
@@ -49,9 +46,9 @@ npm run serve
 # http://localhost:8000
 ```
 
-Requires Node 24; local serving uses Python 3. The checked-in assets run without a compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
+Requires Node 24; local serving uses Python 3. The checked-in assets run without installing a host compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
 
-Tests drive all 25 lessons through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
+Tests compile and execute Chapter 1’s six examples and taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
 
 ## Build or modify the guest
 
@@ -66,13 +63,13 @@ npm test
 
 The build packages the ELF, disk image, DWARF source associations, complete source text, ELF symbol addresses, host-computed process-field offsets, and hashes. Run it after any guest change so inspectors stay consistent. Compiler versions can change binary bytes and source mappings; this is a rebuildable pinned source tree, not a claim of identical output from every toolchain.
 
-Local guest changes: add `user/lab.c` and its Makefile entry; use explicit RV64GC/LP64D, O3 flags; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while leaving the upstream Wasm unchanged. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
+Local guest changes: add `user/lab.c`, `user/workbench.c`, their Makefile entries and reserved incremental-link slots; use explicit RV64GC/LP64D, O3 flags; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while leaving the upstream Wasm unchanged. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
 
 ## Functional scope
 
 This is a single-hart functional lab. It does not claim hardware timing, real multicore contention or weak-memory coverage. Logging lessons execute filesystem operations and examine actual commit/recovery code, but do not claim a physical power-loss experiment. Reset discards session disk changes and boots the original image; it is not crash replay. Draft predictions and progress persist locally with a session-only fallback when storage is unavailable.
 
-Browser-side C compilation, C source-line stepping, persistent disk snapshots and multi-hart emulation are not supplied. Guest C can be edited and rebuilt with the included toolchain setup. Functional and Chromium rendering checks are automated. Safari, Firefox, physical-device and assistive-technology verification remain unperformed.
+The source lessons supply bounded browser-side C compilation. C source-line stepping, persistent disk snapshots and multi-hart emulation are not supplied. Full guest builds use the included native toolchain setup. Functional and Chromium rendering checks are automated. Safari, Firefox, physical-device and assistive-technology verification remain unperformed.
 
 ## Provenance
 
@@ -82,7 +79,7 @@ New code is MIT licensed. xv6 and riscv-rust retain their MIT licenses. The RISC
 
 ## Design and browser UX checks
 
-The [design and UX review](docs/design-ux-review.md) records the Frontend Design and Web Interface Guidelines skills used for this pass. The interface now uses self-hosted Source Sans 3 and IBM Plex Mono, clear lesson search, shareable lesson-step links and reset confirmation. The guided-flow revision supersedes the earlier two-view layout.
+The [design and UX review](docs/design-ux-review.md) records the Frontend Design and Web Interface Guidelines skills used for this pass. The interface now uses self-hosted Source Sans 3 and IBM Plex Mono, clear lesson search, shareable lesson-step links and reset confirmation. The source-led chapter is the primary course flow; the guided workflow remains in the kernel explorer.
 
 ```sh
 # Debian/Ubuntu: sudo apt-get install chromium
@@ -92,8 +89,8 @@ npm run test:browser
 
 The browser runner serves the site on an ephemeral local port, executes real guest interactions and saves previews under `.artifacts/`. CI repeats these checks at desktop, tablet and phone viewport sizes. Font licenses are in `site/fonts/`.
 
-## Guided-flow state
+## Kernel explorer guided-flow state
 
-The current task is shareable as `?step=observe#pagetables` (also predict/explain/vary/check). In-page return visits remember each lesson’s task. Predictions and completion keep their existing local-storage keys; captured guest output stays available for this tab session. Moving between tasks preserves the guest worker, console DOM node and its files. Completion remains explicit.
+An explorer task is shareable as `/explorer/?step=observe#pagetables` (also predict/explain/vary/check). In-page return visits remember each lesson’s task. Predictions and completion keep their existing local-storage keys; captured guest output stays available for this tab session. Moving between tasks preserves the guest worker, console DOM node and its files. Completion remains explicit.
 
 A lesson change during boot cancels the queued command without recording a successful run. Automatic inspections that become stale when execution resumes are ignored; manual inspection errors still report their cause. Browser tests verify the five-step path, console identity/position, inline page-table inspection without opening advanced tools, and deep links.

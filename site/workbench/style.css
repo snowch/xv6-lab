@@ -788,3 +788,363 @@ body[data-build-state="error"] .activity > span {
     max-width: 85ch;
   }
 }
+/* A lesson is a reading page with one embedded, persistent experiment. */
+.lesson-page main {
+  max-width: 1220px;
+  padding-top: 32px;
+}
+.lesson-page .project-heading {
+  margin-bottom: 24px;
+}
+.lesson-page h1 {
+  font-size: clamp(30px, 3vw, 42px);
+  max-width: 30ch;
+}
+.lesson-reading {
+  max-width: 780px;
+  margin: 0 auto 34px;
+}
+.lesson-reading p {
+  font-size: 19px;
+  line-height: 1.8;
+  margin: 0 0 19px;
+}
+.lesson-reading .code-link {
+  font-size: 17px;
+}
+.source-figure {
+  margin: 26px 0;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.source-figure figcaption {
+  padding: 11px 18px;
+  background: #f6f9fd;
+  border-bottom: 1px solid var(--line);
+  font: 15px/1.7 var(--mono);
+  color: #3e5d7d;
+}
+.source-figure pre {
+  padding: 18px;
+  margin: 0;
+  overflow: auto;
+  font: 16px/1.8 var(--mono);
+  tab-size: 2;
+}
+.source-figure p {
+  padding: 15px 18px;
+  margin: 0;
+  background: #f0f7f6;
+  border-top: 1px solid #d7e7e3;
+  font-size: 17px;
+  color: #315e59;
+}
+.lesson-reading details summary,
+.lesson-ending details summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  color: #315c8c;
+}
+.call-path {
+  font: 16px/1.8 var(--mono);
+  overflow-wrap: anywhere;
+  padding: 12px 16px;
+  border-left: 3px solid var(--teal);
+  background: #e2eeed;
+}
+.experiment-intro {
+  max-width: 780px;
+  margin: 0 auto 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+.experiment-intro h2,
+.lesson-ending h2 {
+  font-size: 25px;
+  font-weight: 600;
+  margin: 3px 0 9px;
+}
+.experiment-intro p {
+  font-size: 19px;
+  margin-top: 0;
+}
+.lesson-page .workbench-grid {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+}
+.lesson-page .machine-pane {
+  position: static;
+}
+.lesson-page #source-editor {
+  height: 330px;
+}
+.lesson-page .console-area {
+  height: 285px;
+}
+.lesson-ending {
+  max-width: 780px;
+  margin: 34px auto 0;
+}
+.lesson-ending > p {
+  font-size: 19px;
+  line-height: 1.8;
+}
+.lesson-navigation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.lesson-navigation a {
+  display: block;
+  text-decoration: none;
+  border: 1px solid #b7cbe5;
+  border-radius: 6px;
+  padding: 16px 18px;
+  background: white;
+  font-size: 19px;
+  line-height: 1.5;
+}
+.lesson-navigation a:hover {
+  border-color: var(--blue);
+  background: #f3f7fe;
+}
+.lesson-navigation a[data-direction="next"] {
+  text-align: right;
+}
+.lesson-navigation small {
+  display: block;
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.lesson-menu {
+  position: relative;
+  margin-left: auto;
+}
+.lesson-menu summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+  font-size: 17px;
+  color: #315c8c;
+}
+.lesson-menu nav {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  min-width: 350px;
+  z-index: 8;
+  display: block;
+  padding: 10px;
+  background: white;
+  box-shadow: 0 10px 35px #1c30491f;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+.app-header .lesson-menu nav a {
+  display: block;
+  font-size: 17px;
+  padding: 10px 12px;
+}
+.lesson-menu nav a span {
+  color: var(--muted);
+  display: inline-block;
+  width: 24px;
+}
+.course-page {
+  padding-bottom: 0;
+}
+.course-main {
+  max-width: 1000px;
+}
+.course-intro {
+  padding: 50px 0 40px;
+}
+.course-intro h1 {
+  font-size: clamp(38px, 5.5vw, 60px);
+  line-height: 1.12;
+  letter-spacing: -1.4px;
+  margin: 14px 0 24px;
+}
+.course-intro > p {
+  font-size: 21px;
+  max-width: 62ch;
+  line-height: 1.75;
+}
+.course-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 26px 0 22px;
+}
+.course-actions .primary {
+  display: inline-block;
+  padding: 12px 21px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 19px;
+  font-weight: 600;
+}
+.course-intro .course-requirements {
+  font-size: 17px;
+  color: var(--muted);
+}
+#chapter-one {
+  border-top: 1px solid var(--line);
+  padding-top: 30px;
+}
+#chapter-one h2,
+.course-roadmap h2 {
+  font-size: 29px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 9px 0 14px;
+}
+.chapter-intro {
+  font-size: 20px;
+  max-width: 65ch;
+  margin-bottom: 26px;
+}
+.course-lessons {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #bfcee1;
+  border-radius: 8px;
+  background: white;
+  overflow: hidden;
+}
+.course-lessons li + li {
+  border-top: 1px solid var(--line);
+}
+.course-lessons a {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 21px 24px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.course-lessons a:hover {
+  background: #f1f6fe;
+}
+.course-lessons a > span:nth-child(2) {
+  flex: 1;
+}
+.course-lessons strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 5px;
+}
+.course-lessons a span span {
+  display: block;
+  font-size: 18px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.lesson-number {
+  font: 20px var(--mono);
+  color: var(--teal);
+  align-self: start;
+  padding-top: 5px;
+}
+.course-roadmap {
+  padding: 35px 0 25px;
+  margin-top: 20px;
+}
+.course-roadmap p,
+.course-roadmap li {
+  font-size: 19px;
+  line-height: 1.8;
+}
+.course-roadmap ol {
+  padding-left: 26px;
+  color: var(--muted);
+}
+.course-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px 25px;
+  border-top: 1px solid var(--line);
+  padding: 22px 0;
+  font-size: 17px;
+}
+@media (max-width: 850px) {
+  .lesson-page .workbench-grid {
+    display: flex;
+  }
+  .lesson-page .lesson-menu {
+    order: 3;
+    width: 100%;
+    margin: 0;
+  }
+  .lesson-menu nav {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    box-shadow: none;
+    margin-top: 6px;
+  }
+  .app-header .lesson-menu nav a {
+    text-align: left;
+  }
+  .lesson-page main {
+    padding-top: 24px;
+  }
+  .lesson-reading p,
+  .experiment-intro p,
+  .lesson-ending > p {
+    font-size: 18px;
+  }
+  .lesson-navigation {
+    gap: 10px;
+  }
+  .lesson-navigation a {
+    padding: 12px;
+    font-size: 17px;
+  }
+  .lesson-navigation small {
+    font-size: 14px;
+  }
+  .source-figure pre {
+    font-size: 15px;
+    padding: 14px;
+  }
+  .source-figure figcaption {
+    font-size: 14px;
+  }
+  .course-intro {
+    padding: 25px 0;
+  }
+  .course-intro > p {
+    font-size: 19px;
+  }
+  .course-intro h1 {
+    letter-spacing: -0.7px;
+  }
+  .course-lessons a {
+    padding: 18px 14px;
+    gap: 13px;
+  }
+  .course-lessons strong {
+    font-size: 20px;
+  }
+  .course-lessons a span span {
+    font-size: 17px;
+  }
+  .lesson-number {
+    font-size: 17px;
+  }
+  #chapter-one h2,
+  .course-roadmap h2 {
+    font-size: 25px;
+  }
+}

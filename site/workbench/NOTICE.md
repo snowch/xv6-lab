@@ -1,6 +1,6 @@
 # Source workbench: provenance and limits
 
-This is a working preview of two source-led exercises, not a migration of all 25 lessons. All compilation and guest execution happen locally; the static site has no compile server.
+Chapter 1 contains six source-led lessons, each with its own page. Later chapters are planned; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
 
 ## Compiler
 

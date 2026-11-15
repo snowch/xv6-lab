@@ -6,7 +6,7 @@ import { lessons } from "../site/lessons.js";
 
 test("all lessons navigate, grade answers, save explicit completion, and operate machine controls", async () => {
   const dom = new JSDOM(
-    readFileSync(new URL("../site/index.html", import.meta.url), "utf8"),
+    readFileSync(new URL("../site/explorer/index.html", import.meta.url), "utf8"),
     { url: "https://example.test/xv6-lab/#boot" },
   );
   Object.assign(globalThis, {

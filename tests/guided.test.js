@@ -32,7 +32,7 @@ test(
   { timeout: 300000 },
   async (t) => {
     const dom = new JSDOM(
-      readFileSync(new URL("../site/index.html", import.meta.url), "utf8"),
+      readFileSync(new URL("../site/explorer/index.html", import.meta.url), "utf8"),
       { url: "https://example.test/xv6-lab/#boot" },
     );
     dom.window.matchMedia = (query) => ({
