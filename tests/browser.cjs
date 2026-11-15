@@ -251,16 +251,35 @@ const server = http.createServer((req, res) => {
           mobileEdit
         ) {
           await page.locator("#build-run").click();
-          await page.waitForFunction(
-            () =>
-              document.body.dataset.buildState === "error" ||
-              document.querySelector("#run-status").textContent ===
-                "Run complete" ||
-              document.querySelector("#run-status").textContent ===
-                "Kernel panic",
-            null,
-            { timeout: 60000 },
-          );
+          await page
+            .waitForFunction(
+              () =>
+                document.body.dataset.buildState === "error" ||
+                document.querySelector("#run-status").textContent ===
+                  "Run complete" ||
+                document.querySelector("#run-status").textContent ===
+                  "Kernel panic",
+              null,
+              { timeout: 60000 },
+            )
+            .catch(async (error) => {
+              await page.screenshot({
+                path: path.join(
+                  artifacts,
+                  "failed-" + name + "-" + id + ".png",
+                ),
+                fullPage: true,
+              });
+              error.message =
+                id +
+                ": " +
+                (await page.locator("#run-status").textContent()) +
+                "\n" +
+                (await page.locator("#terminal").textContent()) +
+                "\n" +
+                error.message;
+              throw error;
+            });
           assert.notEqual(
             await page.locator("body").getAttribute("data-build-state"),
             "error",

@@ -66,7 +66,7 @@ Native instruction helpers bridge RISC-V inline assembly that TCC cannot assembl
 
 Eight lessons split virtual addresses, walk actual Sv39 entries, compare permission bits, inspect RAM/MMIO mappings, exercise a real guard-page fault, compare trampoline/trapframe mappings, and test checked copies across page boundaries. The next chapter follows these mappings through traps and system calls. Kernel lessons with a supplied user test program expose its exact source in an optional disclosure.
 
-The original emulator ignored PTE_U. The lab now uses a source-built permission correction for U/S, SUM and MXR, with cache invalidation and five focused Rust tests. The full patched source, lockfile, dependency licenses and rebuild script are included. See [runtime provenance](site/vendor/NOTICE.md).
+The original emulator ignored PTE_U. The lab now uses a source-built permission correction for U/S, SUM and MXR, with cache invalidation and five focused Rust tests. A supervisor interrupt correction also prevents timer acknowledgement from erasing a pending disk interrupt, with three focused Rust regressions. The full patched source, lockfile, dependency licenses and rebuild script are included. See [runtime provenance](site/vendor/NOTICE.md).
 
 ## Chapter 9: Traps and system-call machinery
 

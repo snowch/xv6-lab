@@ -159,3 +159,12 @@ The native bssprobe has a volatile 4096-byte uninitialized object. readelf confi
 The full exec edit biases only workbench's saved entry sp by eight bytes and observes its actual modulo-16 alignment. The integer fixture may still run while violating the ABI; no relaxed alignment guarantee is inferred. The capstone transfers actual pipe bytes into a file and execs the unchanged cat to read them back. All native images, source metadata and hashes are rebuilt together, with guest4 cache versions including the compiler-worker entry URL.
 
 The context-switch chapter also explicitly traces kernelvec/kerneltrap saving and restoring sepc/sstatus across a possible kernel timer yield, distinct from restoring a user trapframe.
+
+Full-course regression found a disk-notification race in the upstream emulator:
+SIP writes could clear SEIP if completion arrived between a software-timer handler's
+SIP read and write. Frozen guest inspection showed device used index 67, driver
+index 66 and a sleeping I/O waiter. The source correction makes only SSIP writable
+through SIP. Three Rust regressions fail before the correction and pass afterward;
+the complete source archive, patch, rebuilt engine and provenance are updated.
+The native BSS executable is appended after existing programs to retain their
+filesystem identities and block locations.

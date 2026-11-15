@@ -1,4 +1,4 @@
-import init, { WasmRiscv } from "./vendor/riscv_emu_rust_wasm.js?v=mmu2";
+import init, { WasmRiscv } from "./vendor/riscv_emu_rust_wasm.js?v=irq3";
 let layout,
   source,
   vm,
