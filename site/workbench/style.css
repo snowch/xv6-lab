@@ -1197,3 +1197,76 @@ body[data-build-state="error"] .activity > span {
   line-height: 1.65;
   margin: 12px 0 0;
 }
+
+.c-prerequisites {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--teal);
+  border-radius: 7px;
+  padding: 22px 25px;
+  margin: 0 0 35px;
+}
+.c-prerequisites h2 {
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0 0 12px;
+}
+.c-prerequisites p {
+  font-size: 18px;
+  line-height: 1.75;
+  margin: 12px 0;
+}
+.c-prerequisites .c-interface-note {
+  color: var(--muted);
+  font-size: 17px;
+}
+.c-reminder {
+  margin: 24px 0;
+  background: #f7fbff;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 0 17px;
+}
+.lesson-reading .c-reminder summary {
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 600;
+  padding: 10px 0;
+  min-height: 48px;
+}
+.c-reminder-content {
+  padding: 3px 0 7px;
+}
+.lesson-reading .c-reminder p {
+  font-size: 18px;
+  line-height: 1.75;
+}
+.c-reminder pre {
+  margin: 15px 0;
+  padding: 13px 15px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 16px/1.8 var(--mono);
+}
+.c-reminder pre code {
+  font: inherit;
+}
+.lesson-reading .c-refresher-links {
+  font-size: 17px;
+}
+.new-tab-label {
+  font-size: 0.88em;
+  white-space: nowrap;
+}
+@media (max-width: 850px) {
+  .c-prerequisites {
+    padding: 18px;
+  }
+  .c-reminder {
+    padding-inline: 13px;
+  }
+}

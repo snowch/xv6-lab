@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="wakeup-makes-a-process-runnable">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A sleeping process has a <strong>channel</strong> identifying the condition it is waiting for. In the pipe example, readers wait on an address associated with the read counter.</p><p>After a producer changes the pipe, it calls wakeup on that channel. The kernel marks matching sleeping processes <strong>RUNNABLE</strong>. This makes them eligible for scheduling; it does not immediately transfer the CPU to every awakened process.</p><p>The reader checks its pipe condition again when it runs. A condition loop remains necessary because a wakeup signals possible progress, and another reader could consume data first.</p></div>
+        <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
+p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

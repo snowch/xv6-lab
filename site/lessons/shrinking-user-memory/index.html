@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="shrinking-user-memory">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A negative <button class="code-link" data-focus="sbrk(-4096)">sbrk</button> argument shrinks the process memory boundary. When complete pages fall outside the new boundary, xv6 unmaps and releases them.</p><p>The example adds one page, uses it, then removes it. The final break should equal the original break. It deliberately does not read the old pointer after release: that address no longer belongs to this allocation.</p><p>The kernel rounds boundaries to whole pages when deciding which mappings to remove. Shrinking by a few bytes within a retained page does not necessarily remove that page.</p></div>
+        <details class="c-reminder"><summary>C reminder: pointer values and memory lifetime</summary><div class="c-reminder-content"><p>A pointer can keep an address after the memory it referred to has been released. Retaining the value does not keep that allocation alive. The fault lesson deliberately makes an invalid access in a child; volatile does not make that address valid again.</p><pre translate="no"><code>char *saved = p;
+// Releasing p’s allocation does not clear saved.</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/allocation/4" target="_blank" rel="noopener noreferrer">Dangling pointers and memory lifetime <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

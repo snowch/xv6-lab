@@ -4,6 +4,12 @@
 
 Learn how an operating system works, one small experiment at a time. A real xv6 RISC-V kernel executes locally in a WebAssembly worker. Its console, process records, trapframes and page tables come from actual guest execution.
 
+## C prerequisite
+
+Be comfortable reading small C programs: variables, conditions, loops, function calls and return values. The [course contents](https://snowch.github.io/xv6-lab/#c-prerequisites) links focused [C Foundry](https://snowch.github.io/c-foundry/) refreshers for those skills; completing its whole course is unnecessary.
+
+Each lesson has a short, expandable C reminder beside the reading, covering the syntax it uses, including pointers, arrays and structs. Optional links open the relevant C Foundry topic in a new tab so your xv6 lesson and draft stay in place. xv6’s own headers and system calls are introduced in this lab.
+
 ## Chapter 1: Programs and system calls
 
 The main entry point is a course contents page. Six short lesson pages each teach one concept through explanation, matching xv6 source, one runnable experiment and a takeaway. Previous/Next links connect the pages; the chapter menu allows direct access without gates. Drafts are saved separately for each lesson.

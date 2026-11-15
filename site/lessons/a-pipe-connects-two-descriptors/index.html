@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="a-pipe-connects-two-descriptors">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p><button class="code-link" data-focus="pipe(p)">pipe(p)</button> creates a kernel byte buffer and returns two file descriptors in the array <code>p</code>. <code>p[0]</code> reads from it; <code>p[1]</code> writes to it.</p><p>The example writes three bytes and reads them back through the other end. There is no pathname to open: the pipe is connected through the descriptors the kernel returned.</p><p>The two open-file objects have different permissions but point to the same pipe object. The existing read/write system calls dispatch to pipe operations when they encounter this file type.</p></div>
+        <details class="c-reminder"><summary>C reminder: arrays used as output arguments</summary><div class="c-reminder-content"><p>int p[2] reserves two integer elements. Passing p to pipe supplies the array’s starting address, so the function can fill p[0] and p[1]. They are integer handles, not pointers to the pipe’s bytes.</p><pre translate="no"><code>int p[2];
+if (pipe(p) == 0) { /* use p[0] and p[1] */ }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays and pointers <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

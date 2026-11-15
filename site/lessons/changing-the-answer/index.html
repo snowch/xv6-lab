@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="changing-the-answer">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The handler currently returns the value stored in <code>myproc()->pid</code>. A <button class="code-link" data-focus="return">return</button> expression computes an answer for the caller. It does not automatically assign that answer back into the process record.</p><p>Change it to <code>return myproc()->pid + 1000;</code>. When compiled, this kernel will read the PID, add 1000, and return the sum. The user program prints that sum. The evidence panel independently reads the process record at system-call entry and at process exit.</p><p>The dispatcher puts the handler’s returned value in the saved user <code>a0</code> register, as shown below. The kernel keeps the user registers in a saved record called a trapframe while it handles the call. Setting its <code>a0</code> field delivers the answer as the calling C function’s result.</p></div>
+        <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
+p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>
