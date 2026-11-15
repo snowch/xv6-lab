@@ -1,3 +1,4 @@
+import { chapter13Lessons } from "./chapter13.js?v=chapter13";
 import { chapter12Lessons } from "./chapter12.js?v=chapter12";
 import { chapter11Lessons } from "./chapter11.js?v=chapter11";
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
@@ -277,6 +278,14 @@ chapters.push({
     "Follow atomic claims, ownership, interrupt nesting, publication, sleeping locks and the protocols that prevent lost wakeups and deadlock.",
   lessonIds: Object.keys(chapter12Lessons),
 });
+chapters.push({
+  number: 13,
+  id: "chapter-thirteen",
+  title: "Filesystem structure",
+  intro:
+    "Follow disk regions, buffer and inode caches, directory traversal, allocation, block mapping and reclamation.",
+  lessonIds: Object.keys(chapter13Lessons),
+});
 export const plannedChapters = [
   {
     number: 8,
@@ -323,6 +332,7 @@ export const lessons = {
   ...chapter10Lessons,
   ...chapter11Lessons,
   ...chapter12Lessons,
+  ...chapter13Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;
