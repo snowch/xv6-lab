@@ -1,3 +1,4 @@
+import { chapter14Lessons } from "./chapter14.js?v=chapter14";
 import { chapter13Lessons } from "./chapter13.js?v=chapter13";
 import { chapter12Lessons } from "./chapter12.js?v=chapter12";
 import { chapter11Lessons } from "./chapter11.js?v=chapter11";
@@ -286,6 +287,14 @@ chapters.push({
     "Follow disk regions, buffer and inode caches, directory traversal, allocation, block mapping and reclamation.",
   lessonIds: Object.keys(chapter13Lessons),
 });
+chapters.push({
+  number: 14,
+  id: "chapter-fourteen",
+  title: "Logging and recovery",
+  intro:
+    "Reserve journal capacity, absorb block updates, find the commit point and run actual boot replay.",
+  lessonIds: Object.keys(chapter14Lessons),
+});
 export const plannedChapters = [
   {
     number: 8,
@@ -333,6 +342,7 @@ export const lessons = {
   ...chapter11Lessons,
   ...chapter12Lessons,
   ...chapter13Lessons,
+  ...chapter14Lessons,
 };
 for (const chapter of chapters)
   for (const id of chapter.lessonIds) lessons[id].chapter = chapter.number;

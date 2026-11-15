@@ -1,4 +1,4 @@
-import { buildExercise } from "./build.js?v=kernel3";
+import { buildExercise } from "./build.js?v=journal1";
 async function bytes(path) {
   const response = await fetch(new URL(path, import.meta.url));
   if (!response.ok)

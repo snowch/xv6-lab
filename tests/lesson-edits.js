@@ -1,4 +1,34 @@
 export const edits = {
+  "filesystem-operations-reserve-log-space": {
+    edit: (s) => s.replace("OPERATIONS 1", "OPERATIONS 2"),
+    expected: "outstanding observed=2",
+  },
+  "the-log-absorbs-repeated-block-updates": {
+    edit: (s) => s.replace("ABSORB 1", "ABSORB 0"),
+    expected: "extra pin on repeat=1",
+  },
+  "the-last-operation-triggers-commit": {
+    edit: (s) => s.replace("FINISH 1", "FINISH 2"),
+    expected: "pending before cleanup=0",
+  },
+  "the-header-is-the-commit-point": {
+    edit: (s) =>
+      s.replace(
+        "    observe_header();\n    write_head();    // Write header to disk -- the real commit",
+        "    write_head();    // Write header to disk -- the real commit\n    observe_header();",
+      ),
+    expected: "header records a commit=1",
+  },
+  "boot-replays-a-committed-journal": {
+    edit: (s) => s.replace("  install_trans(1);", "  // install_trans(1);"),
+    expected: "recovered byte=O",
+  },
+  "redo-replay-is-idempotent": {
+    edit: (s) => s.replace("REPLAYS 1", "REPLAYS 2"),
+    expected: "replay passes=2",
+    verify: (out) => out.includes("recovered byte=R"),
+  },
+
   "the-superblock-describes-disk-regions": {
     edit: (s) => s.replace("count = sb.size", "count = sb.nblocks"),
     expected: "selected block count=954",

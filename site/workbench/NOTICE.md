@@ -33,3 +33,5 @@ The trap chapter replaces usertrap, syscall, argint and usertrapret in focused e
 A lesson may replace multiple named kernel functions in one compiled unit; their globals and address table are linked once and shared by those functions. Driver tracing can therefore use a real handler plus a lab-only arming hook. The console editing fixture directly invokes the actual consoleintr callback and does not claim physical keyboard input.
 
 The native baseline exposes `wb_disk_descriptors` in `kernel/virtio_disk.c`, a read-only accessor returning the real descriptor-array pointer. This bridges TCC’s large-global-offset limitation; it does not synthesize requests or device output. The front-page conceptual illustration was generated for this course.
+
+Journal recovery lessons use a source-visible prepared disk fixture in filesystem.js: a committed header and payload target README's data block while its home byte retains the old value. The fixture does not install home data or manufacture output. Actual compiled xv6 recovery performs the installation at boot. Private journal type definitions come from the matching kernel/log.c source.

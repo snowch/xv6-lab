@@ -319,6 +319,12 @@ const topics = {
   },
 };
 const map = {
+  "filesystem-operations-reserve-log-space": "loops",
+  "the-log-absorbs-repeated-block-updates": "structPointer",
+  "the-last-operation-triggers-commit": "loops",
+  "the-header-is-the-commit-point": "structPointer",
+  "boot-replays-a-committed-journal": "calls",
+  "redo-replay-is-idempotent": "loops",
   "the-superblock-describes-disk-regions": "structValue",
   "the-buffer-cache-reuses-block-identity": "structPointer",
   "references-keep-cache-buffers-resident": "loops",
