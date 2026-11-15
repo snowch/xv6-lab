@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="timer-preemption-enters-the-scheduler">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A CPU-bound user program need not volunteer to yield. A timer interrupt traps into the kernel, devintr identifies it as a timer event, and usertrap calls yield. The kernel can therefore regain scheduling control during a long computation.</p><p>This compiled unit replaces the actual usertrap and supplies a temporary getpid lab hook. The first hook call arms a counter; the supplied program then executes a bounded busy loop in user space. The second hook call returns the number of observed timer-driven yields. It intentionally changes getpid’s meaning in this isolated experiment.</p><p>Build and expect the boolean observation 1, meaning at least one such yield occurred. Set PREEMPT to 0 to skip this usertrap yield for workbench and observe 0. Timer ticks still advance, and kerneltrap has its own preemption path; this edit does not disable all interrupts or all kernel preemption. The count is functional evidence, not a timing benchmark.</p><p>Interrupts during kernel execution enter kernelvec, which saves kernel registers on the current kernel stack. kerneltrap saves sepc and sstatus, handles the device, and may yield on a timer while a process is RUNNING. It restores those saved trap registers before kernelvec returns. This kernel-interrupt path does not restore the user trapframe.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="states" aria-labelledby="concept-title-states"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-states">Wakeup makes a process eligible to run</strong></figcaption><p class="concept-summary">This is one illustrative schedule on one hart. Being runnable is distinct from currently running.</p><ol class="concept-map concept-compare concept-count-3" id="concept-map-states"><li class="concept-node" data-node="cpu"><strong>CPU scheduler</strong><span class="concept-value">Chooses a RUNNABLE process.</span></li><li class="concept-node" data-node="a" data-active="true"><strong>Process A</strong><span class="concept-value">RUNNING</span></li><li class="concept-node" data-node="b"><strong>Process B</strong><span class="concept-value">RUNNABLE</span></li></ol><div class="concept-frame" id="concept-frame-states" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">A runs</strong><p class="concept-frame-text">Only one process executes on this hart. B is eligible but is not running.</p></div><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-states" disabled>← Previous step</button><span class="concept-position">Step 1 of 5</span><button type="button" data-concept-next aria-controls="concept-map-states">Next step →</button></div><details class="concept-transcript"><summary>Read all 5 steps</summary><ol><li><strong>A runs.</strong> Only one process executes on this hart. B is eligible but is not running.</li><li><strong>A waits.</strong> A publishes its sleep channel and SLEEPING state before switching to the scheduler.</li><li><strong>B runs.</strong> The scheduler marks B RUNNING and switches into B’s saved kernel context.</li><li><strong>A is woken.</strong> wakeup changes A to RUNNABLE. It does not immediately replace B on the CPU.</li><li><strong>A resumes later.</strong> After a scheduling handoff, A can become RUNNING again. This example order is not a fairness or timing guarantee.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · scheduler · yield · sleep · wakeup</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: static state shared by callbacks</summary><div class="c-reminder-content"><p>A file-scope static variable has one storage location for this compiled kernel unit and starts at zero. Its value persists between function calls in this VM, so a probe can arm an interrupt observer and later disarm it. An ordinary local variable is separate for each call. A fresh VM resets this state independently of the source draft saved in your browser.</p><pre translate="no"><code>static int watching;
 watching = !watching;  // toggle between 0 and 1</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/3" target="_blank" rel="noopener noreferrer">Scope and storage duration <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/2" target="_blank" rel="noopener noreferrer">Variables and initialisation <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ watching = !watching;  // toggle between 0 and 1</code></pre><p class="c-refresh
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

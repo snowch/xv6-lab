@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="redo-replay-is-idempotent">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A crash may interrupt recovery itself. The journal cannot depend on remembering which home blocks were already installed in the previous boot. Instead, copying a committed final block image is idempotent: copying it again leaves the same bytes.</p><p>This page uses the same prepared O-to-R committed journal. The edited recovery loops over the actual install_trans routine before clearing its header. Build for one pass and read R. Set REPLAYS to 2 for two real installation passes; the resulting file still contains R.</p><p>This property would not follow from replaying an arbitrary instruction such as “increment this byte.” A redo log stores the desired block image, and the committed header remains available until installation is complete. Clearing it is safe only after every recorded image has reached its home location.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="recovery" aria-labelledby="concept-title-recovery"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-recovery">Replay the committed image into its home block</strong></figcaption><p class="concept-summary">The lesson’s prepared example begins with O at home and R in a committed journal entry.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-recovery"><li class="concept-node" data-node="log" data-active="true"><span class="concept-zone">Journal data</span><strong>Journal payload</strong><span class="concept-value">R</span></li><li class="concept-node" data-node="home"><span class="concept-zone">Home data</span><strong>README home block</strong><span class="concept-value">O</span></li><li class="concept-node" data-node="header" data-active="true"><span class="concept-zone">Commit marker</span><strong>Journal header</strong><span class="concept-value">n = 1</span></li></ol><div class="concept-frame" id="concept-frame-recovery" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Read the committed header</strong><p class="concept-frame-text">read_head discovers the committed entry naming README’s home block.</p></div><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-recovery" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-recovery">Next step →</button></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Read the committed header.</strong> read_head discovers the committed entry naming README’s home block.</li><li><strong>Install its final image.</strong> install_trans copies the logged block. README’s home byte is now R.</li><li><strong>Repeat safely.</strong> Copying the identical image again leaves R unchanged. This is redo idempotence, not a second increment.</li><li><strong>Clear after installation.</strong> Recovery clears n only after installing the image. The home byte remains R.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/log.c · recover_from_log · install_trans</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: loops and bounds</summary><div class="c-reminder-content"><p>The initialiser runs once, the condition is checked before each iteration, and i++ advances the index afterwards. With i &lt; count, the visited indices are 0 through count - 1. The array must have enough elements for those accesses.</p><pre translate="no"><code>for (int i = 0; i &lt; count; i++) {
   /* use element i */
 }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">Loops and repetition <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/1" target="_blank" rel="noopener noreferrer">Array indexing and bounds <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -106,7 +107,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

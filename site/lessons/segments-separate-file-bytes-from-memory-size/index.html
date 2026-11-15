@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="segments-separate-file-bytes-from-memory-size">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A loadable program segment names a file offset, a virtual address, a file byte count and a memory byte count. The kernel allocates memsz bytes but copies only filesz bytes. The remaining memory must start at zero.</p><p>The supplied native bssprobe contains an uninitialized 4096-byte object in a real ELF NOBITS section. Its loadable segment therefore has memsz greater than filesz. The probe reads the actual program header from that executable. Build and observe 1, then select filesz itself to observe 0.</p><p>ELF segment flags and the kernel’s chosen page permissions are separate. As the earlier memory chapter showed, this pinned xv6 maps ordinary user allocations RWX; it does not derive per-segment permissions from these ELF flags.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="elf" aria-labelledby="concept-title-elf"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-elf">Construct a memory image from ELF segments</strong></figcaption><p class="concept-summary">A loadable segment supplies filesz file bytes and requires memsz bytes of memory.</p><ol class="concept-map concept-stack concept-count-3" id="concept-map-elf"><li class="concept-node" data-node="file"><strong>File-backed prefix</strong><span class="concept-value">Copy filesz bytes from the segment’s file offset.</span></li><li class="concept-node" data-node="tail"><strong>Zero-filled tail</strong><span class="concept-value">The remaining memsz − filesz bytes have no stored file payload.</span></li><li class="concept-node" data-node="stack"><strong>User stack and arguments</strong><span class="concept-value">Allocate a guarded stack area; copy strings and argv pointers.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/exec.c · exec · loadseg; kernel/vm.c · uvmalloc</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: struct members and output arguments</summary><div class="c-reminder-content"><p>The dot operator reads a member of a struct value. &amp;st passes its address so fstat can fill it. Check that the call succeeded before reading those fields; declaring a local struct alone does not initialise its contents.</p><pre translate="no"><code>struct stat st;
 if (fstat(fd, &amp;st) == 0)
   printf(&quot;links=%d\n&quot;, st.nlink);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/1" target="_blank" rel="noopener noreferrer">Structs and member access <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -108,7 +109,8 @@ if (fstat(fd, &amp;st) == 0)
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -248,6 +250,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

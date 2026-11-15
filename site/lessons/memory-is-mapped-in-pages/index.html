@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="memory-is-mapped-in-pages">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>xv6 manages user memory in <strong>pages</strong> of 4096 bytes. A <strong>page table</strong> connects a process’s virtual pages to physical memory pages and records their permissions.</p><p>This example requests two pages. <button class="code-link" data-focus="p[4096]">p[4096]</button> is one page beyond <code>p[0]</code>. Both addresses work because the growth operation creates the needed mappings.</p><p>In the kernel loop, <code>a</code> is a user virtual address and <code>mem</code> is a newly allocated physical page. <code>mappages</code> connects the two. Adjacent virtual pages do not have to be adjacent in physical RAM.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="pages" aria-labelledby="concept-title-pages"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-pages">Memory growth crosses page boundaries</strong></figcaption><p class="concept-summary">The logical size is measured in bytes; physical allocation and mappings use 4096-byte pages.</p><ol class="concept-map concept-compare concept-count-3" id="concept-map-pages"><li class="concept-node" data-node="size"><strong>p-&gt;sz</strong><span class="concept-value">The requested byte limit can end inside a page.</span></li><li class="concept-node" data-node="map"><strong>Page mapping</strong><span class="concept-value">A leaf PTE connects a virtual page to a physical page.</span></li><li class="concept-node" data-node="offset"><strong>Byte within the page</strong><span class="concept-value">The low 12 address bits select the byte.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · growproc; kernel/vm.c · uvmalloc</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointer arithmetic and indexing</summary><div class="c-reminder-content"><p>p[i] means *(p + i). Adding one to a char pointer advances one byte; other pointer types advance by their element size. Keep accesses within the live allocated region. Moving a pointer does not allocate more memory.</p><pre translate="no"><code>char *next = p + 1;  // the next char address
 p[0] = 17;           // write through the pointer</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays, pointers and pointer arithmetic <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ p[0] = 17;           // write through the pointer</code></pre><p class="c-refres
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

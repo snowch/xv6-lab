@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="a-user-fault-is-contained">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A user program cannot use an unmapped page merely because it still has the old address. A CPU access without a valid mapping causes a <strong>page fault</strong>, which transfers control to the kernel.</p><p>This example confines a deliberately invalid read to a child. The child allocates a page, releases it, then uses a <code>volatile</code> pointer to request a real read from the released address. The parent waits and reports the outcome.</p><p>In this xv6 version, the unhandled user fault marks that process as killed and ends it with status <code>-1</code>. The parent and operating system continue. The diagnostic is expected here; it is not evidence that the whole kernel crashed.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="userfault" aria-labelledby="concept-title-userfault"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-userfault">A stale address does not retain its mapping</strong></figcaption><p class="concept-summary">The child releases a page, then reads through its old pointer. The parent is a separate process.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-userfault"><li class="concept-node" data-node="released"><strong>Child releases a page</strong><span class="concept-value">sbrk(-4096) removes its mapping; the pointer variable still holds the old address.</span></li><li class="concept-node" data-node="fault"><strong>Child reads that address</strong><span class="concept-value">The CPU faults. usertrap marks the child killed; exit records status -1.</span></li><li class="concept-node" data-node="parent"><strong>Parent continues</strong><span class="concept-value">wait collects the child’s status. The parent’s mappings remain its own.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/vm.c · uvmdealloc; kernel/trap.c · usertrap; kernel/proc.c · exit · wait</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointer values and memory lifetime</summary><div class="c-reminder-content"><p>A pointer can keep an address after the memory it referred to has been released. Retaining the value does not keep that allocation alive. The fault lesson deliberately makes an invalid access in a child; volatile does not make that address valid again.</p><pre translate="no"><code>char *saved = p;
 // Releasing p’s allocation does not clear saved.</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/allocation/4" target="_blank" rel="noopener noreferrer">Dangling pointers and memory lifetime <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

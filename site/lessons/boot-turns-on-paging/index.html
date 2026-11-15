@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="boot-turns-on-paging">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>RISC-V distinguishes machine, supervisor and user privilege. start prepares a return into supervisor mode, where the kernel runs. It also writes zero to <code>satp</code>, the register controlling supervisor address translation: paging initially starts disabled.</p><p>main first builds the kernel page table with kvminit, then installs it with kvminithart. The top four bits of satp encode its translation mode: 0 means Bare, and 8 means Sv39. The next chapter follows the page-table structure behind that mode.</p><p>The observation runs just after kinit, before the page table is installed. Build and expect mode 0. The browser C compiler uses a small native helper calling r_satp from riscv.h. That function executes a CSR-read instruction; the returned value comes from this running CPU.</p></div>
+        <div id="concept-slot"></div>
         <details class="c-reminder"><summary>C reminder: shifts, masks and casts</summary><div class="c-reminder-content"><p>Right-shifting an unsigned 64-bit value moves its high bits down. A mask selects particular bits; a cast converts the resulting value to the requested C type. Here shifting by 60 extracts the top four mode bits, then the int cast supplies printf’s %d argument.</p><pre translate="no"><code>int mode = (int)(value &gt;&gt; 60);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/files-bytes/2" target="_blank" rel="noopener noreferrer">Bitwise operations and masks <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/4" target="_blank" rel="noopener noreferrer">Conversions and casts <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
@@ -104,7 +105,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -244,6 +246,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

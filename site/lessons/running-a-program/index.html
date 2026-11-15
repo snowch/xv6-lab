@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="running-a-program">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A <strong>program</strong> is a set of instructions. A <strong>process</strong> is a running instance of a program, with its own memory and state. The operating system creates and manages processes.</p><p>The source below is a small C program for xv6. Execution starts in <button class="code-link" data-focus="main">main</button>. It prints a message, then calls <button class="code-link" data-focus="exit">exit(0)</button> to end the process. The zero is an exit status conventionally used for success.</p><p>Choose <strong>Build & run</strong>. The browser compiles your C to RISC-V instructions and boots a fresh xv6 machine. The xv6 <strong>shell</strong> is a program that reads commands and starts other programs. Here it starts your program as a process. After it exits, the shell prints its <code>$</code> prompt again.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="program" aria-labelledby="concept-title-program"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-program">Source, executable and process are different things</strong></figcaption><p class="concept-summary">Build creates instructions; the kernel supplies the running instance’s memory and state.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-program"><li class="concept-node" data-node="source"><strong>C source</strong><span class="concept-value">The text you edit describes the program.</span></li><li class="concept-node" data-node="binary"><strong>RISC-V executable</strong><span class="concept-value">The build turns that source into machine instructions.</span></li><li class="concept-node" data-node="process"><strong>Running process</strong><span class="concept-value">xv6 runs the executable with process memory and a kernel record.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> user/sh.c · runcmd; kernel/proc.c · fork; kernel/exec.c · exec</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: reading a small C program</summary><div class="c-reminder-content"><p>main is the program’s entry function. Statements end with semicolons, and braces group a function or branch body. In printf, %d formats an integer and \n starts a new line.</p><pre translate="no"><code>int n = 3;
 printf(&quot;n=%d\n&quot;, n);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/first-program/2" target="_blank" rel="noopener noreferrer">Program structure <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/first-program/3" target="_blank" rel="noopener noreferrer">Printing with printf <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ printf(&quot;n=%d\n&quot;, n);</code></pre><p class="c-refresher-links">Refresh 
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

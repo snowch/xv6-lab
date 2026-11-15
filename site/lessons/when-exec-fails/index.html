@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="when-exec-fails">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The file named <code>missing</code> is not present in this fresh xv6 filesystem. <button class="code-link" data-focus='exec("missing"'>exec</button> cannot load it, so it returns <code>-1</code>. The caller continues with its existing program and memory.</p><p>That is why the printf after exec is useful error handling: it is reached when exec fails. On success, the replacement program starts instead. The line after a successful exec is not a place to put work that the replacement should perform.</p><p>Build the unchanged example. You should see <code>exec result=-1</code> and the same caller PID before and after the failed request. The local variable <code>before</code> is still available because the old program was not replaced.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="exec" aria-labelledby="concept-title-exec"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-exec">Prepare first; replace only on success</strong></figcaption><p class="concept-summary">An exec failure returns to the old program. Successful preparation commits a new image in the same process.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-exec"><li class="concept-node" data-node="old" data-active="true"><strong>Current process</strong><span class="concept-value">Old page table and memory remain available.</span></li><li class="concept-node" data-node="candidate"><strong>Candidate image</strong><span class="concept-value">Validate ELF; allocate pages; load segments; copy arguments.</span></li><li class="concept-node" data-node="commit"><strong>Commit</strong><span class="concept-value">Install the candidate page table, epc and sp; free the old image.</span></li></ol><div class="concept-frame" id="concept-frame-exec" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Keep the current image</strong><p class="concept-frame-text">Before commit, the process still owns its old address space.</p></div><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-exec" disabled>← Previous step</button><span class="concept-position">Step 1 of 3</span><button type="button" data-concept-next aria-controls="concept-map-exec">Next step →</button></div><details class="concept-transcript"><summary>Read all 3 steps</summary><ol><li><strong>Keep the current image.</strong> Before commit, the process still owns its old address space.</li><li><strong>Prepare a candidate.</strong> The loader constructs a different page table. A preparation failure frees this candidate and returns -1 to the old program.</li><li><strong>Commit the replacement.</strong> On success, the process keeps its identity and open descriptors while replacing its memory and entry state.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/exec.c · exec</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arguments and return values</summary><div class="c-reminder-content"><p>A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.</p><pre translate="no"><code>int pid = getpid();
 printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters and return values <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-li
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

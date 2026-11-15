@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="the-log-absorbs-repeated-block-updates">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>Multiple changes to one disk block need only one log entry containing its final cached contents. log_write searches for an existing block number before appending a record. The first entry pins the buffer; another call for the same block does not pin it again.</p><p>The supplied program creates a file containing A. The edited kernel hook changes its actual data byte to Z and records it twice. Build and observe extra pin on repeat=0, followed by committed byte=Z after the real commit.</p><p>Set ABSORB to 0 to replace the repeated log_write with a manual bpin. The measured extra reference becomes 1; the paired bunpin removes it before normal completion. This comparison exposes absorption’s reference effect without leaking a buffer or changing the journal’s block list.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="commit" aria-labelledby="concept-title-commit"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-commit">Publish the commit record between data and installation</strong></figcaption><p class="concept-summary">A nonzero journal header tells recovery that the logged images are committed.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-commit"><li class="concept-node" data-node="data" data-active="true"><strong>1 · Write log data</strong><span class="concept-value">Copy final cached block images into the log.</span></li><li class="concept-node" data-node="header"><strong>2 · Write header</strong><span class="concept-value">Publish n and home-block numbers: the commit point.</span></li><li class="concept-node" data-node="home"><strong>3 · Install home blocks</strong><span class="concept-value">Copy committed images to their normal locations.</span></li><li class="concept-node" data-node="clear"><strong>4 · Clear header</strong><span class="concept-value">Mark the completed transaction empty.</span></li></ol><div class="concept-frame" id="concept-frame-commit" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Write ahead</strong><p class="concept-frame-text">The header has not yet announced this transaction. Log-data bytes alone do not make it committed.</p></div><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-commit" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-commit">Next step →</button></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Write ahead.</strong> The header has not yet announced this transaction. Log-data bytes alone do not make it committed.</li><li><strong>Commit.</strong> After log data is written, write_head publishes a nonzero count. Recovery can now identify the committed images.</li><li><strong>Install.</strong> Committed images reach their home blocks. If interrupted here, replay can repeat these copies.</li><li><strong>Finish.</strong> Clear the header only after installation, so the next boot sees no transaction to replay.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/log.c · commit · write_log · write_head · install_trans</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

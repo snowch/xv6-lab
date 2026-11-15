@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="sleep-transfers-lock-protection">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A timed sleeper checks ticks while holding tickslock. To block, sleep must release that condition lock so the timer can update ticks. Simply releasing it and then announcing sleep would leave a gap: a wakeup could occur before the process becomes visible as sleeping.</p><p>For a different condition lock, sleep first acquires p-&gt;lock and only then releases the caller’s lock. wakeup must acquire that same process lock before examining its state. The overlap closes the gap between the condition check and publication of the sleeping state.</p><p>The editable sleep observes the condition lock just before releasing it; the process lock is already held. Build and expect 1. Move the observation after release(lk) to see 0. After rescheduling, sleep clears the channel, releases p-&gt;lock and reacquires the original condition lock before returning to the caller’s condition loop.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="handoff" aria-labelledby="concept-title-handoff"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-handoff">Sleep closes the gap with overlapping protection</strong></figcaption><p class="concept-summary">For a condition lock different from p-&gt;lock, sleep acquires the process lock before releasing the condition lock.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-handoff"><li class="concept-node" data-node="condition" data-active="true"><strong>Check the condition</strong><span class="concept-value">Caller holds its condition lock.</span></li><li class="concept-node" data-node="overlap"><strong>Acquire p-&gt;lock</strong><span class="concept-value">Both locks are held briefly.</span></li><li class="concept-node" data-node="sleep"><strong>Publish sleep; switch</strong><span class="concept-value">Release the condition lock; set chan and SLEEPING; call sched.</span></li></ol><div class="concept-frame" id="concept-frame-handoff" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Check under the condition lock</strong><p class="concept-frame-text">The protected condition is still false, so the caller prepares to sleep.</p></div><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-handoff" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-handoff">Next step →</button></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Check under the condition lock.</strong> The protected condition is still false, so the caller prepares to sleep.</li><li><strong>Overlap the locks.</strong> sleep acquires p-&gt;lock while the caller’s condition lock is still held. wakeup must also acquire p-&gt;lock.</li><li><strong>Publish before wakeup can inspect.</strong> sleep releases the condition lock and publishes chan/state while still holding p-&gt;lock. The scheduler completes the handoff.</li><li><strong>Return with the original protection.</strong> After rescheduling, sleep clears chan and reacquires the original condition lock; the caller rechecks its condition.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · sleep · wakeup</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

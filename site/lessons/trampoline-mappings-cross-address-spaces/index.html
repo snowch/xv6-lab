@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="trampoline-mappings-cross-address-spaces">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The <strong>trampoline</strong> is a page of assembly used when crossing between user and kernel execution. Its instructions have to remain reachable while the active page table changes. xv6 maps that page at the same high virtual address in both page tables, referring to the same physical code.</p><p>Build and compare the real entries: both should be valid, both should identify the same physical frame, and the user page table’s entry should have U cleared. The CPU uses this mapping while in supervisor mode; user programs cannot execute it directly.</p><p>The trapframe has a different arrangement. It is mapped just below the trampoline in the user page table, also without U. Under the kernel page table, the kernel accesses its physical allocation through the direct RAM mapping, rather than through the TRAPFRAME virtual address. The next chapter follows how the trampoline saves registers there.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="trampoline" aria-labelledby="concept-title-trampoline"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-trampoline">The transition code is mapped on both sides</strong></figcaption><p class="concept-summary">The trampoline uses the same virtual address in the user and kernel page tables.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-trampoline"><li class="concept-node" data-node="user"><strong>User page table</strong><span class="concept-value">Trampoline mapped; trapframe mapped without PTE_U.</span></li><li class="concept-node" data-node="bridge"><strong>Trampoline code</strong><span class="concept-value">Save or restore registers while changing satp.</span></li><li class="concept-node" data-node="kernel"><strong>Kernel page table</strong><span class="concept-value">Trampoline mapped at the same virtual address.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/memlayout.h · trampoline.S · proc.c · vm.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: bit masks and short-circuit checks</summary><div class="c-reminder-content"><p>The bitwise &amp; operator selects flag bits. A selected flag can have a value such as 16, so compare with zero when you want a printed 0 or 1. Logical &amp;&amp; evaluates its right side only if the left side is true; entry &amp;&amp; (*entry &amp; PTE_V) therefore avoids dereferencing a null pointer.</p><pre translate="no"><code>int user = (flags &amp; PTE_U) != 0;
 int valid = entry &amp;&amp; (*entry &amp; PTE_V);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/files-bytes/2" target="_blank" rel="noopener noreferrer">Bitwise operations and masks <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/3" target="_blank" rel="noopener noreferrer">Expressions and operators <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ int valid = entry &amp;&amp; (*entry &amp; PTE_V);</code></pre><p class="c-refre
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

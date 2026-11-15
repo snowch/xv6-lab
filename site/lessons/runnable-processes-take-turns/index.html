@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="runnable-processes-take-turns">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A <strong>runnable</strong> process is eligible to use the CPU. A <strong>running</strong> process is the one currently using it. xv6’s scheduler searches its process table for runnable work, switches to a saved kernel context, and regains control when the process blocks or yields.</p><p>Two children each write a single-byte label three times, sleeping between writes. Their progress shares one emulated CPU. The output can contain different arrangements of A and B; the interface promises neither an exact alternation nor a fixed scheduling delay.</p><p>The parent collects both children. Each child’s ordinary variables are private, while the scheduler manages their separate saved contexts and states.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="states" aria-labelledby="concept-title-states"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-states">Wakeup makes a process eligible to run</strong></figcaption><p class="concept-summary">This is one illustrative schedule on one hart. Being runnable is distinct from currently running.</p><ol class="concept-map concept-compare concept-count-3" id="concept-map-states"><li class="concept-node" data-node="cpu"><strong>CPU scheduler</strong><span class="concept-value">Chooses a RUNNABLE process.</span></li><li class="concept-node" data-node="a" data-active="true"><strong>Process A</strong><span class="concept-value">RUNNING</span></li><li class="concept-node" data-node="b"><strong>Process B</strong><span class="concept-value">RUNNABLE</span></li></ol><div class="concept-frame" id="concept-frame-states" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">A runs</strong><p class="concept-frame-text">Only one process executes on this hart. B is eligible but is not running.</p></div><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-states" disabled>← Previous step</button><span class="concept-position">Step 1 of 5</span><button type="button" data-concept-next aria-controls="concept-map-states">Next step →</button></div><details class="concept-transcript"><summary>Read all 5 steps</summary><ol><li><strong>A runs.</strong> Only one process executes on this hart. B is eligible but is not running.</li><li><strong>A waits.</strong> A publishes its sleep channel and SLEEPING state before switching to the scheduler.</li><li><strong>B runs.</strong> The scheduler marks B RUNNING and switches into B’s saved kernel context.</li><li><strong>A is woken.</strong> wakeup changes A to RUNNABLE. It does not immediately replace B on the CPU.</li><li><strong>A resumes later.</strong> After a scheduling handoff, A can become RUNNING again. This example order is not a fairness or timing guarantee.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · scheduler · yield · sleep · wakeup</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: loops and bounds</summary><div class="c-reminder-content"><p>The initialiser runs once, the condition is checked before each iteration, and i++ advances the index afterwards. With i &lt; count, the visited indices are 0 through count - 1. The array must have enough elements for those accesses.</p><pre translate="no"><code>for (int i = 0; i &lt; count; i++) {
   /* use element i */
 }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">Loops and repetition <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/1" target="_blank" rel="noopener noreferrer">Array indexing and bounds <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -106,7 +107,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

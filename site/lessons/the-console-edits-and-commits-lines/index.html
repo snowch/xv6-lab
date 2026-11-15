@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="the-console-edits-and-commits-lines">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The UART input handler obtains bytes from the device and passes them to consoleintr. The console adds a line-oriented policy: it tracks read, committed-write and edit positions, supports editing keys, and wakes readers when a line is committed.</p><p>This kernel lab hook feeds an explicit sequence directly into the real consoleintr callback to isolate line editing from interrupt delivery. It does not emulate a physical keyboard event. The supplied user program then calls read on its actual console descriptor and prints the bytes from the kernel’s buffer.</p><p>The sequence types cat, sends Ctrl-U (0x15), then types dog and a newline. Ctrl-U removes the unfinished line, so build and expect four returned bytes: dog and newline. Backspace instead removes just one unfinished character, leaving ca before dog. The newline advances the committed boundary so the waiting read can finish.</p></div>
+        <div id="concept-slot"></div>
         <details class="c-reminder"><summary>C reminder: an array of character codes</summary><div class="c-reminder-content"><p>An int array can hold printable character codes and numeric control codes. '\n' is one newline character; 0x15 is hexadecimal for decimal 21. The array’s length comes from its initializer here, and index 0 names its first element. This is a sequence of integer codes, rather than a zero-terminated string.</p><pre translate="no"><code>int keys[] = {'a', 0x15, 'b', '\n'};</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/1" target="_blank" rel="noopener noreferrer">Array indexing and bounds <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/1" target="_blank" rel="noopener noreferrer">Values and character types <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
@@ -106,7 +107,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

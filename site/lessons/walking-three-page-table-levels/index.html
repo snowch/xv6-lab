@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="walking-three-page-table-levels">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The process record points to its top-level page table. A valid <strong>branch entry</strong> identifies the physical page containing the next table. A <strong>leaf entry</strong> identifies the physical page containing the program’s bytes and carries access permissions.</p><p>The observation follows the same indices and PTE2PA conversion used by walk, reading actual entries without allocating anything. A set V bit marks a valid entry. R, W or X marks a leaf; an intermediate entry has V set without those permission bits.</p><p>Address 0 contains the supplied program’s code. Build and expect valid entries at levels 2, 1 and 0. The kernel can read the table pages through its direct mapping of physical RAM. A missing intermediate entry would stop this read-only inspection; walk’s alloc argument separately controls whether the real kernel routine may create missing tables.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="walk" aria-labelledby="concept-title-walk"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-walk">Follow a three-level page-table walk</strong></figcaption><p class="concept-summary">This example follows a normal 4 KiB mapping. Each intermediate PTE names another table.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-walk"><li class="concept-node" data-node="root" data-active="true"><span class="concept-zone">Table</span><strong>Level 2 table</strong><span class="concept-value">pagetable[VPN[2]] → next table</span></li><li class="concept-node" data-node="middle"><span class="concept-zone">Table</span><strong>Level 1 table</strong><span class="concept-value">next[VPN[1]] → next table</span></li><li class="concept-node" data-node="leaf"><span class="concept-zone">Table</span><strong>Level 0 table</strong><span class="concept-value">next[VPN[0]] → leaf PTE</span></li><li class="concept-node" data-node="byte"><span class="concept-zone">Memory</span><strong>Physical byte</strong><span class="concept-value">Leaf physical-page base + unchanged offset</span></li></ol><div class="concept-frame" id="concept-frame-walk" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Start at the root</strong><p class="concept-frame-text">walk begins with the supplied page-table pointer and uses the level-2 index.</p></div><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-walk" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-walk">Next step →</button></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Start at the root.</strong> walk begins with the supplied page-table pointer and uses the level-2 index.</li><li><strong>Follow an intermediate PTE.</strong> A valid non-leaf entry stores the physical page number of the next table.</li><li><strong>Reach the leaf.</strong> The level-0 entry supplies a page number and permission flags. walkaddr additionally checks valid and user-accessible bits.</li><li><strong>Keep the offset.</strong> Combine the physical page base with the original low 12 bits to locate the byte.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/vm.c · walk · walkaddr</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: array entries versus their addresses</summary><div class="c-reminder-content"><p>table[index] reads an entry through a pointer. &amp;table[index] instead gives the address of that entry, so a function can return it or change it. p-&gt;pagetable first reads a member of the process struct; that member’s value is itself a pointer to a table.</p><pre translate="no"><code>pte_t value = table[index];
 pte_t *address = &amp;table[index];</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays and pointers <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ pte_t *address = &amp;table[index];</code></pre><p class="c-refresher-links">Ref
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

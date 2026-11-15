@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="the-superblock-describes-disk-regions">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>xv6 divides its disk into a boot block, superblock, log, inode blocks, bitmap and data blocks. The superblock records their sizes and starting positions. fsinit reads it from block 1 and checks its magic before using the filesystem.</p><p>The probe reads the actual in-memory superblock loaded from this image. size counts all 1000 blocks. nblocks counts the 954 blocks in the data region. That region contains both allocated and unallocated blocks: nblocks is not a count of currently free space.</p><p>Build and observe 1000. Select nblocks to observe 954. The source shows how mkfs describes the format; later pages follow the bitmap that tracks allocation within it.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="disk" aria-labelledby="concept-title-disk"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-disk">Filesystem blocks have different jobs</strong></figcaption><p class="concept-summary">Regions are listed in increasing block order; their sizes are schematic, not proportional.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-disk"><li class="concept-node" data-node="start"><strong>Boot + superblock</strong><span class="concept-value">The superblock describes region boundaries.</span></li><li class="concept-node" data-node="log"><strong>Journal region</strong><span class="concept-value">A header and logged block images support recovery.</span></li><li class="concept-node" data-node="metadata"><strong>Inodes + bitmap</strong><span class="concept-value">Inodes describe files; bitmap bits track block allocation.</span></li><li class="concept-node" data-node="data"><strong>Data region</strong><span class="concept-value">Contains allocated and unallocated blocks.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/fs.h · struct superblock; mkfs/mkfs.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: struct members and output arguments</summary><div class="c-reminder-content"><p>The dot operator reads a member of a struct value. &amp;st passes its address so fstat can fill it. Check that the call succeeded before reading those fields; declaring a local struct alone does not initialise its contents.</p><pre translate="no"><code>struct stat st;
 if (fstat(fd, &amp;st) == 0)
   printf(&quot;links=%d\n&quot;, st.nlink);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/1" target="_blank" rel="noopener noreferrer">Structs and member access <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -108,7 +109,8 @@ if (fstat(fd, &amp;st) == 0)
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -248,6 +250,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

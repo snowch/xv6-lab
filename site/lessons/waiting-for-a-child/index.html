@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="waiting-for-a-child">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A child can finish before its parent asks about it. xv6 keeps a small record of the exited child until its parent calls <button class="code-link" data-focus="wait">wait</button>. This exited-but-uncollected state is called <strong>ZOMBIE</strong>. The child’s user program has finished.</p><p><code>wait(0)</code> returns an exited child’s PID and releases the resources retained for it. If a child is still running, wait puts the parent to sleep until a child exits. If the parent has no children, wait returns <code>-1</code>.</p><p>The parent’s final message is after wait. You can rely on the child having exited before that message. With several children, wait can collect any exited child; this example creates exactly one.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="wait" aria-labelledby="concept-title-wait"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-wait">Exit and collection are different events</strong></figcaption><p class="concept-summary">The child stops executing before its parent collects the retained exit record.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-wait"><li class="concept-node" data-node="running"><strong>Child runs</strong><span class="concept-value">The parent may block in wait.</span></li><li class="concept-node" data-node="zombie"><strong>ZOMBIE</strong><span class="concept-value">exit records xstate and wakes its parent.</span></li><li class="concept-node" data-node="collected"><strong>Record collected</strong><span class="concept-value">wait copies xstate, frees the child record and returns its PID.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · exit · wait</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: addresses passed to functions</summary><div class="c-reminder-content"><p>&amp;status gives the address of the caller’s variable, so a function can write a result there. The function’s return value is a separate result. A zero used as a pointer argument is a null pointer; wait(0) supplies no status address.</p><pre translate="no"><code>int status = 0;
 int pid = wait(&amp;status);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ int pid = wait(&amp;status);</code></pre><p class="c-refresher-links">Refresh in
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

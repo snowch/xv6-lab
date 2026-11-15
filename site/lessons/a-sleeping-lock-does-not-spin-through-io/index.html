@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="a-sleeping-lock-does-not-spin-through-io">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -58,6 +58,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A buffer may stay locked while disk I/O blocks. Holding an ordinary spinlock throughout that wait would violate sched’s contract and waste a CPU on a multiprocessor. A sleeping lock instead records its owning process and puts contenders to sleep.</p><p>Its internal spinlock protects the locked flag and PID only while changing or inspecting them. acquiresleep releases that spinlock before returning, while the logical sleeping lock remains owned. releasesleep clears ownership and wakes contenders, which recheck the condition in a while loop.</p><p>Build and observe sleep lock owned=1 with internal spin owned=0. Select the after-release sample to observe ownership 0. This uncontended probe inspects the protocol; the source shows how a contender blocks and rechecks.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="sleeplock" aria-labelledby="concept-title-sleeplock"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-sleeplock">A sleeping lock has two kinds of ownership</strong></figcaption><p class="concept-summary">The internal spinlock protects the ownership record; it is released while the logical sleeping lock remains held.</p><ol class="concept-map concept-compare concept-count-3" id="concept-map-sleeplock"><li class="concept-node" data-node="internal"><strong>Internal spinlock</strong><span class="concept-value">Briefly protects locked and pid.</span></li><li class="concept-node" data-node="owner"><strong>Sleeping-lock owner</strong><span class="concept-value">A process can retain ownership while blocking for I/O.</span></li><li class="concept-node" data-node="waiter"><strong>Contending process</strong><span class="concept-value">Sleeps, then rechecks locked after wakeup.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/sleeplock.c · acquiresleep · releasesleep</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -106,7 +107,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

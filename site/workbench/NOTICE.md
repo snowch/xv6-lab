@@ -1,6 +1,6 @@
 # Source workbench: provenance and limits
 
-Ten available chapters contain sixty-three source-led lesson pages. Further chapters are listed on the published roadmap; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
+The course contains fifteen chapters and ninety-nine source-led lesson pages; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
 
 ## Compiler
 
@@ -19,6 +19,8 @@ The evidence panel reads the actual process table at the first `sys_getpid` entr
 A fresh machine is used for each run. Guest files are disposable. Source drafts save independently in browser storage with a tab-only fallback; the download action exports the current C source. Failed builds preserve the previous valid image and any existing run. A draft changed during compilation is not automatically run as though it were the built snapshot.
 
 ## Other components
+
+The concept diagrams are original xv6 Lab work covered by the repository’s MIT license. Their layouts, labels and interaction sequences were authored for this course from the matching source mechanisms. They do not reproduce or adapt textbook figures, screenshots or third-party illustrations. The [provenance and inventory](https://github.com/snowch/xv6-lab/blob/main/docs/concept-diagrams.md) records their source anchors. Diagram state is illustrative, separate from actual guest observations.
 
 xv6 and riscv-rust retain their MIT notices in [the main runtime notice](../vendor/NOTICE.md). CodeMirror and its dependencies are MIT licensed; bundled [editor notices](EDITOR-LICENSES.txt) accompany the browser editor. Interface fonts retain their bundled SIL Open Font License notices in `../fonts/`. New workbench code is MIT licensed.
 

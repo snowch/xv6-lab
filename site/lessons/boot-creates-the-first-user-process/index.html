@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="boot-creates-the-first-user-process">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>userinit creates the first process rather than loading every user program at boot. It allocates a process record and user page table, copies a tiny initcode program into user memory, and prepares a saved user PC of 0 and an initial stack pointer.</p><p>After recording its name and root directory, userinit marks the record RUNNABLE. It has prepared execution; the CPU is still in kernel main. The observation runs at exactly that boundary, before main calls scheduler. Build and expect one runnable process.</p><p>When selected, the process reaches the first return-to-user path. initcode requests exec of /init; init opens the console and starts the shell. The shell later starts workbench. Those are successive processes and program replacements, not extra tasks magically provided by the browser.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="boot" aria-labelledby="concept-title-boot"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-boot">Boot establishes dependencies before running users</strong></figcaption><p class="concept-summary">This is a shortened dependency path for this one-hart lab.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-boot"><li class="concept-node" data-node="entry"><strong>Entry and privilege setup</strong><span class="concept-value">Set a stack; configure machine-mode state; enter supervisor mode.</span></li><li class="concept-node" data-node="memory"><strong>Memory and kernel mappings</strong><span class="concept-value">Initialize physical allocation; install the kernel page table.</span></li><li class="concept-node" data-node="services"><strong>Kernel services</strong><span class="concept-value">Prepare traps, interrupt routing, processes and device drivers.</span></li><li class="concept-node" data-node="user"><strong>First runnable process</strong><span class="concept-value">userinit prepares initcode; scheduler selects it to run.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/entry.S · start.c · main.c · proc.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: loops and bounds</summary><div class="c-reminder-content"><p>The initialiser runs once, the condition is checked before each iteration, and i++ advances the index afterwards. With i &lt; count, the visited indices are 0 through count - 1. The array must have enough elements for those accesses.</p><pre translate="no"><code>for (int i = 0; i &lt; count; i++) {
   /* use element i */
 }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">Loops and repetition <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/1" target="_blank" rel="noopener noreferrer">Array indexing and bounds <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -106,7 +107,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

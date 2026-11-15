@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="timer-interrupts-advance-kernel-ticks">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A timer interrupt lets the OS regain control without a user program requesting a syscall. In this kernel, timerinit programs the machine timer. timervec handles that machine-mode interrupt, schedules the next one, and raises a supervisor software interrupt. devintr recognizes that forwarded event and calls clockintr.</p><p>The editable clockintr is the actual kernel routine: it updates ticks under tickslock and wakes processes waiting on that counter. The supplied user program samples uptime until the counter changes. With one runnable test program in this small fixture, observe an increment of 1.</p><p>Changing the increment changes logical kernel time, including what timed sleepers observe. It does not measure browser speed. General programs can miss counter updates between samples, so elapsed-time code should use bounds rather than assume every observed difference is exactly one tick.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="timer" aria-labelledby="concept-title-timer"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-timer">A machine timer event becomes a kernel tick</strong></figcaption><p class="concept-summary">This xv6 forwards a machine-mode timer interrupt through a supervisor software interrupt.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-timer"><li class="concept-node" data-node="machine"><span class="concept-zone">Machine</span><strong>Machine timer interrupt</strong><span class="concept-value">timervec schedules the next timer and sets SSIP.</span></li><li class="concept-node" data-node="supervisor"><span class="concept-zone">Supervisor</span><strong>Supervisor software interrupt</strong><span class="concept-value">devintr identifies the forwarded event.</span></li><li class="concept-node" data-node="ticks"><span class="concept-zone">Kernel</span><strong>clockintr</strong><span class="concept-value">Update ticks under tickslock; wake timed sleepers.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/start.c · kernel/kernelvec.S · kernel/trap.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: a loop that checks after its body</summary><div class="c-reminder-content"><p>do ... while runs its body at least once, then repeats while the condition is nonzero. Here each iteration stores a fresh counter sample in after. The semicolon after while is part of this C syntax; the comparison == tests equality without assigning.</p><pre translate="no"><code>do {
   after = uptime();
 } while (after == before);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">Loops and repetition <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -108,7 +109,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -248,6 +250,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

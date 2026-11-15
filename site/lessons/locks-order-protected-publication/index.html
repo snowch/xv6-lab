@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="locks-order-protected-publication">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -58,6 +58,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>Mutual exclusion is only part of the lock contract. Other CPUs must also observe the protected writes in the required order. The fences and atomic operations in xv6 prevent protected accesses from moving across the lock boundaries.</p><p>This probe publishes a payload and a ready condition under one real lock, then reads both under that same lock. Build and observe 42; edit the payload to observe 73. Both the flag and the payload follow the protocol. Reading a flag without the shared synchronization would require a separate, carefully defined memory-ordering protocol.</p><p>This one-hart sequential experiment makes the protected data flow visible. Its successful output cannot prove weak-memory behavior on multiple CPUs. The ordering guarantee comes from the actual acquire/release implementation and its fences, which the source below shows.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="locks" aria-labelledby="concept-title-locks"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-locks">The lock guards a protocol, not just a word</strong></figcaption><p class="concept-summary">Acquisition and release combine ownership, interrupt nesting and memory ordering.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-locks"><li class="concept-node" data-node="enter"><strong>Enter</strong><span class="concept-value">push_off; atomically claim the word; order later accesses.</span></li><li class="concept-node" data-node="critical"><strong>Critical section</strong><span class="concept-value">This CPU owns the lock while using protected state.</span></li><li class="concept-node" data-node="leave"><strong>Leave</strong><span class="concept-value">Order prior accesses; clear ownership; unlock; pop_off.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/spinlock.c · acquire · release</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: static state shared by callbacks</summary><div class="c-reminder-content"><p>A file-scope static variable has one storage location for this compiled kernel unit and starts at zero. Its value persists between function calls in this VM, so a probe can arm an interrupt observer and later disarm it. An ordinary local variable is separate for each call. A fresh VM resets this state independently of the source draft saved in your browser.</p><pre translate="no"><code>static int watching;
 watching = !watching;  // toggle between 0 and 1</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/3" target="_blank" rel="noopener noreferrer">Scope and storage duration <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/2" target="_blank" rel="noopener noreferrer">Variables and initialisation <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -106,7 +107,8 @@ watching = !watching;  // toggle between 0 and 1</code></pre><p class="c-refresh
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

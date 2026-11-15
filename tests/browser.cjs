@@ -55,6 +55,8 @@ const server = http.createServer((req, res) => {
       chapters,
     } = await import("../site/workbench/lessons.js");
     const { edits } = await import("./lesson-edits.js");
+    const { concepts, lessonConcepts } =
+      await import("../site/workbench/concept-diagrams.js");
     const latest = chapters.at(-1);
     const matchingFiles = JSON.parse(
       fs.readFileSync(path.join(root, "source.json"), "utf8"),
@@ -132,6 +134,57 @@ const server = http.createServer((req, res) => {
         await page.evaluate(() => document.fonts.ready);
         assert.equal(new URL(page.url()).pathname, "/lessons/" + id + "/");
         assert.equal(await page.locator("h1").textContent(), chapter[id].title);
+        const concept = concepts[lessonConcepts[id]];
+        const figure = page.locator(".concept-diagram");
+        assert.equal(
+          await figure.count(),
+          concept ? 1 : 0,
+          id + ": relevant diagram",
+        );
+        if (concept) {
+          assert.ok(
+            await figure
+              .locator(".concept-value")
+              .evaluateAll((nodes) =>
+                nodes.every(
+                  (el) => parseFloat(getComputedStyle(el).fontSize) >= 18,
+                ),
+              ),
+            id + ": readable diagram labels",
+          );
+          if (concept.steps) {
+            const before = await page.locator(".cm-content").textContent();
+            const next = figure.locator("[data-concept-next]");
+            await next.focus();
+            await page.keyboard.press("Enter");
+            assert.equal(
+              await figure.locator(".concept-position").textContent(),
+              "Step 2 of " + concept.steps.length,
+            );
+            await figure.locator("[data-concept-prev]").focus();
+            await page.keyboard.press("Enter");
+            assert.ok(await figure.locator("[data-concept-prev]").isDisabled());
+            assert.equal(
+              await page.locator(".cm-content").textContent(),
+              before,
+              "diagram preserves edited source",
+            );
+          }
+          if (
+            [
+              "fork-creates-a-child",
+              "entering-the-kernel",
+              "walking-three-page-table-levels",
+              "redo-replay-is-idempotent",
+            ].includes(id)
+          ) {
+            // Place the figure clear of the fixed build toolbar before capturing it.
+            await figure.scrollIntoViewIfNeeded();
+            await figure.screenshot({
+              path: path.join(artifacts, `concept-${id}-${name}.png`),
+            });
+          }
+        }
         const reminder = page.locator(".c-reminder");
         assert.equal(await reminder.count(), 1);
         assert.equal(await reminder.getAttribute("open"), null);
