@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons } from "./lessons.js";
+import { lessons, sourceExcerpt } from "./lessons.js";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -7,7 +7,7 @@ const $ = (id) => document.getElementById(id),
 const drafts = new Map(),
   builds = new Map();
 let files,
-  kind = "user",
+  kind = document.body.dataset.lesson,
   editor,
   buildJob = null,
   machine = null,
@@ -18,7 +18,7 @@ function activity(text) {
 }
 function save() {
   try {
-    localStorage.setItem("xv6-workbench:" + kind, drafts.get(kind));
+    localStorage.setItem("xv6-lesson:" + kind, drafts.get(kind));
     say("draft-status", "Draft saved in this browser");
   } catch {
     storageOK = false;
@@ -30,15 +30,8 @@ function save() {
     );
   }
 }
-function kernelStarter() {
-  const match = files["kernel/sysproc.c"].match(
-    /uint64\nsys_getpid\(void\)\n\{[\s\S]*?\n\}/,
-  );
-  if (!match) throw new Error("Matching sys_getpid source was not found.");
-  return match[0] + "\n";
-}
 function starter(id) {
-  return id === "user" ? files["user/workbench.c"] : kernelStarter();
+  return lessons[id].starter(files);
 }
 function controls() {
   const build = builds.get(kind),
@@ -67,20 +60,10 @@ function contextFile() {
     say("context-source", "Source unavailable.");
     return;
   }
-  let shown = source;
-  if (kind === "user" && path === "user/usys.S") {
-    const start = source.indexOf("getpid:");
-    shown = source.slice(
-      Math.max(0, start - 14),
-      source.indexOf(".global", start),
-    );
-  }
-  if (kind === "user" && path === "kernel/sysproc.c") shown = kernelStarter();
-  say("context-source", shown);
+  say("context-source", source);
 }
+
 function render() {
-  const requested = location.hash.slice(1);
-  kind = Object.hasOwn(lessons, requested) ? requested : "user";
   const lesson = lessons[kind];
   if (buildJob) {
     buildJob.worker.terminate();
@@ -91,13 +74,22 @@ function render() {
   editor?.destroy();
   $("source-editor").replaceChildren();
   say("lesson-title", lesson.title);
-  say("lesson-subtitle", lesson.subtitle);
+  say("lesson-subtitle", lesson.goal);
   say("file-name", lesson.file);
-  say("editable-label", kind === "kernel" ? "Function only" : "Editable C");
+  say(
+    "editable-label",
+    lesson.mode === "kernel" ? "Function only" : "Editable C",
+  );
   say("reflection", lesson.reflection);
-  say("reading-brief", lesson.brief);
   $("reading-content").innerHTML = lesson.reading;
   say("context-title", lesson.contextTitle);
+  const excerpt = sourceExcerpt(files, lesson);
+  say("source-location", `${excerpt.file} · line ${excerpt.first}`);
+  say("source-excerpt", excerpt.text);
+  $("pid-evidence").hidden = !lesson.observePid;
+  try {
+    localStorage.setItem("xv6-last-lesson", kind);
+  } catch {}
   $("context-file").replaceChildren(
     ...lesson.contextFiles.map((file) => {
       const option = document.createElement("option");
@@ -107,7 +99,7 @@ function render() {
     }),
   );
   contextFile();
-  document.querySelectorAll("[data-lesson]").forEach((link) => {
+  document.querySelectorAll("a[data-lesson]").forEach((link) => {
     if (link.dataset.lesson === kind) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
@@ -151,11 +143,11 @@ function render() {
   );
   say(
     "build-method",
-    kind === "user"
+    lesson.mode === "user"
       ? "This builds the editable user program and links it with the matching xv6 user library."
       : "This builds the editable sys_getpid function. A fixed user program probes its return value; all other kernel code comes from the matching native build.",
   );
-  document.title = lesson.title + " — xv6 Source Workbench";
+  document.title = lesson.title + " — xv6 Lab";
   activity("Ready to edit " + lesson.file);
   controls();
 }
@@ -250,7 +242,7 @@ async function build(runAfter) {
     controls();
     if (runAfter && current) runBuild(record);
   };
-  worker.postMessage({ kind: exercise, source });
+  worker.postMessage({ kind: lessons[exercise].mode, source });
 }
 function evidence() {
   if (!machine) return;
@@ -297,6 +289,7 @@ function runBuild(record) {
     output: "",
     started: false,
     trace: "entry",
+    observePid: lessons[record.exercise].observePid,
     entry: null,
     exit: null,
     reported: null,
@@ -355,7 +348,7 @@ function runBuild(record) {
             "The built workbench program is running. Stop run interrupts a loop or a waiting program.",
           );
           activity("Running your compiled code…");
-          send("break", { symbol: "sys_getpid" });
+          if (run.observePid) send("break", { symbol: "sys_getpid" });
           send("input", { text: "workbench\n" });
         } else {
           run.complete = true;
@@ -438,14 +431,12 @@ $("export-source").onclick = () => {
     ),
     link = document.createElement("a");
   link.href = url;
-  link.download = kind === "user" ? "workbench.c" : "sys_getpid.c";
+  link.download =
+    lessons[kind].mode === "user" ? "workbench.c" : "sys_getpid.c";
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 $("context-file").onchange = contextFile;
-window.addEventListener("hashchange", () => {
-  if (files && Object.hasOwn(lessons, location.hash.slice(1))) render();
-});
 for (const link of document.querySelectorAll(
   'a[href="#machine-pane"], a[href="#source-editor"]',
 )) {
@@ -457,8 +448,18 @@ for (const link of document.querySelectorAll(
   });
 }
 window.addEventListener("pagehide", () => {
-  buildJob?.worker.terminate();
-  machine?.worker?.terminate();
+  if (buildJob) {
+    buildJob.worker.terminate();
+    clearTimeout(buildJob.timer);
+    buildJob = null;
+    document.body.dataset.buildState = "idle";
+    say(
+      "build-messages",
+      "Build cancelled when you left this lesson. Build again to continue.",
+    );
+    controls();
+  }
+  stopRun("Background run stopped when you left this lesson.");
 });
 try {
   const response = await fetch(
@@ -469,7 +470,16 @@ try {
   for (const id of Object.keys(lessons)) {
     let saved;
     try {
-      saved = localStorage.getItem("xv6-workbench:" + id);
+      saved = localStorage.getItem("xv6-lesson:" + id);
+      // Retain drafts made in the original two-exercise preview.
+      if (
+        saved === null &&
+        ["a-system-call-result", "changing-the-answer"].includes(id)
+      )
+        saved = localStorage.getItem(
+          "xv6-workbench:" +
+            (id === "a-system-call-result" ? "user" : "kernel"),
+        );
     } catch {
       storageOK = false;
     }
@@ -482,7 +492,6 @@ try {
       "Source can be edited, but local storage is unavailable. Download drafts before leaving.",
     );
   }
-  $("reading").open = !window.matchMedia("(max-width:1450px)").matches;
   render();
 } catch (error) {
   say(

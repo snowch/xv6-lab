@@ -25,6 +25,8 @@ jobs:
       - run: npm ci
       - name: Check committed editor bundle
         run: npm run build:editor && git -c safe.directory="$GITHUB_WORKSPACE" diff --exit-code HEAD -- site/workbench/editor.js site/workbench/EDITOR-LICENSES.txt
+      - name: Check generated lesson pages
+        run: npm run build:lessons && git -c safe.directory="$GITHUB_WORKSPACE" diff --exit-code HEAD -- site/index.html site/lessons/
       - run: npm test
       - name: Check desktop, tablet and phone UX in Chromium
         run: npm run test:browser

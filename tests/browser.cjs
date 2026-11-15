@@ -47,6 +47,103 @@ const server = http.createServer((req, res) => {
     args: ["--no-sandbox"],
   });
   try {
+    // The course starts at a contents page and progresses through one concept per URL.
+    const { lessons: chapter, lessonIds } =
+      await import("../site/workbench/lessons.js");
+    for (const [name, width, height] of [
+      ["desktop", 1680, 1050],
+      ["tablet", 1024, 1000],
+      ["phone", 390, 844],
+      ["small-phone", 320, 760],
+    ]) {
+      const page = await browser.newPage({ viewport: { width, height } }),
+        errors = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.goto(base);
+      assert.equal(await page.locator(".course-lessons li").count(), 6);
+      await page.evaluate(() => document.fonts.ready);
+      await page.screenshot({
+        path: path.join(artifacts, "course-contents-" + name + ".png"),
+        fullPage: true,
+      });
+      await page.locator(".course-actions .primary").click();
+      for (const [index, id] of lessonIds.entries()) {
+        await page.locator(".cm-content").waitFor();
+        await page.waitForFunction(
+          () => !document.querySelector("#build-run").disabled,
+        );
+        await page.evaluate(() => document.fonts.ready);
+        assert.equal(new URL(page.url()).pathname, "/lessons/" + id + "/");
+        assert.equal(await page.locator("h1").textContent(), chapter[id].title);
+        assert.ok(
+          (await page.locator("#source-excerpt").textContent()).trim().length >
+            10,
+        );
+        assert.ok(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth,
+          ),
+          id + ": no page overflow",
+        );
+        if (name === "desktop") {
+          await page.locator("#build-run").click();
+          await page.waitForFunction(
+            () =>
+              document.querySelector("#run-status").textContent ===
+              "Run complete",
+            null,
+            { timeout: 60000 },
+          );
+          assert.ok(
+            (await page.locator("#terminal").textContent()).includes(
+              chapter[id].expected,
+            ),
+            id + ": real output",
+          );
+          assert.equal(
+            await page.locator("#pid-evidence").isVisible(),
+            chapter[id].observePid,
+          );
+        }
+        await page.locator(".cm-content").scrollIntoViewIfNeeded();
+        await page.evaluate(
+          () =>
+            new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve)),
+            ),
+        );
+        await page.evaluate(() => scrollTo(0, 0));
+        await page.screenshot({
+          path: path.join(
+            artifacts,
+            "chapter1-" + name + "-" + (index + 1) + ".png",
+          ),
+          fullPage: true,
+        });
+        await page
+          .locator('.lesson-navigation [data-direction="next"]')
+          .click();
+      }
+      await page.locator("#resume-lesson").waitFor();
+      assert.match(
+        await page.locator("#resume-lesson").getAttribute("href"),
+        /changing-the-answer/,
+      );
+      await page.locator("#resume-lesson").click();
+      await page
+        .locator('.lesson-navigation [data-direction="previous"]')
+        .click();
+      assert.equal(
+        new URL(page.url()).pathname,
+        "/lessons/the-current-process/",
+      );
+      await page.goBack();
+      await page.locator(".cm-content").waitFor();
+      assert.equal(await page.locator("#build-run").isDisabled(), false);
+      assert.deepEqual(errors, [], "chapter runtime errors");
+      await page.close();
+      console.log("Chapter 1 " + name + " passed");
+    }
     for (const [name, width, height] of [
       ["desktop", 1680, 1050],
       ["tablet", 1024, 1000],
@@ -59,7 +156,7 @@ const server = http.createServer((req, res) => {
       });
       const errors = [];
       page.on("pageerror", (e) => errors.push(e.message));
-      await page.goto(base);
+      await page.goto(base + "explorer/");
       await page.evaluate(() => document.fonts.ready);
       assert.equal(
         await page.locator("#lesson > h2").textContent(),
@@ -282,7 +379,7 @@ const server = http.createServer((req, res) => {
         previous,
         "compile errors retain last output",
       );
-      await page.locator('[data-lesson="kernel"]').click();
+      await page.goto(base + "lessons/changing-the-answer/");
       await page.waitForFunction(
         () =>
           document.querySelector("#file-name").textContent ===
@@ -309,7 +406,10 @@ const server = http.createServer((req, res) => {
       );
       if (name === "phone") {
         await page.locator("#view-result").click();
-        assert.equal(new URL(page.url()).hash, "#kernel");
+        assert.equal(
+          new URL(page.url()).pathname,
+          "/lessons/changing-the-answer/",
+        );
         assert.equal(
           await page.locator("#file-name").textContent(),
           "kernel/sysproc.c",
@@ -340,7 +440,7 @@ const server = http.createServer((req, res) => {
         await page.reload();
         await page.locator(".cm-content").waitFor();
         assert.match(await page.locator(".cm-content").innerText(), /\+ 1000/);
-        await page.locator('[data-lesson="user"]').click();
+        await page.goto(base + "lessons/a-system-call-result/");
         await page.waitForFunction(
           () =>
             document.querySelector("#file-name").textContent ===

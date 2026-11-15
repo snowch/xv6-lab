@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { buildExercise } from "../site/workbench/build.js";
 import { readElf } from "../site/workbench/elf.js";
+import { lessons, sourceExcerpt } from "../site/workbench/lessons.js";
 import init, { WasmRiscv } from "../site/vendor/riscv_emu_rust_wasm.js";
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url));
 const assets = {
@@ -12,7 +13,7 @@ const assets = {
   user: read("site/workbench/assets/user-base.elf"),
   files: JSON.parse(read("site/source.json")).files,
 };
-async function run(images) {
+async function run(images, observePid = true) {
   await init(read("site/vendor/riscv_emu_rust_wasm_bg.wasm"));
   const vm = WasmRiscv.new();
   vm.setup_program(new Uint8Array(images.kernel));
@@ -29,6 +30,19 @@ async function run(images) {
     address = vm.get_address_of_symbol("sys_getpid", error);
   assert.equal(error[0], 0);
   for (const char of "workbench\n") vm.put_input(char.charCodeAt(0));
+  if (!observePid) {
+    const start = output.length;
+    for (
+      let i = 0;
+      i < 1500 &&
+      (!output.slice(start).includes("workbench\n") || !output.endsWith("$ "));
+      i++
+    )
+      tick();
+    assert.ok(output.endsWith("$ "), output);
+    vm.free();
+    return { output };
+  }
   let hit = false;
   for (let i = 0; i < 1000 && !hit; i++) {
     hit = vm.run_until_breakpoints(new BigUint64Array([address]), 100000);
@@ -146,3 +160,42 @@ test("compile and link failures report the edited source rather than producing f
     /must define sys_getpid/,
   );
 });
+
+test(
+  "every Chapter 1 starter and its taught edits execute on the real guest",
+  { timeout: 120000 },
+  async () => {
+    for (const [id, lesson] of Object.entries(lessons)) {
+      const excerpt = sourceExcerpt(assets.files, lesson);
+      assert.ok(excerpt.text.trim(), id + ": matching source");
+      let source = lesson.starter(assets.files);
+      if (id === "writing-bytes")
+        source = source.replace('"hello\\n", 6', '"hello\\n", 3');
+      if (id === "entering-the-kernel")
+        source = source.replace(
+          "  exit(0);",
+          '  printf("reported pid=%d\\n", getpid());\n  exit(0);',
+        );
+      if (id === "the-current-process")
+        source = source.replace(
+          "  return",
+          '  printf("kernel sees pid=%d\\n", myproc()->pid);\n  return',
+        );
+      const built = await buildExercise(lesson.mode, source, assets),
+        result = await run(built, lesson.observePid);
+      if (id === "writing-bytes")
+        assert.match(result.output, /workbench\nhel\$ /);
+      else
+        assert.ok(
+          result.output.includes(lesson.expected),
+          id + ": expected actual output",
+        );
+      if (id === "entering-the-kernel")
+        assert.equal((result.output.match(/reported pid=/g) || []).length, 2);
+      if (id === "the-current-process")
+        assert.ok(
+          result.output.includes("kernel sees pid=" + result.actualPID),
+        );
+    }
+  },
+);

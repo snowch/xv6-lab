@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#f4f7fb" />
+    <meta
+      name="description"
+      content="Discover how xv6 works through a complete core curriculum. A real RISC-V kernel, a guided console, and a closer look inside."
+    />
+    <title>xv6 Lab — learn by looking inside</title>
+    <link
+      rel="preload"
+      href="../fonts/source-sans-3-400.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="../style.css?v=guided1" />
+  </head>
+  <body class="guided-workbook">
+    <a id="skip-lesson" class="skip-link" href="#lesson">Skip to lesson</a>
+    <aside class="sidebar">
+      <a class="brand" href="#boot" aria-label="xv6 Lab home"
+        ><span class="brand-mark" aria-hidden="true">x6<span>_</span></span
+        ><span
+          >xv6 <strong>Lab</strong
+          ><small>An operating systems workbook</small></span
+        ></a
+      >
+      <div class="sidebar-intro">
+        <p class="eyebrow">YOUR FIELD GUIDE</p>
+        <p>A small kernel.<br />A closer look.</p>
+      </div>
+      <div class="course-progress">
+        <div class="progress-track" aria-hidden="true">
+          <span id="progress-fill"></span>
+        </div>
+        <p id="progress"></p>
+        <span>At your pace. Progress stays in this browser.</span>
+      </div>
+      <details id="course-menu" open>
+        <summary>Browse the 25 lessons</summary>
+        <label class="search-label" for="lesson-search">Find a lesson</label
+        ><input
+          id="lesson-search"
+          name="lesson-search"
+          type="search"
+          autocomplete="off"
+          placeholder="Try pipes or memory…"
+          aria-controls="lessons"
+          aria-describedby="search-results"
+        />
+        <p id="search-results" role="status"></p>
+        <nav id="lessons" aria-label="Lessons"></nav>
+      </details>
+      <div class="sidebar-bottom">
+        <a href="../">Start the source lessons <span aria-hidden="true">→</span></a>
+        <a href="https://snowch.github.io/computer-systems/"
+          >Read the companion book <span aria-hidden="true">↗</span></a
+        ><a href="https://github.com/snowch/xv6-lab"
+          >View the source <span aria-hidden="true">↗</span></a
+        >
+        <p>MIT xv6 · RISC-V · WebAssembly</p>
+      </div>
+    </aside>
+    <div class="page">
+      <header class="topbar">
+        <span
+          ><span class="topbar-path">xv6 Lab</span
+          ><span aria-hidden="true"> / </span
+          ><a id="current-topic" href="#lesson">Foundations</a></span
+        ><a href="#machine" id="jump-machine" class="machine-jump"
+          >Jump to live machine <span aria-hidden="true">↓</span></a
+        >
+      </header>
+      <main>
+        <h1 class="sr-only">xv6 guided experiments</h1>
+        <div class="workspace">
+          <article id="lesson" tabindex="-1"></article>
+          <section
+            id="machine"
+            class="machine"
+            aria-label="Live xv6 machine"
+            tabindex="-1"
+          >
+            <div class="panel-heading">
+              <div>
+                <span class="dot" id="machine-dot"></span>
+                <h2>Your live machine</h2>
+              </div>
+              <span id="status" role="status" aria-live="polite"
+                >Ready to boot</span
+              >
+            </div>
+            <div class="machine-guide">
+              <span class="guide-icon" aria-hidden="true">↳</span>
+              <p id="machine-hint">
+                Start with “Run this experiment” in the lesson. We’ll boot xv6
+                and prepare the command for you.
+              </p>
+            </div>
+            <div class="terminal-heading">
+              <span><span aria-hidden="true">● ● ●</span> xv6 console</span
+              ><span>RISC-V · one hart</span>
+            </div>
+            <pre
+              id="terminal"
+              translate="no"
+              tabindex="0"
+              aria-label="Interactive xv6 console"
+              aria-describedby="console-help"
+            >
+A real operating system lives here.
+
+Run the first experiment to wake it up.
+</pre
+            >
+            <form id="command-form">
+              <label for="command">Try your own command</label>
+              <div class="command-row">
+                <span class="prompt-symbol" aria-hidden="true">$</span
+                ><input
+                  id="command"
+                  name="command"
+                  type="text"
+                  maxlength="120"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="echo hello…"
+                  aria-describedby="command-help"
+                  disabled
+                /><button id="send" disabled>
+                  Run <span aria-hidden="true">↵</span>
+                </button>
+              </div>
+              <p id="command-help" class="muted">
+                Available when the shell is ready.
+              </p>
+            </form>
+            <div id="error" role="alert" tabindex="-1" hidden></div>
+            <details class="advanced-tools">
+              <summary>Optional debugger, memory & reset</summary>
+              <div class="toolbar">
+                <button id="boot">Boot xv6</button
+                ><button id="pause" disabled>Pause</button
+                ><button id="continue" class="primary" disabled>
+                  Continue <span aria-hidden="true">▶</span></button
+                ><button id="step" disabled>Step instruction</button>
+              </div>
+              <details id="cpu-panel" class="inspector">
+                <summary>
+                  <span>Inside the CPU</span
+                  ><span class="detail-tag">Registers and stepping</span>
+                </summary>
+                <p class="muted">
+                  Pause to refresh this snapshot. These are current CPU
+                  registers; in a kernel handler they are not automatically the
+                  saved user arguments.
+                </p>
+                <div class="pc-line">
+                  <span>Next instruction (PC)</span><code id="pc">—</code>
+                </div>
+                <pre id="instruction" translate="no">
+Boot, then pause to inspect an instruction.</pre
+                >
+                <details class="register-disclosure">
+                  <summary>All 32 CPU registers</summary>
+                  <div id="registers" translate="no" class="registers"></div>
+                </details>
+                <h3>Matching kernel source</h3>
+                <p id="source-location" class="muted"></p>
+                <pre id="source-view" translate="no">
+Pause inside the kernel to locate the current instruction in source.</pre
+                >
+                <label for="breakpoint"
+                  >Advanced: stop at a kernel function</label
+                >
+                <div class="command-row">
+                  <select id="breakpoint" name="breakpoint">
+                    <option>sys_write</option>
+                    <option>sys_fork</option>
+                    <option>sys_exec</option>
+                    <option>usertrap</option>
+                    <option>sys_getpid</option></select
+                  ><button id="arm" disabled>Arm & continue</button>
+                </div>
+                <p class="muted">
+                  One-shot breakpoint; clears when hit. It may stop for shell
+                  activity as well as your command.
+                </p>
+              </details>
+              <details class="inspector">
+                <summary>
+                  <span>Read virtual memory</span
+                  ><span class="detail-tag">Advanced</span>
+                </summary>
+                <p class="muted">
+                  Pause first. Read eight bytes through the CPU’s active address
+                  translation, displayed as a little-endian 64-bit word.
+                </p>
+                <form id="memory-form">
+                  <label for="address">Hexadecimal address</label>
+                  <div class="command-row">
+                    <input
+                      id="address"
+                      name="address"
+                      type="text"
+                      autocomplete="off"
+                      value="0x80000000"
+                      spellcheck="false"
+                    /><button id="inspect" disabled>Inspect</button>
+                  </div>
+                </form>
+                <output aria-live="polite" id="memory-result"></output>
+              </details>
+              <div class="back-to-lesson">
+                <a id="back-lesson" href="#lesson">← Back to the lesson</a>
+              </div>
+              <details class="inspector" id="process-panel">
+                <summary>Processes & saved user registers</summary>
+                <p>
+                  Stop at a kernel function, then refresh. This is real guest
+                  memory, not an illustration.
+                </p>
+                <button id="refresh-processes" disabled>
+                  Refresh process table
+                </button>
+                <div
+                  aria-live="polite"
+                  id="process-result"
+                  class="data-scroll"
+                ></div>
+                <label for="process-pid">Process for page-table walk</label
+                ><select id="process-pid" name="process-pid"></select>
+                <form id="page-form">
+                  <label for="page-address">User virtual address</label>
+                  <div class="command-row">
+                    <input
+                      id="page-address"
+                      name="page-address"
+                      type="text"
+                      autocomplete="off"
+                      value="0x0"
+                      spellcheck="false"
+                    /><button id="walk-page" disabled>Walk page table</button>
+                  </div>
+                </form>
+                <div
+                  id="page-result"
+                  class="data-scroll"
+                  aria-live="polite"
+                ></div>
+              </details>
+              <details class="machine-help">
+                <summary>Console help & reset</summary>
+                <p id="console-help">
+                  Focus the console to type directly into interactive programs.
+                  Enter sends a line; Ctrl-D sends end of input. The command
+                  field waits for the shell prompt.
+                </p>
+                <p>
+                  Reset starts a fresh machine and discards files created in
+                  this session. Lesson progress and prediction notes stay saved.
+                </p>
+                <button id="reset" disabled>Reset machine…</button>
+              </details>
+            </details>
+          </section>
+        </div>
+        <details id="guide-resources">
+          <summary>Optional notes, source & other lessons</summary>
+          <div id="lesson-resources"></div>
+        </details>
+        <nav class="flow-navigation" aria-label="Experiment steps">
+          <button id="flow-back">Previous step</button
+          ><span id="flow-position" aria-live="polite"></span
+          ><button id="flow-next" class="primary">Run experiment</button>
+        </nav>
+        <footer>
+          <span>A working kernel, not a simulation of its output.</span
+          ><a href="../vendor/NOTICE.md">Runtime & licenses ↗</a>
+        </footer>
+      </main>
+    </div>
+    <script type="module" src="../app.js?v=guided1"></script>
+  </body>
+</html>
