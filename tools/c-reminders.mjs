@@ -8,6 +8,48 @@ const escape = (value) =>
     .replaceAll('"', "&quot;");
 const base = "https://snowch.github.io/c-foundry/#/chapter/";
 const topics = {
+  doWhile: {
+    title: "a loop that checks after its body",
+    text: "do ... while runs its body at least once, then repeats while the condition is nonzero. Here each iteration stores a fresh counter sample in after. The semicolon after while is part of this C syntax; the comparison == tests equality without assigning.",
+    code: "do {\n  after = uptime();\n} while (after == before);",
+    links: [["Loops and repetition", "control-flow/3"]],
+  },
+  kernelStatic: {
+    title: "static state shared by callbacks",
+    text: "A file-scope static variable has one storage location for this compiled kernel unit and starts at zero. Its value persists between function calls in this VM, so a probe can arm an interrupt observer and later disarm it. An ordinary local variable is separate for each call. A fresh VM resets this state independently of the source draft saved in your browser.",
+    code: "static int watching;\nwatching = !watching;  // toggle between 0 and 1",
+    links: [
+      ["Scope and storage duration", "functions/3"],
+      ["Variables and initialisation", "values/2"],
+    ],
+  },
+  devicePointer: {
+    title: "a pointer to volatile bytes",
+    text: "volatile unsigned char *reg points at a byte whose accesses the compiler must preserve. *reg reads that byte; the pointer cast alone performs no read. The address and the kernel’s mappings give it its device meaning. volatile does not create a mapping, grant permission or provide a lock.",
+    code: "volatile unsigned char *reg = (volatile unsigned char*)address;\nint bits = *reg & 3;",
+    links: [
+      ["Addresses and dereferencing", "pointers/1"],
+      ["Conversions and casts", "values/4"],
+    ],
+  },
+  ringIndex: {
+    title: "remainder and array indices",
+    text: "The % operator gives the remainder. For a nonnegative counter, counter % 32 selects an index from 0 to 31 in a 32-element array. The counter itself can keep increasing while the selected array slot wraps around. A character constant such as '@' has an integer character-code value.",
+    code: "int slot = counter % 32;\nbuffer[slot] = c;",
+    links: [
+      ["Operators and precedence", "values/3"],
+      ["Array indexing and bounds", "arrays-strings/1"],
+    ],
+  },
+  keyArray: {
+    title: "an array of character codes",
+    text: "An int array can hold printable character codes and numeric control codes. '\\n' is one newline character; 0x15 is hexadecimal for decimal 21. The array’s length comes from its initializer here, and index 0 names its first element. This is a sequence of integer codes, rather than a zero-terminated string.",
+    code: "int keys[] = {'a', 0x15, 'b', '\\n'};",
+    links: [
+      ["Array indexing and bounds", "arrays-strings/1"],
+      ["Values and character types", "values/1"],
+    ],
+  },
   integerOutput: {
     title: "writing through an output pointer",
     text: "An int * parameter holds the address of an integer owned by the caller. Assigning to *ip writes that integer. The function’s return value is separate: returning 0 can report success while the decoded number is delivered through the pointer.",
@@ -277,6 +319,14 @@ const topics = {
   },
 };
 const map = {
+  "virtio-descriptors-name-device-buffers":"structPointer",
+  "timer-interrupts-advance-kernel-ticks": "doWhile",
+  "masking-supervisor-interrupts": "calls",
+  "claiming-and-completing-device-interrupts": "kernelStatic",
+  "uart-registers-are-memory-mapped": "devicePointer",
+  "uart-output-passes-through-a-ring": "ringIndex",
+  "the-console-edits-and-commits-lines": "keyArray",
+  "disk-completion-precedes-cache-validity": "structPointer",
   "a-trapframe-saves-user-registers": "structPointer",
   "a-trap-cause-selects-the-path": "pteBits",
   "ecall-must-advance-the-return-pc": "conditionalValue",

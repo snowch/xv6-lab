@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter9";
+import { lessons, sourceExcerpt } from "./lessons.js?v=chapter10";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -78,7 +78,11 @@ function render() {
   say("file-name", lesson.file);
   say(
     "editable-label",
-    lesson.mode === "kernel" ? "Function only" : "Editable C",
+    lesson.mode === "kernel"
+      ? Array.isArray(lesson.build?.target)
+        ? "Kernel functions"
+        : "Function only"
+      : "Editable C",
   );
   say("reflection", lesson.reflection);
   $("test-program-details").hidden = !lesson.build?.probe;
@@ -148,7 +152,7 @@ function render() {
     "build-method",
     lesson.mode === "user"
       ? "This builds the editable user program and links it with the matching xv6 user library."
-      : `This compiles the editable ${lesson.build?.target || "sys_getpid"} function into the real kernel. The supplied user program runs after boot; all other functions come from the matching native build.`,
+      : `This compiles ${[lesson.build?.target || "sys_getpid"].flat().join(" and ")} into the real kernel. The supplied user program runs after boot; all other functions come from the matching native build.`,
   );
   document.title = lesson.title + " — xv6 Lab";
   activity("Ready to edit " + lesson.file);
@@ -314,7 +318,7 @@ function runBuild(record) {
     return;
   }
   machine?.worker?.terminate();
-  const worker = new Worker(new URL("../worker.js?v=mmu2", import.meta.url), {
+  const worker = new Worker(new URL("../worker.js?v=guest3", import.meta.url), {
     type: "module",
   });
   const run = {
@@ -494,7 +498,7 @@ $("export-source").onclick = () => {
   link.download =
     lessons[kind].mode === "user"
       ? "workbench.c"
-      : (lessons[kind].build?.target || "sys_getpid") + ".c";
+      : [lessons[kind].build?.target || "sys_getpid"].flat()[0] + ".c";
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
@@ -525,7 +529,7 @@ window.addEventListener("pagehide", () => {
 });
 try {
   const response = await fetch(
-    new URL("../source.json?v=kernel2", import.meta.url),
+    new URL("../source.json?v=guest3", import.meta.url),
   );
   if (!response.ok) throw new Error("HTTP " + response.status);
   files = (await response.json()).files;

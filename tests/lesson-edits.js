@@ -1,4 +1,45 @@
 export const edits = {
+  "virtio-descriptors-name-device-buffers": {
+    edit:s=>s.replace("WATCH_WRITE 0","WATCH_WRITE 1"),
+    expected:"request write=1 device writes data=0",
+    verify:out=>out.includes("device operation finished"),
+  },
+  "timer-interrupts-advance-kernel-ticks": {
+    edit: (s) => s.replace("ticks += 1", "ticks += 2"),
+    expected: "observed increment=2",
+  },
+  "masking-supervisor-interrupts": {
+    edit: (s) => s.replace("intr_off();", "intr_on();"),
+    expected: "interrupt enable before=1 during=1 after=1",
+  },
+  "claiming-and-completing-device-interrupts": {
+    edit: (s) => s.replace("WATCH_IRQ VIRTIO0_IRQ", "WATCH_IRQ UART0_IRQ"),
+    expected: "completed irq=10",
+  },
+  "uart-registers-are-memory-mapped": {
+    edit: (s) => s.replace("offset = 3", "offset = 5"),
+    expected: "register low bits=0",
+  },
+  "uart-output-passes-through-a-ring": {
+    edit: (s) => s.replace("replacement = '@'", "replacement = 'X'"),
+    expected: "marker=X",
+  },
+  "the-console-edits-and-commits-lines": {
+    edit: (s) => s.replace("0x15", "0x08"),
+    expected: "read bytes=6 text=cadog",
+  },
+  "disk-completion-precedes-cache-validity": {
+    edit: (s) => {
+      const lines = s.split("\n"),
+        first = lines.findIndex((line) => line.includes("if (myproc() &&"));
+      const observation = lines.splice(first, 2),
+        at = lines.findIndex((line) => line.includes("b->valid = 1;"));
+      lines.splice(at + 1, 0, ...observation);
+      return lines.join("\n");
+    },
+    expected: "io complete=1 cache valid=1",
+    verify: (out) => out.includes("disk byte=D"),
+  },
   "a-trapframe-saves-user-registers": {
     edit: (s) =>
       s.replace("selected = p->trapframe->a7", "selected = p->trapframe->epc"),

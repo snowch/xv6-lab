@@ -13,6 +13,7 @@ const mime = {
   ".json": "application/json",
   ".wasm": "application/wasm",
   ".ttf": "font/ttf",
+  ".png": "image/png",
 };
 const server = http.createServer((req, res) => {
   const name = decodeURIComponent(
@@ -75,6 +76,38 @@ const server = http.createServer((req, res) => {
         }),
       );
       await page.goto(base);
+      assert.equal(
+        await page.locator(".course-chapter details[open]").count(),
+        0,
+      );
+      const hero = page.locator(".hero-visual img");
+      assert.ok(
+        await hero.evaluate(
+          (image) => image.complete && image.naturalWidth > 0,
+        ),
+        "front-page illustration loads",
+      );
+      const chapterMenus = page.locator(".course-chapter summary");
+      await chapterMenus.first().focus();
+      await page.keyboard.press("Enter");
+      assert.ok(
+        await page
+          .locator(".course-chapter")
+          .first()
+          .locator(".course-lessons")
+          .isVisible(),
+      );
+      await chapterMenus.nth(1).click();
+      assert.equal(
+        await page.locator(".course-chapter details[open]").count(),
+        1,
+        "chapters form a compact accordion",
+      );
+      await chapterMenus.nth(1).click();
+      assert.equal(
+        await page.locator(".course-chapter details[open]").count(),
+        0,
+      );
       assert.equal(
         await page.locator(".course-lessons li").count(),
         lessonIds.length,
@@ -183,14 +216,17 @@ const server = http.createServer((req, res) => {
         const mobileEdit =
           latestMobile ||
           (name !== "desktop" &&
-            ["a-childs-exit-status", "exec-replaces-the-program"].includes(id));
+            (["a-childs-exit-status", "exec-replaces-the-program"].includes(
+              id,
+            ) ||
+              chapter[id].teachesKernelPanic));
         let expected = chapter[id].expected;
         if (mobileEdit) {
           const source = chapter[id].starter(matchingFiles);
           await page.locator(".cm-content").click();
           await page.keyboard.press("ControlOrMeta+a");
           await page.keyboard.insertText(
-            latestMobile
+            latestMobile || chapter[id].teachesKernelPanic
               ? edits[id].edit(source)
               : id === "a-childs-exit-status"
                 ? source.replace("exit(7)", "exit(23)")
@@ -199,16 +235,18 @@ const server = http.createServer((req, res) => {
                     "EDITED EXEC ARGUMENT",
                   ),
           );
-          expected = latestMobile
-            ? edits[id].expected
-            : id === "a-childs-exit-status"
-              ? "exited with status 23"
-              : "EDITED EXEC ARGUMENT";
+          expected =
+            latestMobile || chapter[id].teachesKernelPanic
+              ? edits[id].expected
+              : id === "a-childs-exit-status"
+                ? "exited with status 23"
+                : "EDITED EXEC ARGUMENT";
         }
         if (
           (name === "desktop" &&
             (chapter[id].chapter === latest.number ||
               chapter[id].observePid ||
+              chapter[id].teachesKernelPanic ||
               id === lessonIds[0])) ||
           mobileEdit
         ) {
@@ -295,9 +333,10 @@ const server = http.createServer((req, res) => {
               null,
               { timeout: 60000 },
             );
-            assert.match(
-              await page.locator("#terminal").textContent(),
-              /prepared user mode=1/,
+            assert.ok(
+              (await page.locator("#terminal").textContent()).includes(
+                chapter[id].expected,
+              ),
             );
             assert.ok(
               !(await page.locator("#terminal").textContent()).includes(

@@ -362,7 +362,7 @@ function render() {
     target.textContent = "Loading matching source…";
     try {
       const response = await fetch(
-        new URL("./source.json?v=core25", import.meta.url),
+        new URL("./source.json?v=guest3", import.meta.url),
       );
       if (!response.ok) throw new Error("HTTP " + response.status);
       const data = await response.json();
@@ -587,7 +587,7 @@ function boot(keepPending = false) {
   guide(
     "Booting a real kernel. This can take a little while; you don’t need to type anything yet.",
   );
-  worker = new Worker(new URL("./worker.js?v=mmu2", import.meta.url), {
+  worker = new Worker(new URL("./worker.js?v=guest3", import.meta.url), {
     type: "module",
   });
   worker.onmessage = ({ data }) => {

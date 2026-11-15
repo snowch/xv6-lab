@@ -14,8 +14,8 @@
     },
     {
       "path": "site/images/kernel",
-      "bytes": 329256,
-      "sha256": "73f509ca94bf7ed7a55c5d5913e38c3825997dcf32ff3ff0f819a202ce1683b3"
+      "bytes": 329464,
+      "sha256": "b27e0143855912d0fc1440f6ee6b732ebae0464faacc61b8fa97314a9d292591"
     },
     {
       "path": "site/images/fs.img",
@@ -51,7 +51,7 @@
   "guest": {
     "commit": "d7c0a1b7a703f7366942092f9cf421b6cd111a36",
     "source": "guest/",
-    "changes": "user/lab.c and user/workbench.c; Makefile: lab/workbench programs, explicit RV64GC/O3/no-inline flags; kernel/workbench.c native instruction bridges; workbench executable slots and separate writable kernel data slot; memlayout.h: 16 MiB guest RAM for upstream debugger compatibility"
+    "changes": "user/lab.c and user/workbench.c; Makefile: lab/workbench programs, explicit RV64GC/O3/no-inline flags; kernel/workbench.c native instruction bridges; virtio_disk.c read-only descriptor accessor; workbench executable slots and separate writable kernel data slot; memlayout.h: 16 MiB guest RAM for upstream debugger compatibility"
   },
   "compiler": {
     "upstream": "https://github.com/lupyuen/tcc-riscv32-wasm",
