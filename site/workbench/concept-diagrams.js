@@ -154,7 +154,7 @@ export const concepts = {
   ),
   fork: model(
     "One fork creates two continuations",
-    "Both processes continue after fork, with separate user memory and different return values.",
+    "On success, both processes continue after fork, with separate user memory and different return values.",
     [
       node(
         "call",
@@ -582,7 +582,7 @@ export const concepts = {
   ),
   contexts: model(
     "Two saved contexts serve different boundaries",
-    "The trapframe and swtch context are separate records in struct proc.",
+    "struct proc points to a saved user trapframe and contains a separate saved kernel context.",
     [
       node(
         "trapframe",
