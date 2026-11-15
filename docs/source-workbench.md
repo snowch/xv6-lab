@@ -131,3 +131,9 @@ The front page uses a conceptual OS illustration and native, keyboard-accessible
 ## Chapter 11: Context switching
 
 Six pages connect the native swtch ABI to real saved context fields. A supplied yield hook makes before/after state observations deterministic. A bounded user computation counts actual timer-driven usertrap yields; disabling that selected path does not claim to disable kerneltrap preemption or measure hardware speed. The scheduler contract edit deliberately panics and restores into a fresh machine. A sleep replacement observes the real condition lock on both sides of its release, leaving the acquire-before-release ordering intact.
+
+## Chapter 12: Locks and coordination
+
+Seven pages run native atomic exchanges and the actual spin/sleep lock routines. Ownership samples respect holding's interrupt-off requirement. Nested push/pop experiments restore the known syscall state after measuring the saved policy. Publication uses the real lock protocol; text explicitly avoids treating a sequential one-hart result as weak-memory proof.
+
+A shared compiled condition hook blocks a child under a real spinlock. Its parent publishes ready and wakes either the matching or a different channel; bounded kill/wait cleanup reports actual status 0 or -1. Recursive acquisition triggers the native panic, followed by a fresh restored run in browser checks. Source from this pinned wait implementation supplies the parent/child lock-order reasoning.

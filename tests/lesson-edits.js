@@ -1,4 +1,38 @@
 export const edits = {
+  "an-atomic-swap-returns-the-old-value": {
+    edit: (s) =>
+      s.replace(
+        "second = __sync_lock_test_and_set(&word, 1)",
+        "second = __sync_lock_test_and_set(&word, 7)",
+      ),
+    expected: "old values=0,1 final word=7",
+  },
+  "a-lock-records-its-owner": {
+    edit: (s) => s.replace("observed = after", "observed = before"),
+    expected: "owned at observation=1",
+  },
+  "nested-critical-sections-restore-interrupts": {
+    edit: (s) => s.replace("intr_on();", "intr_off();"),
+    expected: "after inner pop=0 restored enable=0",
+  },
+  "locks-order-protected-publication": {
+    edit: (s) => s.replace("payload = 42", "payload = 73"),
+    expected: "protected payload=73",
+  },
+  "a-sleeping-lock-does-not-spin-through-io": {
+    edit: (s) => s.replace("observed = before", "observed = after"),
+    expected: "sleep lock owned=0 internal spin owned=0",
+  },
+  "a-wakeup-needs-the-right-condition-and-channel": {
+    edit: (s) => s.replace("MATCH 1", "MATCH 0"),
+    expected: "waiter status=-1",
+  },
+  "lock-order-prevents-circular-wait": {
+    edit: (s) => s.replace("acquire(&right);", "acquire(&left);"),
+    expected: "panic: acquire",
+    allowPanic: true,
+  },
+
   "kernel-contexts-save-a-call-boundary": {
     edit: (s) =>
       s.replace("sizeof(struct context)", "sizeof(struct trapframe)"),

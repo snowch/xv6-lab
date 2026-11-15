@@ -319,6 +319,13 @@ const topics = {
   },
 };
 const map = {
+  "an-atomic-swap-returns-the-old-value": "structValue",
+  "a-lock-records-its-owner": "structPointer",
+  "nested-critical-sections-restore-interrupts": "calls",
+  "locks-order-protected-publication": "kernelStatic",
+  "a-sleeping-lock-does-not-spin-through-io": "structPointer",
+  "a-wakeup-needs-the-right-condition-and-channel": "kernelStatic",
+  "lock-order-prevents-circular-wait": "address",
   "kernel-contexts-save-a-call-boundary": "structValue",
   "a-saved-stack-belongs-to-the-kernel": "addressInteger",
   "yield-hands-a-process-to-the-scheduler": "structPointer",
