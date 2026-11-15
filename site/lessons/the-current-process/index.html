@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter1" />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter2" />
   </head>
   <body class="lesson-page" data-lesson="the-current-process">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -27,7 +27,9 @@
         ><strong>xv6 Lab<small>Learn through the source</small></strong></a
       >
       <details class="lesson-menu">
-        <summary>Lesson 5 of 6</summary>
+        <summary>
+          Chapter 1 · Lesson 5 of 6
+        </summary>
         <nav aria-label="Chapter 1 lessons"><a href="lessons/running-a-program/" data-lesson="running-a-program"><span>1.</span> A running program is a process</a>
 <a href="lessons/writing-bytes/" data-lesson="writing-bytes"><span>2.</span> The kernel writes your bytes</a>
 <a href="lessons/a-system-call-result/" data-lesson="a-system-call-result"><span>3.</span> A system call returns a result</a>
@@ -75,15 +77,21 @@
       <div class="workbench-grid">
         <section class="source-pane" aria-labelledby="file-name">
           <div class="pane-header">
-            <h2 id="file-name">user/workbench.c</h2>
-            <span id="editable-label" class="editable-label">Editable C</span>
+            <h2 id="file-name">kernel/sysproc.c</h2>
+            <span id="editable-label" class="editable-label"
+              >Function only</span
+            >
           </div>
           <div class="editor-meta">
             <span id="draft-status" role="status">Loading source…</span
             ><button id="restore" disabled>Restore starter</button
             ><button id="undo-restore" hidden>Undo restore</button>
           </div>
-          <div id="source-editor" tabindex="-1"></div>
+          <div
+            id="source-editor"
+            tabindex="-1"
+            style="--editor-height: 330px"
+          ></div>
           <div class="editor-bottom">
             <span id="build-relation">No build yet</span
             ><button id="export-source" disabled>Download source</button>
@@ -199,6 +207,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter1b"></script>
+    <script type="module" src="workbench/app.js?v=chapter2"></script>
   </body>
 </html>
