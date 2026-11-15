@@ -44,6 +44,12 @@ The existing 25 experiments live at `/explorer/` and retain their original funct
 
 The visual direction retains readable 18–19px prose, 16px editable C, Source Sans 3, IBM Plex Mono, quiet blue paper and teal source explanations. Decisions follow the previously applied [Frontend Design skill](https://github.com/anthropics/skills/blob/main/skills/frontend-design/SKILL.md) and [Web Interface Guidelines skill](https://github.com/vercel-labs/agent-skills/blob/main/skills/web-design-guidelines/SKILL.md). Required explanations remain visible; supplemental source and reflection can be expanded.
 
+## C prerequisites and local reminders
+
+The contents page states a basic C reading prerequisite: variables, conditions, loops, calls and return values. It links directly to the corresponding C Foundry topics rather than requiring the whole course. Every lesson includes a native, keyboard-operable disclosure with a short C explanation and code fragment selected for that lesson. These reminders stay beside the lesson reading; opening one does not navigate away or hide the OS explanation.
+
+Optional deeper refreshers use exact C Foundry chapter/topic routes and open in a visibly labelled new tab, preserving the active editor and saved draft. Reminders distinguish pointer arguments from return values, byte counts from string terminators, and struct values from struct pointers. xv6 interfaces are taught locally; C Foundry’s standard-library file APIs are not prerequisite material. The build-time catalogue is `tools/c-reminders.mjs`; regeneration fails if a lesson lacks a reminder.
+
 ## Build and state boundaries
 
 All compilation and guest execution happen locally. This is an incremental selected-unit build, not a full browser make build. An unchanged WebAssembly TCC binary emits RV64 objects; the JavaScript ELF linker resolves them against matching native xv6 images and installs code into reserved executable slots. Kernel globals use a separate writable region. Compiler licenses, complete corresponding source and limits remain in the [runtime notice](../site/workbench/NOTICE.md).

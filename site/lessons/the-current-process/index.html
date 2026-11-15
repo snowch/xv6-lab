@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="the-current-process">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>We have reached <code>sys_getpid</code>, the kernel handler. The editor now contains that actual function from <code>kernel/sysproc.c</code>. Your changes will compile into the kernel; a fixed user program will call it.</p><p><button class="code-link" data-focus="myproc">myproc()</button> returns a pointer to the current process’s <code>struct proc</code> record. The expression <button class="code-link" data-focus="pid">myproc()->pid</button> reads the <code>pid</code> field in that record.</p><p>Inside <code>myproc</code>, <code>c</code> is the current CPU’s record, and <code>c->proc</code> points to the process it is running. The surrounding <code>push_off</code>/<code>pop_off</code> calls keep this CPU lookup stable by temporarily disabling interrupts. We will study that mechanism later; here follow the pointer returned as <code>p</code>.</p></div>
+        <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
+p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

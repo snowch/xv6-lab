@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="writes-pass-through-the-log">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A regular-file write passes from the descriptor’s open-file object to the inode and block layer. xv6 records changed disk blocks in a <strong>log</strong>, or journal, so updates can be committed in an ordered way.</p><p>In the excerpt, <code>begin_op</code> reserves room for a filesystem operation. <code>writei</code> changes inode data, and <code>end_op</code> participates in committing the logged changes. A large write is split into bounded chunks, so one write syscall can involve several transactions.</p><p>The program writes a known byte pattern, closes the file, clears its C buffer, and reads the file back. The static buffer is stored in the program’s data area rather than its small user stack. This experiment verifies the running write/read path; each new run starts with a fresh guest filesystem.</p></div>
+        <details class="c-reminder"><summary>C reminder: array storage and compile-time sizes</summary><div class="c-reminder-content"><p>enum supplies an integer constant usable as an array size. A static local array has storage lasting for the process, rather than living in this function’s call stack. static does not make user memory shared between separate processes or preserve it across a fresh run.</p><pre translate="no"><code>enum { N = 6000 };
+static char data[N];</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/3" target="_blank" rel="noopener noreferrer">Scope and storage duration <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/allocation/1" target="_blank" rel="noopener noreferrer">Stack and heap storage <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

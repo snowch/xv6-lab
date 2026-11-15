@@ -1,0 +1,213 @@
+// Build-time C refreshers: each lesson keeps its explanation locally and links to
+// the exact C Foundry topic only when a learner wants a longer refresher.
+const escape = (value) =>
+  String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+const base = "https://snowch.github.io/c-foundry/#/chapter/";
+const topics = {
+  basics: {
+    title: "reading a small C program",
+    text: "main is the program’s entry function. Statements end with semicolons, and braces group a function or branch body. In printf, %d formats an integer and \\n starts a new line.",
+    code: 'int n = 3;\nprintf("n=%d\\n", n);',
+    links: [
+      ["Program structure", "first-program/2"],
+      ["Printing with printf", "first-program/3"],
+    ],
+  },
+  calls: {
+    title: "arguments and return values",
+    text: "A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.",
+    code: 'int pid = getpid();\nprintf("reported pid=%d\\n", pid);',
+    links: [["Parameters and return values", "functions/1"]],
+  },
+  prototypes: {
+    title: "function declarations",
+    text: "A declaration tells the compiler a function’s name, parameter types and result type. void inside the parameter list means no arguments. The declaration describes how to call the function; its implementation can live elsewhere.",
+    code: "int getpid(void);  // no arguments; returns an int",
+    links: [["Parameters, return values and prototypes", "functions/1"]],
+  },
+  strings: {
+    title: "strings and byte counts",
+    text: "A C string is a character array ending with a zero byte. The newline escape \\n is one byte. A byte-counted write uses the count you pass; it does not search for the string terminator.",
+    code: 'char text[] = "hello\\n";\n// Six message bytes, followed by one zero terminator.',
+    links: [["Character arrays and zero termination", "arrays-strings/2"]],
+  },
+  structPointer: {
+    title: "pointers and the -> operator",
+    text: "For a pointer p to a struct, p->pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.",
+    code: "p->pid        // read a member through a pointer\np->pid = 7;   // assign a new member value",
+    links: [
+      ["Pointers to structs", "structured-data/4"],
+      ["Addresses and dereferencing", "pointers/1"],
+    ],
+  },
+  branches: {
+    title: "comparisons and branches",
+    text: "== compares two values; = assigns a value. if chooses a branch when its condition is nonzero. A test for a negative result is separate from a test for zero, which matters when an interface uses different outcomes for each.",
+    code: "if (child < 0) { /* creation failed */ }\nif (child == 0) { /* child’s path */ }",
+    links: [["Conditions and branches", "control-flow/1"]],
+  },
+  address: {
+    title: "addresses passed to functions",
+    text: "&status gives the address of the caller’s variable, so a function can write a result there. The function’s return value is a separate result. A zero used as a pointer argument is a null pointer; wait(0) supplies no status address.",
+    code: "int status = 0;\nint pid = wait(&status);",
+    links: [["Pointers as function arguments", "pointers/2"]],
+  },
+  byteAddress: {
+    title: "passing a variable’s address",
+    text: "&ch supplies the address of a char variable so read can fill that byte in the caller. The return value separately reports how many bytes were read. Use a count of one for this single-char destination; a larger count would run past it.",
+    code: "char ch = 0;\nint n = read(fd, &ch, 1);",
+    links: [["Pointers as function arguments", "pointers/2"]],
+  },
+  values: {
+    title: "variables and assignment",
+    text: "A declaration such as int value = 7 creates and initialises a variable. A later assignment changes that variable’s value. The braces show which branch contains the assignment; they are important when following parent and child paths.",
+    code: "int value = 7;\nif (child == 0) { value = 99; }",
+    links: [
+      ["Variables and initialisation", "values/2"],
+      ["Conditions and branches", "control-flow/1"],
+    ],
+  },
+  arguments: {
+    title: "arrays of string pointers",
+    text: "args is an array whose elements point to strings. The final 0 is a null pointer marking the end of the argument list. Each string also has its own zero-byte terminator; these are two different uses of zero.",
+    code: 'char *args[] = {"echo", "hello", 0};',
+    links: [
+      ["Arrays and pointer arithmetic", "pointers/3"],
+      ["Character strings", "arrays-strings/2"],
+    ],
+  },
+  arithmetic: {
+    title: "pointer arithmetic and indexing",
+    text: "p[i] means *(p + i). Adding one to a char pointer advances one byte; other pointer types advance by their element size. Keep accesses within the live allocated region. Moving a pointer does not allocate more memory.",
+    code: "char *next = p + 1;  // the next char address\np[0] = 17;           // write through the pointer",
+    links: [["Arrays, pointers and pointer arithmetic", "pointers/3"]],
+  },
+  loops: {
+    title: "loops and bounds",
+    text: "The initialiser runs once, the condition is checked before each iteration, and i++ advances the index afterwards. With i < count, the visited indices are 0 through count - 1. The array must have enough elements for those accesses.",
+    code: "for (int i = 0; i < count; i++) {\n  /* use element i */\n}",
+    links: [
+      ["Loops and repetition", "control-flow/3"],
+      ["Array indexing and bounds", "arrays-strings/1"],
+    ],
+  },
+  lifetime: {
+    title: "pointer values and memory lifetime",
+    text: "A pointer can keep an address after the memory it referred to has been released. Retaining the value does not keep that allocation alive. The fault lesson deliberately makes an invalid access in a child; volatile does not make that address valid again.",
+    code: "char *saved = p;\n// Releasing p’s allocation does not clear saved.",
+    links: [["Dangling pointers and memory lifetime", "allocation/4"]],
+  },
+  checkedPointer: {
+    title: "a pointer argument versus a dereference",
+    text: "Casting an integer to a pointer creates an address value; dereferencing it would request access to memory. Passing that value as an argument lets the called interface inspect it. The syscall’s result is determined by xv6’s checked-copy path, which this lesson explains.",
+    code: "write(1, (char*)0x40000000, 4);\n// This call passes a pointer; it does not load *pointer in user C.",
+    links: [
+      ["Addresses and dereferencing", "pointers/1"],
+      ["Pointers as arguments", "pointers/2"],
+    ],
+  },
+  flags: {
+    title: "headers and flag bits",
+    text: "#include makes declarations and constants available to the compiler. The | operator combines flag bits. It differs from ||, which evaluates a logical condition. xv6 defines the meanings of these particular open flags in its own header.",
+    code: "O_CREATE | O_RDWR | O_TRUNC",
+    links: [
+      ["Bitwise operations and masks", "files-bytes/2"],
+      ["Headers and compilation", "larger-programs/1"],
+    ],
+  },
+  buffer: {
+    title: "buffers and string terminators",
+    text: "The array has six char elements, initially all zero. Reading at most five bytes leaves the final element zero, so the displayed text remains terminated. read reports bytes obtained; it does not append a C string terminator for you.",
+    code: "char buf[6] = {0};\nint n = read(fd, buf, 5);",
+    links: [
+      ["Array bounds", "arrays-strings/1"],
+      ["Character arrays and zero termination", "arrays-strings/2"],
+    ],
+  },
+  structValue: {
+    title: "struct members and output arguments",
+    text: "The dot operator reads a member of a struct value. &st passes its address so fstat can fill it. Check that the call succeeded before reading those fields; declaring a local struct alone does not initialise its contents.",
+    code: 'struct stat st;\nif (fstat(fd, &st) == 0)\n  printf("links=%d\\n", st.nlink);',
+    links: [
+      ["Structs and member access", "structured-data/1"],
+      ["Pointers as function arguments", "pointers/2"],
+    ],
+  },
+  storage: {
+    title: "array storage and compile-time sizes",
+    text: "enum supplies an integer constant usable as an array size. A static local array has storage lasting for the process, rather than living in this function’s call stack. static does not make user memory shared between separate processes or preserve it across a fresh run.",
+    code: "enum { N = 6000 };\nstatic char data[N];",
+    links: [
+      ["Scope and storage duration", "functions/3"],
+      ["Stack and heap storage", "allocation/1"],
+    ],
+  },
+  descriptors: {
+    title: "arrays used as output arguments",
+    text: "int p[2] reserves two integer elements. Passing p to pipe supplies the array’s starting address, so the function can fill p[0] and p[1]. They are integer handles, not pointers to the pipe’s bytes.",
+    code: "int p[2];\nif (pipe(p) == 0) { /* use p[0] and p[1] */ }",
+    links: [
+      ["Arrays and pointers", "pointers/3"],
+      ["Pointers as function arguments", "pointers/2"],
+    ],
+  },
+  readLoop: {
+    title: "assignment inside a loop condition",
+    text: "The parenthesised assignment first stores the read result in n. The > 0 comparison then decides whether to enter the loop. Use only the n bytes actually returned; a request for a larger count does not promise that many bytes arrived.",
+    code: "while ((n = read(fd, buf, sizeof(buf))) > 0) {\n  /* consume buf[0] through buf[n - 1] */\n}",
+    links: [
+      ["while and for loops", "control-flow/3"],
+      ["Expressions and precedence", "values/3"],
+    ],
+  },
+};
+const map = {
+  "running-a-program": "basics",
+  "writing-bytes": "strings",
+  "a-system-call-result": "calls",
+  "entering-the-kernel": "prototypes",
+  "the-current-process": "structPointer",
+  "changing-the-answer": "structPointer",
+  "fork-creates-a-child": "branches",
+  "waiting-for-a-child": "address",
+  "a-childs-exit-status": "address",
+  "fork-copies-memory": "values",
+  "exec-replaces-the-program": "arguments",
+  "when-exec-fails": "calls",
+  "growing-user-memory": "arithmetic",
+  "memory-is-mapped-in-pages": "arithmetic",
+  "new-pages-start-at-zero": "loops",
+  "shrinking-user-memory": "lifetime",
+  "a-user-fault-is-contained": "lifetime",
+  "the-kernel-checks-user-pointers": "checkedPointer",
+  "opening-and-closing-files": "flags",
+  "reads-advance-the-file-offset": "buffer",
+  "dup-shares-the-open-file": "byteAddress",
+  "unlink-keeps-open-files-alive": "buffer",
+  "two-names-one-inode": "structValue",
+  "writes-pass-through-the-log": "storage",
+  "a-pipe-connects-two-descriptors": "descriptors",
+  "eof-needs-closed-writers": "buffer",
+  "fork-inherits-pipe-ends": "descriptors",
+  "pipes-are-byte-streams": "buffer",
+  "a-pipe-reader-can-block": "byteAddress",
+  "redirecting-output-through-a-pipe": "readLoop",
+  "sleep-counts-guest-ticks": "calls",
+  "runnable-processes-take-turns": "loops",
+  "waiting-is-a-process-state": "address",
+  "wakeup-makes-a-process-runnable": "structPointer",
+  "killing-a-sleeping-process": "branches",
+  "locks-protect-shared-kernel-state": "readLoop",
+};
+const link = ([title, route]) =>
+  `<a href="${base + route}" target="_blank" rel="noopener noreferrer">${escape(title)} <span class="new-tab-label">(new tab)</span></a>`;
+export function renderReminder(id) {
+  const topic = topics[map[id]];
+  if (!topic) throw new Error("Missing C reminder for lesson: " + id);
+  return `<details class="c-reminder"><summary>C reminder: ${escape(topic.title)}</summary><div class="c-reminder-content"><p>${escape(topic.text)}</p><pre translate="no"><code>${escape(topic.code)}</code></pre><p class="c-refresher-links">Refresh in C Foundry: ${topic.links.map(link).join(" · ")}</p></div></details>`;
+}
+export const prerequisiteSection = `<section id="c-prerequisites" class="c-prerequisites" aria-labelledby="c-prerequisites-title"><h2 id="c-prerequisites-title">C you’ll need</h2><p>You should be comfortable reading small C programs: variables, conditions, loops, function calls and return values.</p><p>New to C or feeling rusty? Use these focused C Foundry refreshers: ${link(["Program structure", "first-program/2"])}, ${link(["Conditions", "control-flow/1"])}, ${link(["Loops", "control-flow/3"])} and ${link(["Functions", "functions/1"])}.</p><p>Short, expandable <strong>C reminders</strong> explain pointers, arrays and structs where the lessons use them, with optional links for more practice. Read the reminder here to keep your place in the lab.</p><p class="c-interface-note">xv6 uses its own headers and system calls. We introduce those interfaces here; C Foundry’s standard-library file functions are not a prerequisite.</p></section>`;

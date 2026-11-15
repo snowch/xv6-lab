@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="killing-a-sleeping-process">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>xv6’s <button class="code-link" data-focus="kill(child)">kill</button> marks the selected process as killed. If it is sleeping, the kernel makes it runnable so it can notice the flag and finish the exit path.</p><p>The example gives the child a longer sleep and has the parent request cancellation after one tick. The child should not reach its completion message. The parent collects its exit status <code>-1</code>.</p><p>This mechanism is a flag and kernel checks, not immediate deletion of a process record by the caller. If no process has the requested PID, kill returns <code>-1</code> and changes no target.</p></div>
+        <details class="c-reminder"><summary>C reminder: comparisons and branches</summary><div class="c-reminder-content"><p>== compares two values; = assigns a value. if chooses a branch when its condition is nonzero. A test for a negative result is separate from a test for zero, which matters when an interface uses different outcomes for each.</p><pre translate="no"><code>if (child &lt; 0) { /* creation failed */ }
+if (child == 0) { /* child’s path */ }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/1" target="_blank" rel="noopener noreferrer">Conditions and branches <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

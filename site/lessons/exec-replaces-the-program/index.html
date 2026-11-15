@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="exec-replaces-the-program">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p><code>fork</code> created a process. <button class="code-link" data-focus="exec">exec</button> loads a program into the process that calls it. On success, the old program’s memory and starting point are replaced. The process keeps its PID.</p><p>The example first prints its PID. It then requests xv6’s existing <code>echo</code> executable. <code>args</code> is a list of argument strings ending with a null pointer: echo’s name, its message, then <code>0</code>. echo prints the message and exits.</p><p>A successful exec does not return to the following printf. Compare the PID printed before exec with the kernel PID captured at process exit, after echo has run. The same process ran both programs.</p></div>
+        <details class="c-reminder"><summary>C reminder: arrays of string pointers</summary><div class="c-reminder-content"><p>args is an array whose elements point to strings. The final 0 is a null pointer marking the end of the argument list. Each string also has its own zero-byte terminator; these are two different uses of zero.</p><pre translate="no"><code>char *args[] = {&quot;echo&quot;, &quot;hello&quot;, 0};</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays and pointer arithmetic <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/2" target="_blank" rel="noopener noreferrer">Character strings <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +100,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

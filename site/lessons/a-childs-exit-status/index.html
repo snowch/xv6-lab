@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="a-childs-exit-status">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The argument to <button class="code-link" data-focus="exit(7)">exit(7)</button> is the child’s <strong>exit status</strong>: an integer it leaves for its parent. Zero conventionally means success; a program can use other values to describe another outcome.</p><p>The parent supplies <code>&status</code> to <code>wait</code>. In C, this is the address of its local status variable. xv6 copies the child’s exit status there before collecting the child. Passing <code>0</code>, as on the previous page, skips that copy.</p><p>There are two results to keep apart: the value <code>wait</code> returns is the child’s PID; the value it writes into <code>status</code> is the integer the child passed to exit.</p></div>
+        <details class="c-reminder"><summary>C reminder: addresses passed to functions</summary><div class="c-reminder-content"><p>&amp;status gives the address of the caller’s variable, so a function can write a result there. The function’s return value is a separate result. A zero used as a pointer argument is a null pointer; wait(0) supplies no status address.</p><pre translate="no"><code>int status = 0;
+int pid = wait(&amp;status);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

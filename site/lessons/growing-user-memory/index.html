@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="growing-user-memory">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A process has a current end to its allocated user memory, often called its <strong>break</strong>. <button class="code-link" data-focus="sbrk">sbrk(n)</button> asks xv6 to change that end by <code>n</code> bytes. On success it returns the <em>old</em> end, where newly added memory starts.</p><p><code>sbrk(0)</code> asks for no change and returns the current break. The example remembers that address, requests 4096 bytes, then writes and reads a byte in the new area. It checks the failure value <code>(char*)-1</code> before using the result.</p><p>This pinned xv6 eagerly allocates memory during sbrk. Growing a process is a kernel operation, unlike declaring another C pointer variable.</p></div>
+        <details class="c-reminder"><summary>C reminder: pointer arithmetic and indexing</summary><div class="c-reminder-content"><p>p[i] means *(p + i). Adding one to a char pointer advances one byte; other pointer types advance by their element size. Keep accesses within the live allocated region. Moving a pointer does not allocate more memory.</p><pre translate="no"><code>char *next = p + 1;  // the next char address
+p[0] = 17;           // write through the pointer</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays, pointers and pointer arithmetic <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

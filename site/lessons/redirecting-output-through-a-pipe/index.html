@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="redirecting-output-through-a-pipe">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,9 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A program like echo writes to descriptor <code>1</code>. A shell can change what that descriptor points to before starting the program, without changing echo’s code.</p><p>The child closes its console descriptor 1, then duplicates the pipe writer. Because 1 is the lowest free slot, dup places the writer there. Closing the original pipe descriptors leaves standard output as the child’s writer reference.</p><p>exec preserves those descriptor connections. Echo’s bytes enter the pipe; the parent loops until EOF to collect the short message. This combines fork, close, dup and exec from the preceding lessons.</p></div>
+        <details class="c-reminder"><summary>C reminder: assignment inside a loop condition</summary><div class="c-reminder-content"><p>The parenthesised assignment first stores the read result in n. The &gt; 0 comparison then decides whether to enter the loop. Use only the n bytes actually returned; a request for a larger count does not promise that many bytes arrived.</p><pre translate="no"><code>while ((n = read(fd, buf, sizeof(buf))) &gt; 0) {
+  /* consume buf[0] through buf[n - 1] */
+}</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">while and for loops <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/3" target="_blank" rel="noopener noreferrer">Expressions and precedence <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +102,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

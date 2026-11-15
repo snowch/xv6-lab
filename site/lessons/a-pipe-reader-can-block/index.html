@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="a-pipe-reader-can-block">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,8 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>An empty pipe with an open writer is not at EOF. Its reader can <strong>block</strong>: the kernel pauses that process until the condition can change, letting other processes run.</p><p>The parent’s supplied <code>sleep(3)</code> asks the kernel to wait for timer ticks before writing. These are guest timer events, not browser milliseconds. It gives the child an opportunity to reach an empty-pipe read; the scheduling chapter will explain sleep in more detail.</p><p>piperead sleeps on a channel associated with the read counter. A writer wakes readers after supplying data. The loop checks the condition again after waking; waking is a reason to retry, not a guarantee that a byte belongs to this reader.</p></div>
+        <details class="c-reminder"><summary>C reminder: passing a variable’s address</summary><div class="c-reminder-content"><p>&amp;ch supplies the address of a char variable so read can fill that byte in the caller. The return value separately reports how many bytes were read. Use a count of one for this single-char destination; a larger count would run past it.</p><pre translate="no"><code>char ch = 0;
+int n = read(fd, &amp;ch, 1);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +101,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

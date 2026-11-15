@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter6" />
+    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
   </head>
   <body class="lesson-page" data-lesson="two-names-one-inode">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,9 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A <strong>hard link</strong> adds another directory name for the same inode. <button class="code-link" data-focus="link(">link("first", "second")</button> does not copy the file’s bytes into an independent file.</p><p><code>fstat</code> reports metadata for an open descriptor. The example compares inode numbers before and after removing the first name, and reads the contents through the second name.</p><p>The inode number agrees, the data remains <code>Hi</code>, and the remaining link count is one. Open descriptors also retain references, but they do not add directory links to <code>nlink</code>.</p></div>
+        <details class="c-reminder"><summary>C reminder: struct members and output arguments</summary><div class="c-reminder-content"><p>The dot operator reads a member of a struct value. &amp;st passes its address so fstat can fill it. Check that the call succeeded before reading those fields; declaring a local struct alone does not initialise its contents.</p><pre translate="no"><code>struct stat st;
+if (fstat(fd, &amp;st) == 0)
+  printf(&quot;links=%d\n&quot;, st.nlink);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/1" target="_blank" rel="noopener noreferrer">Structs and member access <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
@@ -99,8 +102,7 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+Loading the matching xv6 sources…</pre>
           </div>
           <details class="build-details">
             <summary>About this build</summary>

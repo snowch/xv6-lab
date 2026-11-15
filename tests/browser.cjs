@@ -79,6 +79,12 @@ const server = http.createServer((req, res) => {
         await page.locator(".course-lessons li").count(),
         lessonIds.length,
       );
+      await page.locator('a[href="#c-prerequisites"]').click();
+      assert.ok(await page.locator("#c-prerequisites").isVisible());
+      assert.match(
+        await page.locator("#c-prerequisites").textContent(),
+        /variables, conditions, loops, function calls and return values/,
+      );
       await page.evaluate(() => document.fonts.ready);
       await page.screenshot({
         path: path.join(artifacts, "course-contents-" + name + ".png"),
@@ -93,6 +99,68 @@ const server = http.createServer((req, res) => {
         await page.evaluate(() => document.fonts.ready);
         assert.equal(new URL(page.url()).pathname, "/lessons/" + id + "/");
         assert.equal(await page.locator("h1").textContent(), chapter[id].title);
+        const reminder = page.locator(".c-reminder");
+        assert.equal(await reminder.count(), 1);
+        assert.equal(await reminder.getAttribute("open"), null);
+        if (id === "the-current-process") {
+          // Keyboard disclosure and a refresher tab must preserve edited source.
+          const draft =
+            chapter[id].starter(matchingFiles) +
+            "\n// Saved C refresher draft\n";
+          await page.locator(".cm-content").click();
+          await page.keyboard.press("ControlOrMeta+a");
+          await page.keyboard.insertText(draft);
+          await reminder.locator("summary").focus();
+          await page.keyboard.press("Enter");
+          assert.notEqual(await reminder.getAttribute("open"), null);
+          assert.ok(
+            await page.evaluate(
+              () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+            name + ": expanded C reminder has no page overflow",
+          );
+          assert.ok(
+            await reminder
+              .locator("p")
+              .first()
+              .evaluate(
+                (el) => parseFloat(getComputedStyle(el).fontSize) >= 18,
+              ),
+          );
+          await page.screenshot({
+            path: path.join(artifacts, "c-reminder-" + name + ".png"),
+            fullPage: true,
+          });
+          const refresher = reminder.locator("a").first();
+          assert.equal(await refresher.getAttribute("target"), "_blank");
+          assert.match(await refresher.textContent(), /new tab/);
+          // Test navigation independently of C Foundry's network availability.
+          await page
+            .context()
+            .route("https://snowch.github.io/c-foundry/**", (route) =>
+              route.fulfill({
+                contentType: "text/html",
+                body: "<title>C refresher</title>",
+              }),
+            );
+          const [popup] = await Promise.all([
+            page.waitForEvent("popup"),
+            refresher.click(),
+          ]);
+          await popup.waitForLoadState();
+          assert.equal(popup.url(), await refresher.getAttribute("href"));
+          await popup.close();
+          assert.equal(new URL(page.url()).pathname, "/lessons/" + id + "/");
+          await page.reload();
+          await page.locator(".cm-content").waitFor();
+          assert.match(
+            await page.locator(".cm-content").textContent(),
+            /Saved C refresher draft/,
+          );
+          await page.waitForFunction(
+            () => !document.querySelector("#build-run").disabled,
+          );
+        }
         assert.ok(
           (await page.locator("#source-excerpt").textContent()).trim().length >
             10,
