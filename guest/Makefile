@@ -123,6 +123,7 @@ mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h
 UPROGS=\
 	$U/_workbench\
 	$U/_lab\
+	$U/_bssprobe\
 	$U/_cat\
 	$U/_echo\
 	$U/_forktest\

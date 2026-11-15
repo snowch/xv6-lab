@@ -1,4 +1,38 @@
 export const edits = {
+  "elf-headers-identify-an-executable": {
+    edit: (s) => s.replace('selected = "lab"', 'selected = "README"'),
+    expected: "ELF magic matches=0",
+  },
+  "segments-separate-file-bytes-from-memory-size": {
+    edit: (s) => s.replace("span = segment.memsz", "span = segment.filesz"),
+    expected: "span exceeds file bytes=0",
+  },
+  "the-loader-zeroes-real-bss-memory": {
+    edit: (s) => s.replace("FILL 0", "FILL 7"),
+    expected: "BSS byte=7",
+  },
+  "exec-builds-a-new-argument-vector": {
+    edit: (s) => s.replace('"small"', '"clear"'),
+    expected: "argc=3 first=clear second=kernel",
+  },
+  "exec-establishes-the-entry-stack": {
+    edit: (s) => s.replace("STACK_BIAS 0", "STACK_BIAS 8"),
+    expected: "entry stack alignment=8",
+  },
+  "failed-exec-preserves-the-old-image": {
+    edit: (s) => s.replace("canary = 42", "canary = 73"),
+    expected: "exec failed=1 old value=73 same process=1",
+  },
+  "the-shell-composes-kernel-interfaces": {
+    edit: (s) => s.replace('"kernel"', '"source"'),
+    expected: "child status=0 redirected output=source",
+  },
+  "capstone-follow-a-byte-from-process-to-disk": {
+    edit: (s) => s.replace("from process to disk", "OS capstone complete"),
+    expected: "OS capstone complete",
+    verify: (out) => /collected child=0 file bytes=\d+/.test(out),
+  },
+
   "filesystem-operations-reserve-log-space": {
     edit: (s) => s.replace("OPERATIONS 1", "OPERATIONS 2"),
     expected: "outstanding observed=2",

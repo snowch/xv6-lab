@@ -16,10 +16,10 @@ onmessage = async ({ data }) => {
     postMessage({ type: "progress", phase: "loading" });
     const [compiler, kernel, disk, user, source] = await Promise.all([
       bytes("./compiler/tcc.wasm"),
-      bytes("../images/kernel?v=guest3"),
-      bytes("../images/fs.img?v=guest3"),
-      bytes("./assets/user-base.elf?v=guest3"),
-      bytes("../source.json?v=guest3"),
+      bytes("../images/kernel?v=guest4"),
+      bytes("../images/fs.img?v=guest4"),
+      bytes("./assets/user-base.elf?v=guest4"),
+      bytes("../source.json?v=guest4"),
     ]);
     const files = JSON.parse(new TextDecoder().decode(source)).files;
     postMessage({ type: "progress", phase: "compile" });

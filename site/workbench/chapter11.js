@@ -18,6 +18,7 @@ const k = (build, details) =>
       "kernel/proc.c",
       "kernel/proc.h",
       "kernel/swtch.S",
+      "kernel/kernelvec.S",
       "kernel/trap.c",
     ],
     ...details,
@@ -159,7 +160,7 @@ export const chapter11Lessons = {
       ) +
       "\nuint64 sys_getpid(void)\n{\n  if (watching) { watching = 0; return preemptions; }\n  preemptions = 0;\n  watching = 1;\n  return 0;\n}\n",
     reading:
-      "<p>A CPU-bound user program need not volunteer to yield. A timer interrupt traps into the kernel, devintr identifies it as a timer event, and usertrap calls yield. The kernel can therefore regain scheduling control during a long computation.</p><p>This compiled unit replaces the actual usertrap and supplies a temporary getpid lab hook. The first hook call arms a counter; the supplied program then executes a bounded busy loop in user space. The second hook call returns the number of observed timer-driven yields. It intentionally changes getpid’s meaning in this isolated experiment.</p><p>Build and expect the boolean observation 1, meaning at least one such yield occurred. Set PREEMPT to 0 to skip this usertrap yield for workbench and observe 0. Timer ticks still advance, and kerneltrap has its own preemption path; this edit does not disable all interrupts or all kernel preemption. The count is functional evidence, not a timing benchmark.</p>",
+      "<p>A CPU-bound user program need not volunteer to yield. A timer interrupt traps into the kernel, devintr identifies it as a timer event, and usertrap calls yield. The kernel can therefore regain scheduling control during a long computation.</p><p>This compiled unit replaces the actual usertrap and supplies a temporary getpid lab hook. The first hook call arms a counter; the supplied program then executes a bounded busy loop in user space. The second hook call returns the number of observed timer-driven yields. It intentionally changes getpid’s meaning in this isolated experiment.</p><p>Build and expect the boolean observation 1, meaning at least one such yield occurred. Set PREEMPT to 0 to skip this usertrap yield for workbench and observe 0. Timer ticks still advance, and kerneltrap has its own preemption path; this edit does not disable all interrupts or all kernel preemption. The count is functional evidence, not a timing benchmark.</p><p>Interrupts during kernel execution enter kernelvec, which saves kernel registers on the current kernel stack. kerneltrap saves sepc and sstatus, handles the device, and may yield on a timer while a process is RUNNING. It restores those saved trap registers before kernelvec returns. This kernel-interrupt path does not restore the user trapframe.</p>",
     excerpt: {
       file: "kernel/trap.c",
       within: "usertrap(void)",

@@ -2,7 +2,7 @@
 
 **[Open the lab](https://snowch.github.io/xv6-lab/)** · [Companion book](https://snowch.github.io/computer-systems/) · [Open in Codespaces](https://codespaces.new/snowch/xv6-lab)
 
-Learn how an operating system works, one small experiment at a time. A real xv6 RISC-V kernel executes locally in a WebAssembly worker. Its console, process records, trapframes and page tables come from actual guest execution.
+Learn how an operating system works, one small experiment at a time. A real xv6 RISC-V kernel executes locally in a WebAssembly worker. Its console, process records, trapframes and page tables come from actual guest execution. The complete functional course contains **15 chapters and 99 source-led lessons**.
 
 ## C prerequisite
 
@@ -52,7 +52,7 @@ Six lessons teach pipe endpoints, EOF, inherited references, byte streams, block
 
 The final six lessons cover timer sleep, runnable processes, the sleeping parent in wait, wakeup channels, killing a sleeper, and locks protecting shared kernel pipe state. The wait lesson displays a saved snapshot read from actual process records, including parent PIDs. The final example combines two writers, byte-stream reads, EOF and child collection while tracing the protected pipe counters.
 
-The six foundation chapters contain **36 source-led lessons**. The comprehensive kernel course continues below; [its coverage plan](docs/comprehensive-course.md) distinguishes the remaining work from available chapters. The contents page links every lesson; the kernel explorer supplies 25 additional inspection experiments. Functional scope remains one emulated hart, bounded incremental C builds and disposable guest filesystems.
+The six foundation chapters contain **36 source-led lessons**. Nine further chapters cover the kernel mechanisms below; [the coverage matrix](docs/comprehensive-course.md) maps the complete course. The contents page links every lesson; the kernel explorer supplies 25 additional inspection experiments. Functional scope remains one emulated hart, bounded incremental C builds and disposable guest filesystems.
 
 To regenerate the committed lesson pages after changing `site/workbench/lessons.js`, `site/workbench/chapter2.js` or `tools/workbench-page.html`, run `npm run build:lessons`. To regenerate the CodeMirror bundle after changing its source, run `npm run build:editor`. CI verifies both generated outputs. The existing guest build regenerates the matching workbench baseline ELF.
 
@@ -74,7 +74,7 @@ Six lessons inspect saved registers, trace ecall causes, change the saved return
 
 ## Chapter 10: Interrupts and device drivers
 
-Eight lessons connect timer delivery to logical ticks, read the supervisor interrupt-enable bit, observe actual PLIC claim/completion IDs, query UART registers, change bytes entering its transmit ring, exercise console line editing, inspect VirtIO descriptor directions, and inspect the disk-completion/cache-validity boundary. The course now has **91 available lessons**, with one further chapter planned.
+Eight lessons connect timer delivery to logical ticks, read the supervisor interrupt-enable bit, observe actual PLIC claim/completion IDs, query UART registers, change bytes entering its transmit ring, exercise console line editing, inspect VirtIO descriptor directions, and inspect the disk-completion/cache-validity boundary.
 
 The IRQ observer and its arming syscall hook are compiled together and share real kernel state. Console editing feeds the real callback directly and explicitly distinguishes that test from hardware IRQ delivery. Source excerpts select actual function definitions rather than earlier calls with the same name.
 
@@ -93,6 +93,12 @@ Eight pages follow the superblock, buffer identity and pins, lazy inode metadata
 ## Chapter 14: Logging and recovery
 
 Six pages cover reservations, absorption, the last outstanding operation, the header commit point, actual boot replay and redo idempotence. Recovery uses an explicit prepared committed journal whose README home byte is O and logged replacement is R; the kernel performs the replay. Skipping installation leaves O, and two real replay passes still produce R.
+
+## Chapter 15: Loading programs and integration
+
+Eight pages load actual ELF headers and segments, change real BSS initialization, reconstruct argv, edit the complete exec function's entry stack pointer, preserve the old image on failure, compose shell redirection and trace a pipe-to-file-to-cat capstone. The native BSS fixture has a real NOBITS region; it is not a file-backed browser link-slot test.
+
+All chapters are available. Every starter and suggested edit is compiled and executed against the real guest; the frontend is checked on desktop, tablet, phone and small-phone layouts.
 
 ## Kernel explorer
 
@@ -136,11 +142,11 @@ npm test
 
 The build packages the ELF, disk image, DWARF source associations, complete source text, ELF symbol addresses, host-computed process-field offsets, and hashes. Run it after any guest change so inspectors stay consistent. Compiler versions can change binary bytes and source mappings; this is a rebuildable pinned source tree, not a claim of identical output from every toolchain.
 
-Local guest changes: expose a read-only VirtIO descriptor pointer for compiler-compatible observation; add `user/lab.c`, `user/workbench.c`, their Makefile entries and reserved incremental-link slots; use explicit RV64GC/LP64D, O3 flags with inlining disabled and native instruction helpers; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while retaining that separate debugger limitation in the rebuilt runtime. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
+Local guest changes: add a native NOBITS BSS probe; expose a read-only VirtIO descriptor pointer for compiler-compatible observation; add `user/lab.c`, `user/workbench.c`, their Makefile entries and reserved incremental-link slots; use explicit RV64GC/LP64D, O3 flags with inlining disabled and native instruction helpers; expose **16 MiB of guest RAM**. The upstream precompiled debugger’s memory bounds check compares a byte offset with a u64 element count. Restricting the guest’s managed RAM to 16 MiB keeps its allocations inside the debugger-readable range while retaining that separate debugger limitation in the rebuilt runtime. This also reduces boot work. Generated inspector metadata comes from this configured build, not guessed struct offsets.
 
 ## Functional scope
 
-This is a single-hart functional lab. It does not claim hardware timing, real multicore contention or weak-memory coverage. Logging lessons execute filesystem operations and examine actual commit/recovery code, but do not claim a physical power-loss experiment. Reset discards session disk changes and boots the original image; it is not crash replay. Draft predictions and progress persist locally with a session-only fallback when storage is unavailable.
+This is a single-hart functional lab. It does not claim hardware timing, real multicore contention or weak-memory coverage. Logging lessons execute actual commit and recovery code. Recovery runs boot a documented prepared committed journal; they do not claim a physical power-loss experiment. Normal runs use fresh baseline images. Explorer reset discards session disk changes rather than capturing a crash image. Source drafts and progress persist locally, as do explorer predictions, with a session-only fallback when storage is unavailable.
 
 The source lessons supply bounded browser-side C compilation. C source-line stepping, persistent disk snapshots and multi-hart emulation are not supplied. Full guest builds use the included native toolchain setup. Functional and Chromium rendering checks are automated. Safari, Firefox, physical-device and assistive-technology verification remain unperformed.
 

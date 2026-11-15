@@ -35,3 +35,5 @@ A lesson may replace multiple named kernel functions in one compiled unit; their
 The native baseline exposes `wb_disk_descriptors` in `kernel/virtio_disk.c`, a read-only accessor returning the real descriptor-array pointer. This bridges TCC’s large-global-offset limitation; it does not synthesize requests or device output. The front-page conceptual illustration was generated for this course.
 
 Journal recovery lessons use a source-visible prepared disk fixture in filesystem.js: a committed header and payload target README's data block while its home byte retains the old value. The fixture does not install home data or manufacture output. Actual compiled xv6 recovery performs the installation at boot. Private journal type definitions come from the matching kernel/log.c source.
+
+The native baseline also includes user/bssprobe.c, compiled with a real NOBITS region for the ELF zero-fill experiment. Its volatile uninitialized object is read after the actual loader initializes the new address space. The browser kernel edit changes that real allocation fill; it does not substitute a value in the native program or its output.
