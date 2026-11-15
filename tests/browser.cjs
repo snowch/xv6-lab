@@ -59,6 +59,13 @@ const server = http.createServer((req, res) => {
       const page = await browser.newPage({ viewport: { width, height } }),
         errors = [];
       page.on("pageerror", (error) => errors.push(error.message));
+      // The earlier preview may remain cached at this unversioned URL.
+      await page.route("**/workbench/lessons.js", (route) =>
+        route.fulfill({
+          contentType: "application/javascript",
+          body: "export const lessons = {user:{},kernel:{}};",
+        }),
+      );
       await page.goto(base);
       assert.equal(await page.locator(".course-lessons li").count(), 6);
       await page.evaluate(() => document.fonts.ready);
