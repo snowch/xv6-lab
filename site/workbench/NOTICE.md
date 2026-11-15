@@ -1,12 +1,12 @@
 # Source workbench: provenance and limits
 
-Chapters 1–5 contain thirty source-led lessons, each with its own page. Later chapters are planned; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
+All six chapters contain thirty-six source-led lessons, each with its own page; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
 
 ## Compiler
 
 The unmodified `compiler/tcc.wasm` comes from [lupyuen/tcc-riscv32-wasm](https://github.com/lupyuen/tcc-riscv32-wasm) at commit `8cffa69ed303d80206b7cb6e6e3737506243777c`. Despite that repository name, this artifact targets 64-bit RISC-V. TCC is LGPL-2.1-or-later; [license](compiler/COPYING-LGPL-2.1.txt), [complete corresponding source archive](compiler/tcc-source.tar.gz), and [upstream Zig build instructions](https://github.com/lupyuen/tcc-riscv32-wasm/blob/8cffa69ed303d80206b7cb6e6e3737506243777c/zig/build.sh) are provided. The source archive includes the C compiler, Zig adapter, build scripts and notices from that pinned revision. The compiler binary is unchanged.
 
-The upstream adapter has 8192-byte file buffers and a bounded allocator. This preview admits at most 7500 bytes of prepared C source and objects within the adapter’s buffer limit, runs compilation in a disposable worker, and retires it after 15 seconds of compilation/linking. Asset downloads have a separate two-minute timeout and can be cancelled. Unsupported headers, missing symbols and unsupported relocations produce build errors. This is a small freestanding-C exercise environment, not a general GCC/Clang replacement.
+The upstream adapter has 8192-byte file buffers and a bounded allocator. The lab admits at most 7500 bytes of prepared C source and objects within the adapter’s buffer limit, runs compilation in a disposable worker, and retires it after 15 seconds of compilation/linking. Asset downloads have a separate two-minute timeout and can be cancelled. Unsupported headers, missing symbols and unsupported relocations produce build errors. This is a small freestanding-C exercise environment, not a general GCC/Clang replacement.
 
 ## Linking and running
 
@@ -21,3 +21,5 @@ A fresh machine is used for each run. Guest files are disposable. Source drafts 
 ## Other components
 
 xv6 and riscv-rust retain their MIT notices in [the main runtime notice](../vendor/NOTICE.md). CodeMirror and its dependencies are MIT licensed; bundled [editor notices](EDITOR-LICENSES.txt) accompany the browser editor. Interface fonts retain their bundled SIL Open Font License notices in `../fonts/`. New workbench code is MIT licensed.
+
+The Scheduling wait lesson additionally captures actual workbench process rows and parent PIDs at its first getpid handler. The table is a saved snapshot, not a claim that those processes still exist after the run. Sleep experiments use guest tick conditions; they do not measure browser or hardware performance.

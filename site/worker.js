@@ -286,7 +286,8 @@ function processes() {
       if (!byte) break;
       name += String.fromCharCode(byte);
     }
-    const trapframe = get("trapframe"),
+    const parentAddress = get("parent"),
+      trapframe = get("trapframe"),
       trap = trapframe
         ? {
             epc: hex(word(trapframe + 24n)),
@@ -299,6 +300,9 @@ function processes() {
       if (word(p + BigInt(layout.ofile + fd * 8))) descriptors++;
     rows.push({
       pid: Number(get("pid") & 0xffffffffn),
+      parent: parentAddress
+        ? Number(word(parentAddress + BigInt(layout.pid)) & 0xffffffffn)
+        : null,
       name,
       state:
         ["unused", "sleeping", "runnable", "running", "zombie"][state] ||

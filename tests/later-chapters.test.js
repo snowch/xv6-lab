@@ -22,6 +22,23 @@ for (const chapter of chapters.filter((chapter) => chapter.number >= 3)) {
           result.output.includes(lesson.expected),
           id + ": " + result.output,
         );
+        if (id === "runnable-processes-take-turns") {
+          assert.equal((result.output.match(/A/g) || []).length, 3);
+          assert.equal((result.output.match(/B/g) || []).length, 3);
+        }
+        if (id === "killing-a-sleeping-process")
+          assert.ok(!result.output.includes("child completed sleep"));
+        if (lesson.observeProcesses) {
+          const child = result.stateSnapshot.find(
+              (row) => row.pid === result.actualPID,
+            ),
+            parent = result.stateSnapshot.find(
+              (row) => row.pid === child.parent,
+            );
+          assert.equal(child.state, 3);
+          assert.equal(parent.state, 1);
+          assert.equal(result.actualPID, result.exitPID);
+        }
         if (lesson.expectedFault) {
           assert.match(result.output, /usertrap\(\)/);
           assert.ok(!result.output.includes("child read="));
@@ -45,6 +62,16 @@ for (const chapter of chapters.filter((chapter) => chapter.number >= 3)) {
           result.output.includes(change.expected),
           id + ": " + result.output,
         );
+        if (lesson.observeProcesses) {
+          const child = result.stateSnapshot.find(
+              (row) => row.pid === result.actualPID,
+            ),
+            parent = result.stateSnapshot.find(
+              (row) => row.pid === child.parent,
+            );
+          assert.equal(child.state, 3);
+          assert.equal(parent.state, 1);
+        }
         if (change.verify)
           assert.ok(change.verify(result.output), id + ": " + result.output);
         if (lesson.expectedFault)
