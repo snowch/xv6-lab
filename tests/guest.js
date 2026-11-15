@@ -10,7 +10,9 @@ export const assets = {
   files: JSON.parse(read("site/source.json")).files,
 };
 export async function run(images, observePid = true) {
-  await init(read("site/vendor/riscv_emu_rust_wasm_bg.wasm"));
+  await init({
+    module_or_path: read("site/vendor/riscv_emu_rust_wasm_bg.wasm"),
+  });
   const vm = WasmRiscv.new();
   vm.setup_program(new Uint8Array(images.kernel));
   vm.setup_filesystem(new Uint8Array(images.disk));

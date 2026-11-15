@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter8" />
   </head>
   <body class="lesson-page" data-lesson="fork-inherits-pipe-ends">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -75,6 +75,10 @@ if (pipe(p) == 0) { /* use p[0] and p[1] */ }</code></pre><p class="c-refresher-
         <p class="preview-label">Try it in xv6</p>
         <h2 id="experiment-title">One small experiment</h2>
         <p id="assignment">Change the parent’s five-byte message from hello to world. Build and run. The child should receive world and still observe EOF after the writer closes.</p>
+        <details id="test-program-details" class="supplied-program" hidden>
+          <summary>Read the supplied user program</summary>
+          <pre id="test-program-source" translate="no"></pre>
+        </details>
       </section>
       <div class="workbench-grid">
         <section class="source-pane" aria-labelledby="file-name">
@@ -241,6 +245,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter7"></script>
+    <script type="module" src="workbench/app.js?v=chapter8"></script>
   </body>
 </html>

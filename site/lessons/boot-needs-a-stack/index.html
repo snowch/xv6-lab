@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter8" />
   </head>
   <body class="lesson-page" data-lesson="boot-needs-a-stack">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -76,6 +76,10 @@ int offset = (int)(top - base);</code></pre><p class="c-refresher-links">Refresh
         <p class="preview-label">Try it in xv6</p>
         <h2 id="experiment-title">One small experiment</h2>
         <p id="assignment">In the printf argument, replace top - (uint64)stack0 with top - (uint64)stack0 - PGSIZE. The reported offset should become 0: the bottom of hart 0’s slice. This changes the observation, not the assembly’s installed stack pointer.</p>
+        <details id="test-program-details" class="supplied-program" hidden>
+          <summary>Read the supplied user program</summary>
+          <pre id="test-program-source" translate="no"></pre>
+        </details>
       </section>
       <div class="workbench-grid">
         <section class="source-pane" aria-labelledby="file-name">
@@ -242,6 +246,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter7"></script>
+    <script type="module" src="workbench/app.js?v=chapter8"></script>
   </body>
 </html>

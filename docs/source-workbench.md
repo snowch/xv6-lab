@@ -60,7 +60,7 @@ The evidence panel reads the actual process table at the first sys_getpid entry 
 
 ## Verification and review
 
-Native xv6 sources and compiler binaries are unchanged by this flow change. Tests compile and execute all thirty-six lesson examples and the taught byte-count, repeated-call, kernel-print, fork/wait/status, memory-copy and exec edits in the actual RISC-V emulator. Existing tests cover kernel-return changes, writable kernel data, real diagnostics and all 25 explorer experiments.
+Native xv6 sources and compiler binaries are unchanged by this flow change. Tests compile and execute every available lesson example and the taught byte-count, repeated-call, kernel-print, fork/wait/status, memory-copy and exec edits in the actual RISC-V emulator. Existing tests cover kernel-return changes, writable kernel data, real diagnostics and all 25 explorer experiments.
 
 Chromium walks every new lesson through Next, returns through Previous and browser history, checks the contents/resume links and tests desktop, tablet, phone and small-phone widths. The existing source build/error/recovery flows run on desktop/tablet/phone. Screenshots are inspected for readable prose, source placement, navigation and overflow, and retained as CI artifacts. CI regenerates the static pages and editor bundle to catch stale committed output.
 
@@ -107,3 +107,9 @@ Six pages compile and replace the actual kernel main function rather than simula
 The build context names the replaced function and source line, chooses declarations from the matching defs.h, and provides selected constants and native instruction bridges. Optional lesson-specific user probes are also compiled and installed into the disposable disk image. Native function inlining is disabled so later lessons can edit real function boundaries; GOT_HI20 relocations allocate real pointer cells inside the reserved data region. All baseline images, metadata and hashes are rebuilt together.
 
 The [comprehensive coverage plan](comprehensive-course.md) maps the nine kernel chapters to the remaining xv6 subsystems. The contents page lists only available lesson links and separately identifies planned chapters.
+
+## Chapter 8: Address translation
+
+Eight pages connect Sv39 index/offset extraction to real three-level walks, PTE permissions, direct RAM/MMIO mappings, guard-page protection, trampoline/trapframe mappings and page-by-page checked copies. The pinned kernel’s ordinary user pages are explicitly described as RWX. The guard test repurposes getpid as an address-returning lab hook, confines the forbidden load to a child, and lets the parent report its actual exit status. Its supplied user program is visible beside the experiment.
+
+Testing revealed upstream MMU code decoded but ignored PTE_U. The source-built correction enforces U/S access, SUM and MXR, including cache invalidation. The bundled source, patch, lockfile, rebuild command and dependency licenses document that runtime change. Five focused Rust tests and the existing emulator tests pass; actual guest tests verify the failing guard load and its successful adjacent-page edit. The boundary-copy experiment also verifies partial progress before an unmapped second page is rejected.

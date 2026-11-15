@@ -292,6 +292,18 @@ select {
   font: 14px/1.7 var(--mono);
   tab-size: 2;
 }
+.supplied-program {
+  margin: 22px 0;
+}
+#test-program-source {
+  max-height: 420px;
+  overflow: auto;
+  padding: 16px;
+  background: white;
+  border: 1px solid var(--line);
+  font: 16px/1.7 var(--mono);
+  tab-size: 2;
+}
 .reflection {
   border-top: 1px solid var(--line);
   padding-top: 9px;

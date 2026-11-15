@@ -4,13 +4,13 @@
   "assets": [
     {
       "path": "site/vendor/riscv_emu_rust_wasm.js",
-      "bytes": 15694,
-      "sha256": "b51a13f2be49a8286e96e5c6d51dd677950fbdf4675b7fa80ff356da76878d05"
+      "bytes": 16721,
+      "sha256": "f18ff9cce28f75bae6673d99ea52d164dfc50ed1d5e29eb53a1e0aca99a7c694"
     },
     {
       "path": "site/vendor/riscv_emu_rust_wasm_bg.wasm",
-      "bytes": 158147,
-      "sha256": "e1804062b8a40bfe27af9a393bee291b0e8228435ebbc47a19d45a1faa8e3f65"
+      "bytes": 146238,
+      "sha256": "69376adea2ffe8a7ac255501d2587129cd8be378af78250753fef3daad9160cf"
     },
     {
       "path": "site/images/kernel",
@@ -36,6 +36,16 @@
       "path": "site/workbench/compiler/tcc-source.tar.gz",
       "bytes": 3481925,
       "sha256": "abff0af6154eecc427c0ea1d17ea3614f42390f55d9be2c10eb99d100eea6603"
+    },
+    {
+      "path": "site/vendor/riscv-rust-source.tar.gz",
+      "bytes": 47092,
+      "sha256": "d4588dd80fd16f359bb2500875f88323d36684e27cc28a5168b51f6fa0a1e1c6"
+    },
+    {
+      "path": "site/vendor/LICENSES-runtime-dependencies.txt",
+      "bytes": 177255,
+      "sha256": "c77fea1ff8e6b20b761da9c348eac893a64bfad4ca2dc82aec10e6161359663b"
     }
   ],
   "guest": {
@@ -50,5 +60,13 @@
     "license": "LGPL-2.1-or-later",
     "source": "site/workbench/compiler/tcc-source.tar.gz",
     "changes": "Unmodified upstream WebAssembly binary; browser adapter and incremental ELF linker in site/workbench/"
+  },
+  "emulator": {
+    "base_commit": "8ee69d7a5dc7ef6d8b2bda96bf86d2923f2cf176",
+    "changes": "Enforce PTE_U and supervisor SUM/MXR access; invalidate permission-dependent cached translations",
+    "source": "site/vendor/riscv-rust-source.tar.gz",
+    "patch": "tools/runtime-permissions.patch",
+    "rust": "1.85.0",
+    "wasm_bindgen": "0.2.100"
   }
 }

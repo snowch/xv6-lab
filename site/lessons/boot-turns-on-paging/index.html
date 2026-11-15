@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter8" />
   </head>
   <body class="lesson-page" data-lesson="boot-turns-on-paging">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -74,6 +74,10 @@
         <p class="preview-label">Try it in xv6</p>
         <h2 id="experiment-title">One small experiment</h2>
         <p id="assignment">Move the entire observation printf line to immediately after kvminithart(). Build and run. The same CPU register should now report mode 8, because the kernel has installed Sv39 translation.</p>
+        <details id="test-program-details" class="supplied-program" hidden>
+          <summary>Read the supplied user program</summary>
+          <pre id="test-program-source" translate="no"></pre>
+        </details>
       </section>
       <div class="workbench-grid">
         <section class="source-pane" aria-labelledby="file-name">
@@ -240,6 +244,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter7"></script>
+    <script type="module" src="workbench/app.js?v=chapter8"></script>
   </body>
 </html>

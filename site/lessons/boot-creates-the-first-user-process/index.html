@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=c-reminders1" />
+    <link rel="stylesheet" href="workbench/style.css?v=chapter8" />
   </head>
   <body class="lesson-page" data-lesson="boot-creates-the-first-user-process">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -76,6 +76,10 @@
         <p class="preview-label">Try it in xv6</p>
         <h2 id="experiment-title">One small experiment</h2>
         <p id="assignment">Change the loop’s test from RUNNABLE to UNUSED. Build and run. The result should be 63: one record is now allocated to the first user process, and the remaining slots are unused.</p>
+        <details id="test-program-details" class="supplied-program" hidden>
+          <summary>Read the supplied user program</summary>
+          <pre id="test-program-source" translate="no"></pre>
+        </details>
       </section>
       <div class="workbench-grid">
         <section class="source-pane" aria-labelledby="file-name">
@@ -218,7 +222,7 @@ Loading the matching xv6 sources…</pre>
           <p id="reflection">Why can userinit return to kernel main even though the new user process has not run yet?</p>
         </details>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
-          <a data-direction="previous" href="lessons/initialization-is-not-execution/"><small>← Previous lesson</small>Initialized records are not running processes</a><a data-direction="next" href="./"><small>End of Chapter 7 →</small>Back to course contents</a>
+          <a data-direction="previous" href="lessons/initialization-is-not-execution/"><small>← Previous lesson</small>Initialized records are not running processes</a><a data-direction="next" href="lessons/splitting-a-virtual-address/"><small>Next chapter →</small>A virtual address selects indices and an offset</a>
         </nav>
       </section>
     </main>
@@ -242,6 +246,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter7"></script>
+    <script type="module" src="workbench/app.js?v=chapter8"></script>
   </body>
 </html>

@@ -4,7 +4,7 @@ import { Worker } from "node:worker_threads";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 
-test("vendored runtime assets retain the pinned upstream bytes", () => {
+test("runtime and guest assets match their recorded hashes", () => {
   const manifest = JSON.parse(
     readFileSync(new URL("../docs/assets.json", import.meta.url)),
   );

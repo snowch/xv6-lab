@@ -1,4 +1,41 @@
 export const edits = {
+  "splitting-a-virtual-address": {
+    edit: (s) => s.replace("0x12345678", "0x12346678"),
+    expected: "vpn=0/145/326 offset=1656",
+  },
+  "walking-three-page-table-levels": {
+    edit: (s) => s.replace("va = 0", "va = PGSIZE"),
+    expected: "level=0 index=1 valid=1",
+  },
+  "reading-page-permissions": {
+    edit: (s) =>
+      s
+        .replace("table = p->pagetable", "table = kernel_pagetable")
+        .replace("va = 0", "va = KERNBASE"),
+    expected: "user=0 writable=0 executable=1",
+  },
+  "kernel-mappings-include-devices": {
+    edit: (s) => s.replace("va = KERNBASE", "va = UART0"),
+    expected: "identity=1 writable=1 executable=0",
+  },
+  "a-guard-page-denies-user-access": {
+    edit: (s) => s.replace("return guard;", "return guard + PGSIZE;"),
+    expected: "guard child status=0",
+    verify: (out) =>
+      out.includes("child read succeeded") && !out.includes("usertrap()"),
+  },
+  "trampoline-mappings-cross-address-spaces": {
+    edit: (s) => s.replace("va = TRAMPOLINE", "va = TRAPFRAME"),
+    expected: "both mapped=0 same frame=0 user-access=0",
+  },
+  "checked-copies-translate-user-addresses": {
+    edit: (s) => s.replace("source = guard;", "source = guard + PGSIZE;"),
+    expected: "checked copy result=0",
+  },
+  "copies-check-each-page": {
+    edit: (s) => s.replace("bytes, source, 2", "bytes, source, 1"),
+    expected: "boundary result=0 first changed=1 second unchanged=1",
+  },
   "editing-the-kernel-boot": {
     edit: (s) => s.replace("xv6 kernel is booting", "Hello from my kernel"),
     expected: "Hello from my kernel",
