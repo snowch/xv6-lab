@@ -107,6 +107,31 @@ export const concepts = {
     "kernel/sysproc.c · sys_getpid; kernel/syscall.c · syscall",
     { layout: "compare" },
   ),
+  entry: model(
+    "The stub requests a kernel service",
+    "ecall requests kernel entry; a7 tells xv6 which service was requested.",
+    [
+      node(
+        "stub",
+        "getpid stub",
+        "The C call reaches the stub, which sets a7 = SYS_getpid and executes ecall.",
+        "User",
+      ),
+      node(
+        "handler",
+        "Trap and dispatch",
+        "usertrap calls syscall; the call number selects sys_getpid.",
+        "Kernel",
+      ),
+      node(
+        "caller",
+        "Return to the caller",
+        "The stub’s ret resumes the C caller with the returned integer.",
+        "User",
+      ),
+    ],
+    "user/usys.S · kernel/trap.c · kernel/syscall.c · kernel/sysproc.c",
+  ),
   syscall: model(
     "A request crosses a privilege boundary",
     "A getpid example: the stub supplies a service number; the kernel selects the handler and returns a result.",
@@ -708,6 +733,25 @@ export const concepts = {
     ],
     "kernel/start.c · kernel/kernelvec.S · kernel/trap.c",
   ),
+  tickwait: model(
+    "Waking up means recheck the tick condition",
+    "An ordinary timed wait rechecks elapsed guest ticks after each wakeup. It can resume later than the requested minimum.",
+    [
+      node(
+        "check",
+        "Compare elapsed ticks",
+        "sys_sleep checks ticks − ticks0 against the requested n.",
+      ),
+      node(
+        "wait",
+        "Elapsed < n",
+        "Sleep on the ticks channel. A wakeup makes the process runnable; when scheduled, recheck the condition.",
+      ),
+      node("done", "Elapsed ≥ n", "Leave the loop and return 0 to the caller."),
+    ],
+    "kernel/sysproc.c · sys_sleep; kernel/trap.c · clockintr",
+    { layout: "branch", edgeLabels: ["Keep waiting", "Minimum reached"] },
+  ),
   interrupt: model(
     "Service the device and complete the claim",
     "Device acknowledgement and interrupt-controller completion are separate parts of handling an IRQ.",
@@ -883,6 +927,24 @@ export const concepts = {
       ),
     ],
     "kernel/spinlock.c · acquire · release",
+  ),
+  atomic: model(
+    "Each exchange returns the value it replaced",
+    "In the starter, both atomic exchanges store 1. The second sees the value left by the first.",
+    [
+      node("initial", "Initial word", "Stored value = 0."),
+      node(
+        "first",
+        "First exchange",
+        "Store 1; return old value 0. The word is now 1.",
+      ),
+      node(
+        "second",
+        "Second exchange",
+        "Store 1; return old value 1. The word remains 1.",
+      ),
+    ],
+    "kernel/spinlock.c · acquire · __sync_lock_test_and_set",
   ),
   sleeplock: model(
     "A sleeping lock has two kinds of ownership",
@@ -1175,8 +1237,9 @@ const place = (concept, ids) =>
     });
 place(
   "syscall",
-  "entering-the-kernel a-trapframe-saves-user-registers a-trap-cause-selects-the-path ecall-must-advance-the-return-pc dispatch-chooses-a-kernel-handler arguments-come-from-saved-registers returning-to-user-mode",
+  "a-trapframe-saves-user-registers a-trap-cause-selects-the-path ecall-must-advance-the-return-pc dispatch-chooses-a-kernel-handler arguments-come-from-saved-registers returning-to-user-mode",
 );
+place("entry", "entering-the-kernel");
 place("program", "running-a-program");
 place("bytes", "writing-bytes");
 place("result", "a-system-call-result");
@@ -1231,10 +1294,8 @@ place(
   "handoff",
   "sleep-transfers-lock-protection a-wakeup-needs-the-right-condition-and-channel",
 );
-place(
-  "timer",
-  "sleep-counts-guest-ticks timer-interrupts-advance-kernel-ticks",
-);
+place("timer", "timer-interrupts-advance-kernel-ticks");
+place("tickwait", "sleep-counts-guest-ticks");
 place("interrupt", "claiming-and-completing-device-interrupts");
 place("ring", "uart-output-passes-through-a-ring");
 place(
@@ -1254,8 +1315,9 @@ place(
 );
 place(
   "locks",
-  "locks-protect-shared-kernel-state an-atomic-swap-returns-the-old-value a-lock-records-its-owner nested-critical-sections-restore-interrupts locks-order-protected-publication",
+  "locks-protect-shared-kernel-state a-lock-records-its-owner nested-critical-sections-restore-interrupts locks-order-protected-publication",
 );
+place("atomic", "an-atomic-swap-returns-the-old-value");
 place("ordering", "lock-order-prevents-circular-wait");
 place("sleeplock", "a-sleeping-lock-does-not-spin-through-io");
 place(

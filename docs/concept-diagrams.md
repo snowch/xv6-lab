@@ -1,6 +1,6 @@
 # Original concept diagrams
 
-The course contains 46 original concept models, placed in 91 of its 99 lessons. Eight models have manually controlled steps. A model is reused where the same mechanism connects several lessons; diagrams are omitted where they would add little to the explanation.
+The course contains 49 original concept models, placed in 91 of its 99 lessons. Eight models have manually controlled steps. A model is reused where the same mechanism connects several lessons; diagrams are omitted where they would add little to the explanation.
 
 ## Authorship and rights
 
@@ -31,7 +31,8 @@ Each row links a representative lesson. Source anchors name the mechanism used t
 | [A request delivers a C return value](https://snowch.github.io/xv6-lab/lessons/a-system-call-result/)                                   | Static   | user/user.h · getpid; kernel/sysproc.c · sys_getpid                             |
 | [Follow the current CPU’s process pointer](https://snowch.github.io/xv6-lab/lessons/the-current-process/)                               | Static   | kernel/proc.c · myproc; kernel/proc.h · struct cpu · struct proc                |
 | [Computing an answer does not assign to the record](https://snowch.github.io/xv6-lab/lessons/changing-the-answer/)                      | Static   | kernel/sysproc.c · sys_getpid; kernel/syscall.c · syscall                       |
-| [A request crosses a privilege boundary](https://snowch.github.io/xv6-lab/lessons/entering-the-kernel/)                                 | 3 steps  | user/usys.S · kernel/trampoline.S · kernel/trap.c · kernel/syscall.c            |
+| [The stub requests a kernel service](https://snowch.github.io/xv6-lab/lessons/entering-the-kernel/)                                     | Static   | user/usys.S · kernel/trap.c · kernel/syscall.c · kernel/sysproc.c               |
+| [A request crosses a privilege boundary](https://snowch.github.io/xv6-lab/lessons/a-trapframe-saves-user-registers/)                    | 3 steps  | user/usys.S · kernel/trampoline.S · kernel/trap.c · kernel/syscall.c            |
 | [One fork creates two continuations](https://snowch.github.io/xv6-lab/lessons/fork-creates-a-child/)                                    | Static   | kernel/proc.c · fork · uvmcopy                                                  |
 | [Exit and collection are different events](https://snowch.github.io/xv6-lab/lessons/waiting-for-a-child/)                               | Static   | kernel/proc.c · exit · wait                                                     |
 | [Prepare first; replace only on success](https://snowch.github.io/xv6-lab/lessons/exec-replaces-the-program/)                           | 3 steps  | kernel/exec.c · exec                                                            |
@@ -52,7 +53,8 @@ Each row links a representative lesson. Source anchors name the mechanism used t
 | [Two saved contexts serve different boundaries](https://snowch.github.io/xv6-lab/lessons/kernel-contexts-save-a-call-boundary/)         | Static   | kernel/proc.h · struct trapframe · struct context; kernel/swtch.S               |
 | [Switch through the CPU scheduler](https://snowch.github.io/xv6-lab/lessons/yield-hands-a-process-to-the-scheduler/)                    | 3 steps  | kernel/proc.c · sched · scheduler; kernel/swtch.S                               |
 | [Sleep closes the gap with overlapping protection](https://snowch.github.io/xv6-lab/lessons/sleep-transfers-lock-protection/)           | 4 steps  | kernel/proc.c · sleep · wakeup                                                  |
-| [A machine timer event becomes a kernel tick](https://snowch.github.io/xv6-lab/lessons/sleep-counts-guest-ticks/)                       | Static   | kernel/start.c · kernel/kernelvec.S · kernel/trap.c                             |
+| [A machine timer event becomes a kernel tick](https://snowch.github.io/xv6-lab/lessons/timer-interrupts-advance-kernel-ticks/)          | Static   | kernel/start.c · kernel/kernelvec.S · kernel/trap.c                             |
+| [Waking up means recheck the tick condition](https://snowch.github.io/xv6-lab/lessons/sleep-counts-guest-ticks/)                        | Static   | kernel/sysproc.c · sys_sleep; kernel/trap.c · clockintr                         |
 | [Service the device and complete the claim](https://snowch.github.io/xv6-lab/lessons/claiming-and-completing-device-interrupts/)        | Static   | kernel/trap.c · devintr; kernel/plic.c · plic_claim · plic_complete             |
 | [A ring reuses a fixed set of slots](https://snowch.github.io/xv6-lab/lessons/uart-output-passes-through-a-ring/)                       | Static   | kernel/uart.c · uart_tx_w · uart_tx_r; kernel/pipe.c · nwrite · nread           |
 | [A block request links three descriptors](https://snowch.github.io/xv6-lab/lessons/virtio-descriptors-name-device-buffers/)             | Static   | kernel/virtio_disk.c · virtio_disk_rw · virtio_disk_intr                        |
@@ -61,6 +63,7 @@ Each row links a representative lesson. Source anchors name the mechanism used t
 | [An inode reference can precede loaded metadata](https://snowch.github.io/xv6-lab/lessons/inode-references-and-loaded-metadata-differ/) | Static   | kernel/fs.c · iget · ilock · iput                                               |
 | [Direct pointers and an indirect table](https://snowch.github.io/xv6-lab/lessons/direct-and-indirect-blocks-map-file-offsets/)          | Static   | kernel/fs.h · NDIRECT · NINDIRECT; kernel/fs.c · bmap                           |
 | [The lock guards a protocol, not just a word](https://snowch.github.io/xv6-lab/lessons/locks-protect-shared-kernel-state/)              | Static   | kernel/spinlock.c · acquire · release                                           |
+| [Each exchange returns the value it replaced](https://snowch.github.io/xv6-lab/lessons/an-atomic-swap-returns-the-old-value/)           | Static   | kernel/spinlock.c · acquire · __sync_lock_test_and_set                          |
 | [A sleeping lock has two kinds of ownership](https://snowch.github.io/xv6-lab/lessons/a-sleeping-lock-does-not-spin-through-io/)        | Static   | kernel/sleeplock.c · acquiresleep · releasesleep                                |
 | [Publish the commit record between data and installation](https://snowch.github.io/xv6-lab/lessons/writes-pass-through-the-log/)        | 4 steps  | kernel/log.c · commit · write_log · write_head · install_trans                  |
 | [Replay the committed image into its home block](https://snowch.github.io/xv6-lab/lessons/boot-replays-a-committed-journal/)            | 4 steps  | kernel/log.c · recover_from_log · install_trans                                 |
