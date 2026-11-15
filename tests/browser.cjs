@@ -97,7 +97,7 @@ const server = http.createServer((req, res) => {
       await page.getByText("No lessons match.", { exact: false }).waitFor();
       await page.locator("#lesson-search").fill("");
       if (width < 1281) await page.locator("#course-menu summary").click();
-      await page.locator("#run-experiment").click();
+      await page.locator("#flow-next").click();
       await page.waitForFunction(
         () =>
           document
@@ -122,10 +122,39 @@ const server = http.createServer((req, res) => {
             .textContent.includes("\npasted\n") &&
           !document.querySelector("#send").disabled,
       );
-      if (width <= 1450) {
-        assert.match(page.url(), /view=machine/);
-        assert.equal(await page.locator("#lesson").isVisible(), false);
-      }
+      assert.equal(await page.locator("#lesson").isVisible(), true);
+      assert.equal(await page.locator("#machine").isVisible(), true);
+      await page.screenshot({
+        path: path.join(artifacts, name + "-run-inspect.png"),
+        fullPage: false,
+      });
+      const terminalIdentity = await page
+        .locator("#terminal")
+        .evaluate((el) => {
+          el.dataset.testIdentity = "same-machine";
+          return el.dataset.testIdentity;
+        });
+      const y = await page.locator("#machine").evaluate((el) => el.offsetTop);
+      await page.locator("#flow-next").click();
+      await page.locator('[data-flow-stage="2"]').waitFor({ state: "visible" });
+      assert.equal(
+        await page.locator("#machine").evaluate((el) => el.offsetTop),
+        y,
+        "machine stays in place",
+      );
+      assert.equal(
+        await page.locator("#terminal").getAttribute("data-test-identity"),
+        terminalIdentity,
+      );
+      await page.locator("#flow-next").click();
+      await page.locator('[data-flow-stage="3"]').waitFor({ state: "visible" });
+      await page.locator("#flow-next").click();
+      await page.locator('[data-flow-stage="4"]').waitFor({ state: "visible" });
+      assert.equal(await page.locator("[data-flow-stage]:visible").count(), 1);
+      await page.locator('[data-answer="1"]').click();
+      await page.locator("#complete").check();
+      assert.match(await page.locator("#progress").textContent(), /1 \/ 25/);
+      await page.locator(".advanced-tools").evaluate((el) => (el.open = true));
       await page.locator("#pause").click();
       await page.waitForFunction(
         () => document.querySelector("#status").textContent === "Paused",
@@ -146,14 +175,39 @@ const server = http.createServer((req, res) => {
     const page = await browser.newPage({
       viewport: { width: 1024, height: 900 },
     });
-    await page.goto(base + "?view=machine&q=memory#pagetables");
+    await page.goto(base + "?step=observe&q=memory#pagetables");
     assert.equal(await page.locator("#machine").isVisible(), true);
-    assert.equal(
-      await page.locator("#view-machine").getAttribute("aria-pressed"),
-      "true",
+    assert.equal(await page.locator('[data-flow-stage="1"]').isVisible(), true);
+    await page.locator("#flow-next").click();
+    await page.waitForFunction(
+      () =>
+        document
+          .querySelector("#guide-inspection")
+          .textContent.includes("Physical address"),
+      null,
+      { timeout: 60000 },
     );
+    await page.screenshot({
+      path: path.join(artifacts, "inline-pagetable.png"),
+      fullPage: false,
+    });
+    assert.equal(
+      await page.locator(".advanced-tools").getAttribute("open"),
+      null,
+      "required inspection needs no advanced panel",
+    );
+    assert.match(
+      await page.locator("#flow-next").textContent(),
+      /Continue execution/,
+    );
+    await page.locator("#flow-next").click();
+    await page.waitForFunction(
+      () => document.querySelector("#status").textContent === "Shell ready",
+    );
+    await page.locator("#flow-next").click();
+    assert.equal(await page.locator('[data-flow-stage="2"]').isVisible(), true);
     assert.equal(await page.locator("#lesson-search").inputValue(), "memory");
-    await page.locator("#back-lesson").click();
+
     assert.match(await page.locator("#lesson > h2").textContent(), /Sv39/);
     await page.close();
     console.log("deep link passed");

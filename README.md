@@ -18,7 +18,7 @@ Learn how an operating system works, one small experiment at a time. A real xv6 
 | 21–24 | Spinlocks, buffer cache, indirect blocks, transaction commit and recovery reasoning |
 | 25 | End-to-end capstone connecting processes, VM, IPC, scheduling and exit |
 
-**Run this experiment** boots if necessary, waits for the shell and prepares the command/breakpoint. A breakpoint is global: shell or other kernel activity can reach it first. Continue resumes the same machine. Commands wait for a shell prompt; interactive programs accept direct console input, including Ctrl-D.
+**Run experiment** in the fixed step bar moves from your prediction into the observation task, boots if necessary, waits for the shell and prepares the command/breakpoint. Each lesson follows **Predict → Run & inspect → Explain → Try a change → Check**. One task is visible at a time, and the console stays mounted in the same workspace. The bar offers **Continue execution** at a stop and **Explain this result** after the shell returns. A breakpoint is global: shell or other kernel activity can reach it first. Continue resumes the same machine. Commands wait for a shell prompt; interactive programs accept direct console input, including Ctrl-D.
 
 ## Inspect the real kernel
 
@@ -28,9 +28,9 @@ Learn how an operating system works, one small experiment at a time. A real xv6 
 - Per-process Sv39 walker: actual indices, PTEs, permissions and translated physical address, or an unmapped result.
 - Eight-byte virtual-memory reads in the current CPU context.
 
-Stop inside a kernel function (for example `sys_getpid`) before reading processes or walking page tables. Refresh selects `lab` when present. CPU registers and saved user registers are different contexts. Optimization can associate multiple instructions with one source line; stepping is at instruction level.
+The observation task automatically shows the relevant CPU, process/trapframe or page-table snapshot at a kernel stop. The page-table lesson walks `0x0` for `lab` automatically. Full manual inspectors remain under Optional debugger, memory & reset. For manual reads, stop inside a kernel function (for example `sys_getpid`) first; Refresh selects `lab` when present. CPU registers and saved user registers are different contexts. Optimization can associate multiple instructions with one source line; stepping is at instruction level.
 
-Reading text is at least 18px on desktop, tablet and phone. Tablets use a full-width Lesson/Live machine switch and a collapsed curriculum instead of a fixed sidebar. Advanced tools remain in disclosures. Lesson/machine jumps, keyboard focus, coarse-pointer touch targets and reduced-motion preferences are supported.
+Reading text is at least 18px on desktop, tablet and phone. Tablets show the current task beside the console; phones stack the same two areas with a fixed-height task region so stepping through the lesson does not move the console. The curriculum is collapsed on smaller screens. Advanced tools remain in disclosures. A persistent step bar, keyboard focus, coarse-pointer touch targets and reduced-motion preferences support navigation. Task regions can be scrolled independently; notes, recent output and source are optional disclosures.
 
 ## Run and test
 
@@ -74,7 +74,7 @@ New code is MIT licensed. xv6 and riscv-rust retain their MIT licenses. The RISC
 
 ## Design and browser UX checks
 
-The [design and UX review](docs/design-ux-review.md) records the Frontend Design and Web Interface Guidelines skills used for this pass. The interface now uses self-hosted Source Sans 3 and IBM Plex Mono, clear lesson search, shareable workspace views and reset confirmation.
+The [design and UX review](docs/design-ux-review.md) records the Frontend Design and Web Interface Guidelines skills used for this pass. The interface now uses self-hosted Source Sans 3 and IBM Plex Mono, clear lesson search, shareable lesson-step links and reset confirmation. The guided-flow revision supersedes the earlier two-view layout.
 
 ```sh
 # Debian/Ubuntu: sudo apt-get install chromium
@@ -83,3 +83,9 @@ npm run test:browser
 ```
 
 The browser runner serves the site on an ephemeral local port, executes real guest interactions and saves previews under `.artifacts/`. CI repeats these checks at desktop, tablet and phone viewport sizes. Font licenses are in `site/fonts/`.
+
+## Guided-flow state
+
+The current task is shareable as `?step=observe#pagetables` (also predict/explain/vary/check). In-page return visits remember each lesson’s task. Predictions and completion keep their existing local-storage keys; captured guest output stays available for this tab session. Moving between tasks preserves the guest worker, console DOM node and its files. Completion remains explicit.
+
+A lesson change during boot cancels the queued command without recording a successful run. Automatic inspections that become stale when execution resumes are ignored; manual inspection errors still report their cause. Browser tests verify the five-step path, console identity/position, inline page-table inspection without opening advanced tools, and deep links.

@@ -1669,3 +1669,412 @@ article,
   letter-spacing: 0;
   margin: 0;
 }
+/* Guided workbench: one task and the same machine, with no workspace switching. */
+.guided-workbook .topbar {
+  display: none;
+}
+.guided-workbook main {
+  padding-top: 22px;
+  padding-bottom: 90px;
+}
+.guided-workbook .workspace {
+  display: grid;
+  grid-template-columns: minmax(350px, 1fr) minmax(390px, 1fr);
+  align-items: start;
+}
+.guided-workbook .workspace > .machine {
+  display: block;
+}
+.guided-workbook #lesson {
+  margin: 0;
+  max-width: none;
+}
+.guided-workbook #lesson > h2 {
+  font-size: 30px;
+  margin: 8px 0;
+  line-height: 1.2;
+}
+.guided-workbook #lesson > .lead {
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 9px 0 14px;
+}
+.flow-steps {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  padding: 0;
+  margin: 14px 0;
+}
+.flow-steps li {
+  min-width: 0;
+}
+.flow-steps button {
+  font-size: 15px;
+  font-weight: 400;
+  width: 100%;
+  height: 100%;
+  padding: 7px 4px;
+  line-height: 1.4;
+  border-color: #d0dced;
+}
+.flow-steps button[aria-current="step"] {
+  background: #1b56b8;
+  color: white;
+  border-color: #1b56b8;
+  font-weight: 600;
+}
+.guide-task {
+  height: clamp(280px, 48dvh, 570px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  padding: 20px;
+  scrollbar-width: thin;
+}
+.guide-task .lesson-stage {
+  padding: 0;
+  border: 0;
+}
+.guide-task .stage-number,
+.guide-task .stage-label {
+  display: none;
+}
+.guide-task h3 {
+  font-size: 23px;
+}
+.guide-task .stage-heading {
+  margin-bottom: 10px;
+}
+.guide-task p {
+  font-size: 18px;
+  line-height: 1.65;
+}
+.guide-task textarea {
+  min-height: 100px;
+}
+.guide-task .example {
+  padding: 12px;
+  margin-top: 15px;
+}
+.guide-task .example code {
+  padding: 9px 0 12px;
+  font-size: 17px;
+}
+.guide-task .text-button {
+  font-size: 16px;
+}
+.guide-task .mechanism {
+  margin: 14px 0;
+}
+.guide-task .completion-card {
+  margin: 16px 0 0;
+  padding: 13px;
+}
+.guide-task .answers button {
+  font-size: 17px;
+  padding: 10px;
+}
+.guide-task h4 {
+  margin: 12px 0 7px;
+}
+#flow-cue {
+  border-left: 3px solid #1b56b8;
+  background: #edf3fe;
+  padding: 10px 12px;
+  font-size: 17px;
+}
+#flow-cue:empty {
+  display: none;
+}
+#guide-inspection pre {
+  font: 15px/1.65 var(--mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 10px;
+  background: #edf2fa;
+}
+#guide-inspection details summary {
+  min-height: 44px;
+  cursor: pointer;
+}
+.guide-processes {
+  max-width: 100%;
+  overflow: auto;
+}
+.guide-processes table {
+  font-size: 15px;
+}
+.guide-processes td {
+  font-size: 14px;
+}
+.guided-workbook .machine {
+  position: sticky;
+  top: 22px;
+  max-height: calc(100dvh - 115px);
+  overflow: auto;
+}
+.guided-workbook .machine-guide,
+.guided-workbook .back-to-lesson {
+  display: none;
+}
+.guided-workbook .panel-heading {
+  padding: 12px 16px;
+}
+.guided-workbook .panel-heading h2 {
+  font-size: 20px;
+}
+.guided-workbook #terminal {
+  height: clamp(200px, 35dvh, 360px);
+}
+.advanced-tools > summary {
+  cursor: pointer;
+  min-height: 48px;
+  align-content: center;
+  padding: 10px 16px;
+  font-size: 16px;
+  background: #f3f7fd;
+}
+.advanced-tools .register-disclosure {
+  margin: 12px 0;
+}
+.advanced-tools .register-disclosure summary {
+  font-size: 16px;
+}
+.flow-navigation {
+  position: fixed;
+  left: var(--side);
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+  min-height: 76px;
+  background: #fffffff5;
+  border-top: 1px solid #bdcfe8;
+  padding: 12px max(24px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom));
+  box-shadow: 0 -3px 16px #163d6c0a;
+}
+#flow-position {
+  font-size: 16px;
+  color: var(--muted);
+}
+#flow-next {
+  min-width: 180px;
+}
+#guide-resources {
+  margin: 22px 0 10px;
+  max-width: 76ch;
+  font-size: 16px;
+}
+#guide-resources > summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+}
+.recent-evidence {
+  font-size: 16px;
+  margin: 12px 0;
+}
+.recent-evidence summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+}
+.recent-evidence pre {
+  white-space: pre-wrap;
+  font: 15px/1.7 var(--mono);
+  background: #edf2fa;
+  padding: 14px;
+  max-height: 250px;
+  overflow: auto;
+}
+.recent-evidence blockquote {
+  margin: 12px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.lesson-navigation-details > summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+}
+.guided-workbook footer {
+  margin-top: 15px;
+}
+.guide-task #run-help {
+  font-size: 15px;
+}
+.guided-workbook .sidebar nav {
+  max-height: max(120px, calc(100dvh - 590px));
+}
+@media (max-width: 1280px) {
+  .guided-workbook .workspace {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .guided-workbook .machine {
+    position: static;
+    max-height: none;
+  }
+  .guided-workbook .sidebar nav {
+    max-height: 50dvh;
+  }
+  .guided-workbook .guide-task {
+    height: 430px;
+  }
+  .guided-workbook .flow-steps button {
+    font-size: 14px;
+  }
+  .flow-navigation {
+    left: 0;
+  }
+  .guided-workbook .sidebar {
+    padding: 12px 24px;
+  }
+  .guided-workbook .brand small {
+    display: none;
+  }
+  .guided-workbook .brand-mark {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  .guided-workbook .brand {
+    font-size: 24px;
+  }
+  .guided-workbook .course-progress {
+    margin: 10px 0 0;
+  }
+  .guided-workbook #course-menu {
+    margin: 0;
+  }
+}
+@media (max-width: 800px) {
+  .guided-workbook .workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .guided-workbook #lesson,
+  .guided-workbook .machine {
+    width: 100%;
+  }
+  .guided-workbook .sidebar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2px 12px;
+    padding: 12px 18px;
+  }
+  .guided-workbook .brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .guided-workbook .course-progress {
+    grid-column: 2;
+    grid-row: 1;
+    display: block;
+    margin: 0;
+  }
+  .guided-workbook .progress-track {
+    display: none;
+  }
+  .guided-workbook #course-menu {
+    grid-column: 1/-1;
+  }
+  .guided-workbook #course-menu > summary {
+    min-height: 38px;
+    padding: 6px 0;
+  }
+  .guided-workbook main {
+    padding-top: 10px;
+  }
+  .guided-workbook #lesson > h2 {
+    font-size: 26px;
+  }
+  .guided-workbook #lesson > .lead {
+    font-size: 18px;
+    margin: 8px 0;
+  }
+  .guided-workbook .lesson-topic {
+    display: none;
+  }
+  .guided-workbook .flow-steps {
+    margin: 10px 0;
+  }
+  .guided-workbook .flow-steps button {
+    font-size: 14px;
+    padding: 5px 2px;
+    min-height: 44px;
+  }
+  .guided-workbook .guide-task {
+    height: clamp(220px, 30dvh, 290px);
+    padding: 15px;
+  }
+  .guided-workbook #terminal {
+    height: 180px;
+  }
+  .guided-workbook #command-form {
+    padding: 10px 14px;
+  }
+  .guided-workbook #command-help {
+    font-size: 14px;
+    margin: 5px 0 0;
+  }
+  .guided-workbook .panel-heading {
+    padding: 10px 14px;
+  }
+  .guided-workbook .terminal-heading {
+    padding: 7px 14px;
+  }
+  .flow-navigation {
+    gap: 8px;
+    padding: 9px 12px max(9px, env(safe-area-inset-bottom));
+    min-height: 72px;
+  }
+  .flow-navigation button {
+    font-size: 16px;
+    padding: 8px 10px;
+  }
+  #flow-next {
+    min-width: 0;
+    max-width: 47%;
+  }
+  #flow-back {
+    font-size: 15px;
+    max-width: 30%;
+  }
+  #flow-position {
+    font-size: 14px;
+    line-height: 1.3;
+    max-width: 25%;
+  }
+  .guided-workbook #guide-resources {
+    margin-top: 15px;
+  }
+  .guided-workbook .guide-task .example button {
+    font-size: 16px;
+  }
+  .guided-workbook .guide-task .stage-heading h3 {
+    font-size: 21px;
+  }
+}
+.guided-workbook[data-machine-mode="paused"] #flow-cue,
+.guided-workbook[data-machine-mode="paused"] #run-help,
+.guided-workbook[data-machine-mode="paused"] .guide-task .example {
+  display: none;
+}
+.guide-task .guide-processes caption {
+  font-size: 15px;
+  padding: 3px 0;
+}
+.guide-task .guide-processes th,
+.guide-task .guide-processes td {
+  padding: 5px 8px;
+}

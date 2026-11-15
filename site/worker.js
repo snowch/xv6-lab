@@ -80,7 +80,7 @@ function resume() {
   tick();
 }
 async function asset(path) {
-  const response = await fetch(new URL(path+"?v=core25", import.meta.url));
+  const response = await fetch(new URL(path + "?v=core25", import.meta.url));
   if (!response.ok)
     throw new Error(`Could not load ${path}: HTTP ${response.status}`);
   return new Uint8Array(await response.arrayBuffer());
@@ -165,11 +165,13 @@ onmessage = async ({ data }) => {
         break;
       }
       case "processes": {
+        if (data.auto && !kernelInspectable()) break;
         requireKernel();
-        send("processes", { rows: processes() });
+        send("processes", { rows: processes(), auto: data.auto });
         break;
       }
       case "pagetable": {
+        if (data.auto && !kernelInspectable()) break;
         requireKernel();
         if (!/^0x[0-9a-f]{1,16}$/i.test(data.address))
           throw new Error("Use a hexadecimal user address.");
@@ -177,6 +179,7 @@ onmessage = async ({ data }) => {
         if (va >= 1n << 38n)
           throw new Error("User address must be below xv6 MAXVA (2^38).");
         const proc = processes().find((p) => p.pid === Number(data.pid));
+        if (!proc && data.auto) break;
         if (!proc) throw new Error("Select a live process first.");
         let table = BigInt(proc.pagetable),
           steps = [],
@@ -302,4 +305,8 @@ function processes() {
     });
   }
   return rows;
+}
+
+function kernelInspectable() {
+  return !running && vm.read_pc() >= 0x80000000n && vm.read_pc() < 0x88000000n;
 }

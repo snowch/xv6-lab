@@ -54,6 +54,7 @@ test("all lessons navigate, grade answers, save explicit completion, and operate
     assert.match($("feedback").textContent, /Try again/);
     document.querySelector(`[data-answer="${lesson.answer}"]`).click();
     assert.equal($("feedback").textContent, "That’s it. " + lesson.feedback);
+    document.querySelector('[data-flow-link="4"]').click();
     assert.equal($("complete").checked, false);
     $("complete").click();
     assert.equal(localStorage.getItem("xv6-lab:done:" + lesson.id), "1");
@@ -107,7 +108,8 @@ test("all lessons navigate, grade answers, save explicit completion, and operate
     new dom.window.Event("submit", { cancelable: true }),
   );
   assert.equal(worker.messages.at(-1).type, "memory");
-  assert.equal($("cpu-panel").open, true);
+  document.querySelector('[data-flow-link="1"]').click();
+  assert.match($("guide-inspection").textContent, /PC 0x/);
   assert.equal($("send").disabled, true);
   $("prediction").value = "My saved prediction";
   $("prediction").dispatchEvent(new dom.window.Event("input"));

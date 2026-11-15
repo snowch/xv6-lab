@@ -16,9 +16,9 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="style.css?v=workbook1" />
+    <link rel="stylesheet" href="style.css?v=guided1" />
   </head>
-  <body>
+  <body class="guided-workbook">
     <a id="skip-lesson" class="skip-link" href="#lesson">Skip to lesson</a>
     <aside class="sidebar">
       <a class="brand" href="#boot" aria-label="xv6 Lab home"
@@ -74,32 +74,7 @@
         >
       </header>
       <main>
-        <section class="intro">
-          <div>
-            <p class="eyebrow">25 experiments · a real RISC-V kernel</p>
-            <h1>Explore a working operating system.</h1>
-            <p>
-              Predict what happens. Run the code. Inspect the kernel. Build your
-              understanding one experiment at a time.
-            </p>
-          </div>
-          <div class="runtime-badge">
-            <span class="dot active"></span> Runs in your browser<small
-              >No setup. No account.</small
-            >
-          </div>
-        </section>
-        <div class="view-tabs" role="group" aria-label="Workspace view">
-          <button id="view-lesson" aria-pressed="true" aria-controls="lesson">
-            Read the lesson</button
-          ><button
-            id="view-machine"
-            aria-pressed="false"
-            aria-controls="machine"
-          >
-            Use the live machine
-          </button>
-        </div>
+        <h1 class="sr-only">xv6 guided experiments</h1>
         <div class="workspace">
           <article id="lesson" tabindex="-1"></article>
           <section
@@ -123,13 +98,6 @@
                 Start with “Run this experiment” in the lesson. We’ll boot xv6
                 and prepare the command for you.
               </p>
-            </div>
-            <div class="toolbar">
-              <button id="boot">Boot xv6</button
-              ><button id="pause" disabled>Pause</button
-              ><button id="continue" class="primary" disabled>
-                Continue <span aria-hidden="true">▶</span></button
-              ><button id="step" disabled>Step instruction</button>
             </div>
             <div class="terminal-heading">
               <span><span aria-hidden="true">● ● ●</span> xv6 console</span
@@ -170,128 +138,150 @@ Run the first experiment to wake it up.
               </p>
             </form>
             <div id="error" role="alert" tabindex="-1" hidden></div>
-            <details id="cpu-panel" class="inspector">
-              <summary>
-                <span>Inside the CPU</span
-                ><span class="detail-tag">Registers and stepping</span>
-              </summary>
-              <p class="muted">
-                Pause to refresh this snapshot. These are current CPU registers;
-                in a kernel handler they are not automatically the saved user
-                arguments.
-              </p>
-              <div class="pc-line">
-                <span>Next instruction (PC)</span><code id="pc">—</code>
+            <details class="advanced-tools">
+              <summary>Optional debugger, memory & reset</summary>
+              <div class="toolbar">
+                <button id="boot">Boot xv6</button
+                ><button id="pause" disabled>Pause</button
+                ><button id="continue" class="primary" disabled>
+                  Continue <span aria-hidden="true">▶</span></button
+                ><button id="step" disabled>Step instruction</button>
               </div>
-              <pre id="instruction" translate="no">
+              <details id="cpu-panel" class="inspector">
+                <summary>
+                  <span>Inside the CPU</span
+                  ><span class="detail-tag">Registers and stepping</span>
+                </summary>
+                <p class="muted">
+                  Pause to refresh this snapshot. These are current CPU
+                  registers; in a kernel handler they are not automatically the
+                  saved user arguments.
+                </p>
+                <div class="pc-line">
+                  <span>Next instruction (PC)</span><code id="pc">—</code>
+                </div>
+                <pre id="instruction" translate="no">
 Boot, then pause to inspect an instruction.</pre
-              >
-              <div id="registers" translate="no" class="registers"></div>
-              <h3>Matching kernel source</h3>
-              <p id="source-location" class="muted"></p>
-              <pre id="source-view" translate="no">
+                >
+                <details class="register-disclosure">
+                  <summary>All 32 CPU registers</summary>
+                  <div id="registers" translate="no" class="registers"></div>
+                </details>
+                <h3>Matching kernel source</h3>
+                <p id="source-location" class="muted"></p>
+                <pre id="source-view" translate="no">
 Pause inside the kernel to locate the current instruction in source.</pre
-              >
-              <label for="breakpoint"
-                >Advanced: stop at a kernel function</label
-              >
-              <div class="command-row">
-                <select id="breakpoint" name="breakpoint">
-                  <option>sys_write</option>
-                  <option>sys_fork</option>
-                  <option>sys_exec</option>
-                  <option>usertrap</option>
-                  <option>sys_getpid</option></select
-                ><button id="arm" disabled>Arm & continue</button>
+                >
+                <label for="breakpoint"
+                  >Advanced: stop at a kernel function</label
+                >
+                <div class="command-row">
+                  <select id="breakpoint" name="breakpoint">
+                    <option>sys_write</option>
+                    <option>sys_fork</option>
+                    <option>sys_exec</option>
+                    <option>usertrap</option>
+                    <option>sys_getpid</option></select
+                  ><button id="arm" disabled>Arm & continue</button>
+                </div>
+                <p class="muted">
+                  One-shot breakpoint; clears when hit. It may stop for shell
+                  activity as well as your command.
+                </p>
+              </details>
+              <details class="inspector">
+                <summary>
+                  <span>Read virtual memory</span
+                  ><span class="detail-tag">Advanced</span>
+                </summary>
+                <p class="muted">
+                  Pause first. Read eight bytes through the CPU’s active address
+                  translation, displayed as a little-endian 64-bit word.
+                </p>
+                <form id="memory-form">
+                  <label for="address">Hexadecimal address</label>
+                  <div class="command-row">
+                    <input
+                      id="address"
+                      name="address"
+                      type="text"
+                      autocomplete="off"
+                      value="0x80000000"
+                      spellcheck="false"
+                    /><button id="inspect" disabled>Inspect</button>
+                  </div>
+                </form>
+                <output aria-live="polite" id="memory-result"></output>
+              </details>
+              <div class="back-to-lesson">
+                <a id="back-lesson" href="#lesson">← Back to the lesson</a>
               </div>
-              <p class="muted">
-                One-shot breakpoint; clears when hit. It may stop for shell
-                activity as well as your command.
-              </p>
-            </details>
-            <details class="inspector">
-              <summary>
-                <span>Read virtual memory</span
-                ><span class="detail-tag">Advanced</span>
-              </summary>
-              <p class="muted">
-                Pause first. Read eight bytes through the CPU’s active address
-                translation, displayed as a little-endian 64-bit word.
-              </p>
-              <form id="memory-form">
-                <label for="address">Hexadecimal address</label>
-                <div class="command-row">
-                  <input
-                    id="address"
-                    name="address"
-                    type="text"
-                    autocomplete="off"
-                    value="0x80000000"
-                    spellcheck="false"
-                  /><button id="inspect" disabled>Inspect</button>
-                </div>
-              </form>
-              <output aria-live="polite" id="memory-result"></output>
-            </details>
-            <div class="back-to-lesson">
-              <a id="back-lesson" href="#lesson">← Back to the lesson</a>
-            </div>
-            <details class="inspector" id="process-panel">
-              <summary>Processes & saved user registers</summary>
-              <p>
-                Stop at a kernel function, then refresh. This is real guest
-                memory, not an illustration.
-              </p>
-              <button id="refresh-processes" disabled>
-                Refresh process table
-              </button>
-              <div
-                aria-live="polite"
-                id="process-result"
-                class="data-scroll"
-              ></div>
-              <label for="process-pid">Process for page-table walk</label
-              ><select id="process-pid" name="process-pid"></select>
-              <form id="page-form">
-                <label for="page-address">User virtual address</label>
-                <div class="command-row">
-                  <input
-                    id="page-address"
-                    name="page-address"
-                    type="text"
-                    autocomplete="off"
-                    value="0x0"
-                    spellcheck="false"
-                  /><button id="walk-page" disabled>Walk page table</button>
-                </div>
-              </form>
-              <div
-                id="page-result"
-                class="data-scroll"
-                aria-live="polite"
-              ></div>
-            </details>
-            <details class="machine-help">
-              <summary>Console help & reset</summary>
-              <p id="console-help">
-                Focus the console to type directly into interactive programs.
-                Enter sends a line; Ctrl-D sends end of input. The command field
-                waits for the shell prompt.
-              </p>
-              <p>
-                Reset starts a fresh machine and discards files created in this
-                session. Lesson progress and prediction notes stay saved.
-              </p>
-              <button id="reset" disabled>Reset machine…</button>
+              <details class="inspector" id="process-panel">
+                <summary>Processes & saved user registers</summary>
+                <p>
+                  Stop at a kernel function, then refresh. This is real guest
+                  memory, not an illustration.
+                </p>
+                <button id="refresh-processes" disabled>
+                  Refresh process table
+                </button>
+                <div
+                  aria-live="polite"
+                  id="process-result"
+                  class="data-scroll"
+                ></div>
+                <label for="process-pid">Process for page-table walk</label
+                ><select id="process-pid" name="process-pid"></select>
+                <form id="page-form">
+                  <label for="page-address">User virtual address</label>
+                  <div class="command-row">
+                    <input
+                      id="page-address"
+                      name="page-address"
+                      type="text"
+                      autocomplete="off"
+                      value="0x0"
+                      spellcheck="false"
+                    /><button id="walk-page" disabled>Walk page table</button>
+                  </div>
+                </form>
+                <div
+                  id="page-result"
+                  class="data-scroll"
+                  aria-live="polite"
+                ></div>
+              </details>
+              <details class="machine-help">
+                <summary>Console help & reset</summary>
+                <p id="console-help">
+                  Focus the console to type directly into interactive programs.
+                  Enter sends a line; Ctrl-D sends end of input. The command
+                  field waits for the shell prompt.
+                </p>
+                <p>
+                  Reset starts a fresh machine and discards files created in
+                  this session. Lesson progress and prediction notes stay saved.
+                </p>
+                <button id="reset" disabled>Reset machine…</button>
+              </details>
             </details>
           </section>
         </div>
+        <details id="guide-resources">
+          <summary>Optional notes, source & other lessons</summary>
+          <div id="lesson-resources"></div>
+        </details>
+        <nav class="flow-navigation" aria-label="Experiment steps">
+          <button id="flow-back">Previous step</button
+          ><span id="flow-position" aria-live="polite"></span
+          ><button id="flow-next" class="primary">Run experiment</button>
+        </nav>
         <footer>
           <span>A working kernel, not a simulation of its output.</span
           ><a href="vendor/NOTICE.md">Runtime & licenses ↗</a>
         </footer>
       </main>
     </div>
-    <script type="module" src="app.js?v=workbook1"></script>
+    <script type="module" src="app.js?v=guided1"></script>
   </body>
 </html>

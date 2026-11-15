@@ -80,10 +80,10 @@ test(
       false,
       "tablet starts with compact curriculum",
     );
-    $("view-machine").click();
-    assert.equal(document.body.classList.contains("view-machine"), true);
-    $("view-lesson").click();
-    assert.equal(document.body.classList.contains("view-machine"), false);
+    assert.equal(
+      document.querySelectorAll("[data-flow-stage]:not([hidden])").length,
+      1,
+    );
     async function until(predicate, description, timeout = 60000) {
       const start = Date.now();
       while (!predicate()) {
@@ -98,7 +98,7 @@ test(
     }
     $("prediction").value = "The shell reads the command";
     $("prediction").dispatchEvent(new dom.window.Event("input"));
-    $("run-experiment").click();
+    $("flow-next").click();
     assert.equal(workers.length, 1);
     assert.equal($("send").disabled, true);
     assert.equal($("run-experiment").disabled, true);
@@ -107,6 +107,21 @@ test(
       false,
       "never type before the shell starts",
     );
+    // Changing lesson during cold boot cancels the queued command without implying a completed run.
+    dom.window.location.hash = "console";
+    dom.window.dispatchEvent(new dom.window.HashChangeEvent("hashchange"));
+    await until(
+      () => $("status").textContent === "Shell ready",
+      "boot without cancelled command",
+    );
+    assert.equal(
+      workers[0].messages.some((m) => m.type === "input"),
+      false,
+    );
+    dom.window.location.hash = "boot";
+    dom.window.dispatchEvent(new dom.window.HashChangeEvent("hashchange"));
+    assert.equal($("flow-next").textContent, "Run experiment");
+    $("flow-next").click();
     await until(
       () =>
         $("terminal").textContent.includes("\nhello\n") &&
@@ -130,14 +145,15 @@ test(
         false,
         id + ": ready for guided action",
       );
-      $("run-experiment").click();
+      $("flow-next").click();
       assert.equal($("send").disabled, true);
       if (lesson.breakpoint) {
         await until(
           () => $("status").textContent === "Stopped at " + lesson.breakpoint,
           id + ": breakpoint",
         );
-        assert.equal($("cpu-panel").open, true);
+        assert.match($("guide-inspection").textContent, /PC 0x/);
+        assert.match($("flow-next").textContent, /Continue execution/);
         assert.equal($("continue").disabled, false);
         assert.equal($("step").disabled, false);
         assert.equal(
@@ -154,7 +170,7 @@ test(
           );
           assert.notEqual($("pc").textContent, pc);
         }
-        $("continue").click();
+        $("flow-next").click();
       }
       await until(
         () =>
@@ -196,6 +212,29 @@ test(
         assert.match(actual, /child turn 2/);
       }
       assert.equal($("complete").checked, false);
+      const outputBefore = $("terminal").textContent;
+      $("flow-next").click();
+      assert.equal(
+        document.querySelector('[data-flow-stage="2"]').hidden,
+        false,
+      );
+      assert.equal($("terminal").textContent, outputBefore);
+      $("flow-next").click();
+      assert.equal(
+        document.querySelector('[data-flow-stage="3"]').hidden,
+        false,
+      );
+      $("flow-next").click();
+      assert.equal(
+        document.querySelector('[data-flow-stage="4"]').hidden,
+        false,
+      );
+      assert.equal(
+        document.querySelectorAll("[data-flow-stage]:not([hidden])").length,
+        1,
+      );
+      document.querySelector('[data-flow-link="1"]').click();
+
       if (id === "identity" || id === "pagetables" || id === "traps") {
         // A fresh controlled stop in lab allows a real process and user-page walk.
         $("breakpoint").value = "sys_getpid";
