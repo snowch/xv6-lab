@@ -217,7 +217,9 @@ const server = http.createServer((req, res) => {
             () =>
               document.body.dataset.buildState === "error" ||
               document.querySelector("#run-status").textContent ===
-                "Run complete",
+                "Run complete" ||
+              document.querySelector("#run-status").textContent ===
+                "Kernel panic",
             null,
             { timeout: 60000 },
           );
@@ -267,6 +269,45 @@ const server = http.createServer((req, res) => {
               !(await page.locator("#terminal").textContent()).includes(
                 "exec returned to the old program",
               ),
+            );
+          }
+          if (chapter[id].teachesKernelPanic && mobileEdit) {
+            assert.equal(
+              await page.locator("#run-status").textContent(),
+              "Kernel panic",
+            );
+            assert.match(
+              await page.locator("#run-message").textContent(),
+              /whole virtual machine/,
+            );
+            assert.equal(await page.locator("#stop").isDisabled(), true);
+            await page.screenshot({
+              path: path.join(artifacts, "kernel-panic-" + name + ".png"),
+              fullPage: true,
+            });
+            await page.locator("#restore").click();
+            await page.locator("#build-run").click();
+            await page.waitForFunction(
+              () =>
+                document.body.dataset.buildState === "error" ||
+                document.querySelector("#run-status").textContent ===
+                  "Run complete",
+              null,
+              { timeout: 60000 },
+            );
+            assert.match(
+              await page.locator("#terminal").textContent(),
+              /prepared user mode=1/,
+            );
+            assert.ok(
+              !(await page.locator("#terminal").textContent()).includes(
+                "panic:",
+              ),
+            );
+          } else if (chapter[id].teachesKernelPanic) {
+            assert.equal(
+              await page.locator("#run-status").textContent(),
+              "Run complete",
             );
           }
         }

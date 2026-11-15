@@ -1,6 +1,6 @@
 # Source workbench: provenance and limits
 
-Eight available chapters contain fifty source-led lesson pages. Further chapters are listed on the published roadmap; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
+Nine available chapters contain fifty-six source-led lesson pages. Further chapters are listed on the published roadmap; the 25 existing experiments remain in the separate kernel explorer. All compilation and guest execution happen locally; the static site has no compile server.
 
 ## Compiler
 
@@ -27,3 +27,5 @@ The Scheduling wait lesson additionally captures actual workbench process rows a
 Kernel lessons can replace the function named in their build context, including kernel main. Native `guest/kernel/workbench.c` helpers execute the CSR, fence and atomic primitives unsupported by TCC inline assembly. The baseline disables inlining to retain editable function boundaries. External kernel globals use real ELF symbols through a reserved global address table; no struct offsets or register results are fabricated.
 
 The emulator is now rebuilt with the page-permission correction documented in the main runtime notice. The compiler binary remains unmodified. Address-translation exercises use real PTE reads, CPU protection faults and checked-copy results; the optional supplied-program disclosure shows the exact user test harness.
+
+The trap chapter replaces usertrap, syscall, argint and usertrapret in focused exercises. A complete kernel-panic line stops the disposable VM while retaining the source and build; a new run always boots a fresh image.
