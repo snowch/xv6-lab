@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="locks-protect-shared-kernel-state">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The children have separate user variables, but their inherited descriptors refer to one shared kernel pipe. Both writers update the pipe’s buffer and write counter; the reader updates its read counter.</p><p>A <strong>lock</strong> protects a <strong>critical section</strong>: operations on shared state that must be coordinated. pipewrite acquires the pipe lock before its loop, updates the buffer and counter while holding it, and releases it afterwards. A full-buffer wait releases the lock while sleeping so a reader can make space.</p><p>The example uses two writers and a reader, closes unused ends, reads until EOF and collects both children. Count the actual bytes rather than assuming a particular writer order. This connects process lifetime, descriptors, streams and scheduling with the shared kernel data behind them.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="locks" aria-labelledby="concept-title-locks"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-locks">The lock guards a protocol, not just a word</strong></figcaption><p class="concept-summary">Acquisition and release combine ownership, interrupt nesting and memory ordering.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-locks"><li class="concept-node" data-node="enter"><strong>Enter</strong><span class="concept-value">push_off; atomically claim the word; order later accesses.</span></li><li class="concept-node" data-node="critical"><strong>Critical section</strong><span class="concept-value">This CPU owns the lock while using protected state.</span></li><li class="concept-node" data-node="leave"><strong>Leave</strong><span class="concept-value">Order prior accesses; clear ownership; unlock; pop_off.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/spinlock.c · acquire · release</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: assignment inside a loop condition</summary><div class="c-reminder-content"><p>The parenthesised assignment first stores the read result in n. The &gt; 0 comparison then decides whether to enter the loop. Use only the n bytes actually returned; a request for a larger count does not promise that many bytes arrived.</p><pre translate="no"><code>while ((n = read(fd, buf, sizeof(buf))) &gt; 0) {
   /* consume buf[0] through buf[n - 1] */
 }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">while and for loops <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/3" target="_blank" rel="noopener noreferrer">Expressions and precedence <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -106,7 +107,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="exec-builds-a-new-argument-vector">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>An exec caller supplies pointers into its old address space. The replacement cannot keep using those old pointers after its image is freed. xv6 copies the argument strings into the new user stack and creates a new array of pointers to those copies.</p><p>ustack is a temporary kernel array containing new user addresses. Its final zero entry terminates argv. copyout writes both strings and the pointer array through the new page table, before that table becomes the process’s active image.</p><p>This program execs its own file once with two extra arguments. The replacement enters main with argc=3 and prints the copied strings. Change small to clear to observe the new argument after a real image replacement. The new argc prevents repeated self-exec.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="argv" aria-labelledby="concept-title-argv"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-argv">Rebuild argv in the new address space</strong></figcaption><p class="concept-summary">The old program’s pointers cannot simply become the new program’s argv.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-argv"><li class="concept-node" data-node="old"><strong>Old user arguments</strong><span class="concept-value">Pointers refer to strings in the current image.</span></li><li class="concept-node" data-node="strings"><strong>New stack: copied strings</strong><span class="concept-value">copyout writes each string through the candidate page table.</span></li><li class="concept-node" data-node="vector"><strong>New stack: argv array</strong><span class="concept-value">User addresses of the copies, followed by a null pointer.</span></li><li class="concept-node" data-node="entry"><strong>Entry registers</strong><span class="concept-value">a0 = argc; a1 = argv; sp satisfies the entry alignment.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/sysfile.c · sys_exec; kernel/exec.c · exec</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arrays of string pointers</summary><div class="c-reminder-content"><p>args is an array whose elements point to strings. The final 0 is a null pointer marking the end of the argument list. Each string also has its own zero-byte terminator; these are two different uses of zero.</p><pre translate="no"><code>char *args[] = {&quot;echo&quot;, &quot;hello&quot;, 0};</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays and pointer arithmetic <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/2" target="_blank" rel="noopener noreferrer">Character strings <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
@@ -106,7 +107,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

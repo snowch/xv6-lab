@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="uart-registers-are-memory-mapped">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The kernel maps the UART’s physical register region into its address space. Accessing a byte at UART0 plus a register offset invokes the emulated device, rather than reading ordinary RAM. volatile keeps the C access present; it does not by itself create a device mapping.</p><p>Offset 3 is the line-control register. uartinit leaves it configured for eight-bit characters with its low two bits equal to 3. Build and read those actual bits. This is a register query, not a measurement of serial transmission speed.</p><p>Offset 5 is the line-status register, which describes different state. In this supplied run, the command’s input has already been consumed; its low receive-ready/error bits are zero. Register offsets and bit meanings are part of the device interface, so the same numeric mask must be interpreted in the selected register’s context.</p></div>
+        <div id="concept-slot"></div>
         <details class="c-reminder"><summary>C reminder: a pointer to volatile bytes</summary><div class="c-reminder-content"><p>volatile unsigned char *reg points at a byte whose accesses the compiler must preserve. *reg reads that byte; the pointer cast alone performs no read. The address and the kernel’s mappings give it its device meaning. volatile does not create a mapping, grant permission or provide a lock.</p><pre translate="no"><code>volatile unsigned char *reg = (volatile unsigned char*)address;
 int bits = *reg &amp; 3;</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/4" target="_blank" rel="noopener noreferrer">Conversions and casts <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ int bits = *reg &amp; 3;</code></pre><p class="c-refresher-links">Refresh in C F
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

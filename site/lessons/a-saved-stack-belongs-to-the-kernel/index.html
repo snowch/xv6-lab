@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="a-saved-stack-belongs-to-the-kernel">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A process has a user stack and a separate kernel stack. Traps switch to the kernel stack before entering kernel C. A process blocked inside read or wait retains its kernel call frames while another process runs.</p><p>The probe calls the actual yield routine. Its path through sched and swtch saves p->context.sp. When this process is scheduled again, those kernel frames resume and the probe checks the saved address against its own kernel-stack page.</p><p>Build and expect 1. Selecting the trapframe’s sp instead reads the saved <em>user</em> stack pointer, which is outside this kernel-stack mapping. Neither saved field is a claim to read the CPU’s current live sp at this line.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="contexts" aria-labelledby="concept-title-contexts"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-contexts">Two saved contexts serve different boundaries</strong></figcaption><p class="concept-summary">struct proc points to a saved user trapframe and contains a separate saved kernel context.</p><ol class="concept-map concept-compare concept-count-2" id="concept-map-contexts"><li class="concept-node" data-node="trapframe"><span class="concept-zone">trapframe</span><strong>Saved user state</strong><span class="concept-value">User registers, epc and kernel transition fields. Used for trap entry and return.</span></li><li class="concept-node" data-node="context"><span class="concept-zone">context</span><strong>Saved kernel call</strong><span class="concept-value">ra, sp and s0–s11. Used to resume a suspended kernel call.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/proc.h · struct trapframe · struct context; kernel/swtch.S</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: addresses and integer casts</summary><div class="c-reminder-content"><p>In this RV64 kernel, uint64 holds 64-bit values, including its address values. The cast converts a pointer to that integer type for a byte-offset calculation. Adding 4096 to this integer advances by 4096 bytes; adding to a typed pointer would instead count its element size. This calculation does not allocate storage or change the CPU’s stack pointer.</p><pre translate="no"><code>uint64 base = (uint64)stack0;
 uint64 top = base + 4096;
 int offset = (int)(top - base);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Addresses and pointer arithmetic <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/4" target="_blank" rel="noopener noreferrer">Conversions and casts <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -106,7 +107,8 @@ int offset = (int)(top - base);</code></pre><p class="c-refresher-links">Refresh
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

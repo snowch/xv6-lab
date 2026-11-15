@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="uart-output-passes-through-a-ring">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A user write reaches uartputc through the console driver. The kernel places its character in a transmit ring and advances the write counter. uartstart sends queued bytes when the device can accept them; the interrupt handler calls it again as progress becomes possible.</p><p>A full software ring makes the process sleep on the read counter while releasing uart_tx_lock. Advancing the read side wakes writers. This is distinct from a user program spinning on a device register.</p><p>The editable function is the real uartputc. The small marker transformation happens before its ordinary ring operations. Build and find marker=@ from the supplied user program. Changing the replacement makes the different byte pass through the same ring and device path. Kernel printf uses the separate synchronous routine, so its diagnostic output is not this user-output ring.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="ring" aria-labelledby="concept-title-ring"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-ring">A ring reuses a fixed set of slots</strong></figcaption><p class="concept-summary">Logical counters keep moving; modulo arithmetic selects a slot in the fixed-size array.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-ring"><li class="concept-node" data-node="write"><strong>Producer counter</strong><span class="concept-value">Choose the next slot using counter % capacity.</span></li><li class="concept-node" data-node="slots"><strong>Fixed buffer slots</strong><span class="concept-value">Slots are reused after the consumer advances.</span></li><li class="concept-node" data-node="read"><strong>Consumer counter</strong><span class="concept-value">Distinguish empty from full using the counters.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/uart.c · uart_tx_w · uart_tx_r; kernel/pipe.c · nwrite · nread</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: remainder and array indices</summary><div class="c-reminder-content"><p>The % operator gives the remainder. For a nonnegative counter, counter % 32 selects an index from 0 to 31 in a 32-element array. The counter itself can keep increasing while the selected array slot wraps around. A character constant such as '@' has an integer character-code value.</p><pre translate="no"><code>int slot = counter % 32;
 buffer[slot] = c;</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/values/3" target="_blank" rel="noopener noreferrer">Operators and precedence <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/1" target="_blank" rel="noopener noreferrer">Array indexing and bounds <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ buffer[slot] = c;</code></pre><p class="c-refresher-links">Refresh in C Foundry:
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

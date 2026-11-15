@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="masking-supervisor-interrupts">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>An interrupt source can be pending while delivery is masked. The supervisor SIE bit controls whether supervisor interrupts may interrupt supervisor execution. Masking delivery does not erase the device’s request, and machine-mode interrupts are a separate privilege level.</p><p>usertrap enables interrupts before calling a syscall handler, so this narrow probe begins with SIE set. intr_off clears it; intr_on sets it again. Build and observe before=1, during=0 and after=1 through actual CPU-register reads.</p><p>This explicit off/on pair is suitable for this known starting state. General kernel critical sections need to preserve the previous state and handle nesting; xv6’s push_off/pop_off mechanism does that, and the locking chapter examines it. Enabling interrupts blindly is not a substitute for restoring the caller’s state.</p></div>
+        <div id="concept-slot"></div>
         <details class="c-reminder"><summary>C reminder: arguments and return values</summary><div class="c-reminder-content"><p>A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.</p><pre translate="no"><code>int pid = getpid();
 printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters and return values <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-li
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

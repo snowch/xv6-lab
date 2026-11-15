@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="eof-needs-closed-writers">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A read returning <code>0</code> indicates <strong>end of file</strong>, or EOF. A pipe reaches this condition when its buffer is empty and no write-end references remain open.</p><p>Closing the writer does not throw away buffered bytes. The first read still obtains <code>ok</code>. The next read returns zero because those bytes are gone and no writer can supply more.</p><p>EOF is a state, not a special character inserted into the data. An empty pipe with an open writer instead makes a reader wait.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="eof" aria-labelledby="concept-title-eof"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-eof">Empty does not always mean EOF</strong></figcaption><p class="concept-summary">A reader’s next action depends on both buffered data and whether any write endpoint remains open.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-eof"><li class="concept-parent"><div class="concept-node" data-node="check"><strong>Reader checks the pipe</strong><span class="concept-value">Inspect buffer state and writeopen under the pipe lock.</span></div><ol class="concept-branches"><li class="concept-node" data-node="wait"><span class="concept-edge-label">Writer remains open</span><strong>Empty, writer still open</strong><span class="concept-value">Sleep; a writer may produce more bytes.</span></li><li class="concept-node" data-node="eof"><span class="concept-edge-label">No writers remain</span><strong>Empty, all writers closed</strong><span class="concept-value">Return 0: no more bytes can arrive.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/pipe.c · piperead · pipeclose</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: buffers and string terminators</summary><div class="c-reminder-content"><p>The array has six char elements, initially all zero. Reading at most five bytes leaves the final element zero, so the displayed text remains terminated. read reports bytes obtained; it does not append a C string terminator for you.</p><pre translate="no"><code>char buf[6] = {0};
 int n = read(fd, buf, 5);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/1" target="_blank" rel="noopener noreferrer">Array bounds <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/2" target="_blank" rel="noopener noreferrer">Character arrays and zero termination <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ int n = read(fd, buf, 5);</code></pre><p class="c-refresher-links">Refresh in C 
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

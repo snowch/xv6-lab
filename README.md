@@ -4,6 +4,12 @@
 
 Learn how an operating system works, one small experiment at a time. A real xv6 RISC-V kernel executes locally in a WebAssembly worker. Its console, process records, trapframes and page tables come from actual guest execution. The complete functional course contains **15 chapters and 99 source-led lessons**.
 
+## Concept diagrams
+
+91 lessons include a relevant diagram beside the explanation, covering 49 mechanisms and relationships. Eight diagrams have manual steps for following changes, including page-table walks, scheduling, lock handoff and journal recovery. Their labels remain readable on phones; keyboard controls and complete text transcripts support alternative ways to follow each sequence.
+
+These are original drawings and explanations authored for this repository under its MIT license. Each names the matching xv6 source anchors. They illustrate mechanisms independently of the live guest; building and running still supplies the actual evidence. See [diagram provenance and inventory](docs/concept-diagrams.md).
+
 ## C prerequisite
 
 Be comfortable reading small C programs: variables, conditions, loops, function calls and return values. The [course contents](https://snowch.github.io/xv6-lab/#c-prerequisites) links focused [C Foundry](https://snowch.github.io/c-foundry/) refreshers for those skills; completing its whole course is unnecessary.

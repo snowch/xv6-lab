@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="redirecting-output-through-a-pipe">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A program like echo writes to descriptor <code>1</code>. A shell can change what that descriptor points to before starting the program, without changing echo’s code.</p><p>The child closes its console descriptor 1, then duplicates the pipe writer. Because 1 is the lowest free slot, dup places the writer there. Closing the original pipe descriptors leaves standard output as the child’s writer reference.</p><p>exec preserves those descriptor connections. Echo’s bytes enter the pipe; the parent loops until EOF to collect the short message. This combines fork, close, dup and exec from the preceding lessons.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="pipe" aria-labelledby="concept-title-pipe"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-pipe">A pipe connects writers to readers</strong></figcaption><p class="concept-summary">A pipe carries bytes through a kernel buffer; write boundaries are not message boundaries.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-pipe"><li class="concept-node" data-node="writer"><strong>Write end</strong><span class="concept-value">write copies bytes into the shared pipe buffer.</span></li><li class="concept-node" data-node="buffer"><strong>Kernel pipe</strong><span class="concept-value">nwrite and nread track progress; a lock protects the buffer.</span></li><li class="concept-node" data-node="reader"><strong>Read end</strong><span class="concept-value">read copies available bytes into the reader’s user buffer.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/pipe.c · pipewrite · piperead</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: assignment inside a loop condition</summary><div class="c-reminder-content"><p>The parenthesised assignment first stores the read result in n. The &gt; 0 comparison then decides whether to enter the loop. Use only the n bytes actually returned; a request for a larger count does not promise that many bytes arrived.</p><pre translate="no"><code>while ((n = read(fd, buf, sizeof(buf))) &gt; 0) {
   /* consume buf[0] through buf[n - 1] */
 }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">while and for loops <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/3" target="_blank" rel="noopener noreferrer">Expressions and precedence <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -106,7 +107,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

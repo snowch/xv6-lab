@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="sched-enforces-switching-invariants">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>Kernel context switching needs a strict contract. sched requires the current process’s lock, exactly one push_off nesting level, a state other than RUNNING, and interrupts disabled. The source below checks all four before switching stacks.</p><p>yield establishes that contract for a runnable process. sleep and exit establish their own state transitions before calling sched. These checks prevent a scheduler from observing an inconsistent state or letting two execution paths use the same kernel stack.</p><p>Build the starter to complete a normal round. Then bypass yield and call sched directly from this syscall handler. The first check fails with the real kernel panic sched p-&gt;lock. This is a deliberate failed kernel: restore the starter and build a fresh machine to continue.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="switch" aria-labelledby="concept-title-switch"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-switch">Switch through the CPU scheduler</strong></figcaption><p class="concept-summary">swtch restores a kernel continuation; it does not directly perform a user trap return.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-switch"><li class="concept-node" data-node="process" data-active="true"><strong>Process’s kernel thread</strong><span class="concept-value">yield or sleep changes state and calls sched.</span></li><li class="concept-node" data-node="scheduler"><strong>CPU scheduler context</strong><span class="concept-value">swtch saves p-&gt;context and resumes the CPU’s context.</span></li><li class="concept-node" data-node="resume"><strong>Selected kernel thread</strong><span class="concept-value">The scheduler later restores a process context; its suspended call resumes.</span></li></ol><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-switch" disabled>← Previous step</button><span class="concept-position">Step 1 of 3</span><button type="button" data-concept-next aria-controls="concept-map-switch">Next step →</button></div><div class="concept-frame" id="concept-frame-switch" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Publish a state</strong><p class="concept-frame-text">The process holds p-&gt;lock and changes its state before calling sched.</p></div><details class="concept-transcript"><summary>Read all 3 steps</summary><ol><li><strong>Publish a state.</strong> The process holds p-&gt;lock and changes its state before calling sched.</li><li><strong>Switch to the scheduler.</strong> swtch saves the process’s return address, stack pointer and callee-saved registers, then restores the CPU scheduler’s context.</li><li><strong>Resume a selected process.</strong> The scheduler marks a selected process RUNNING and restores its context. A trap-return path may eventually return it to user mode.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · sched · scheduler; kernel/swtch.S</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arguments and return values</summary><div class="c-reminder-content"><p>A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.</p><pre translate="no"><code>int pid = getpid();
 printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters and return values <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-li
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

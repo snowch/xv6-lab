@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="boot-prepares-physical-pages">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>User sbrk eventually depends on the kernel’s <strong>physical page allocator</strong>. kinit places available RAM pages, from the end of the kernel image to PHYSTOP, on a free list. Each free page stores the link to the next free page in its own bytes.</p><p>kalloc removes one page from that list and returns its kernel address. It can return zero when no page is available. kfree puts a page back; it does not preserve its previous contents for the caller.</p><p>The added boot code allocates one page after kinit, writes a byte, reads it back and releases the page before normal boot continues. Build and find 65, the character code for A. This is kernel allocation, unlike sbrk’s user-address-space growth; both ultimately use the same physical memory supply.</p></div>
+        <div id="concept-slot"></div>
         <details class="c-reminder"><summary>C reminder: allocated memory and lifetime</summary><div class="c-reminder-content"><p>A successful allocation gives you a pointer to live storage. Test for failure before dereferencing it. Releasing the allocation ends your right to use those bytes; a pointer variable can still hold the old address afterwards. xv6’s kalloc and kfree are kernel interfaces introduced in this lesson.</p><pre translate="no"><code>char *page = kalloc();
 if (page != 0) {
   page[0] = 65;
@@ -108,7 +109,8 @@ if (page != 0) {
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -248,6 +250,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="direct-and-indirect-blocks-map-file-offsets">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A file byte offset first becomes a logical block index and an offset within that block. bmap translates the logical index to a physical disk block. The first twelve entries are direct pointers stored in the inode.</p><p>The next inode slot points to a block containing 256 more block numbers. For logical index 12, bmap subtracts NDIRECT and reads entry zero from that indirect block. With 1024-byte blocks, this version supports 268 data blocks per file; the indirect table itself also consumes disk space.</p><p>The supplied program prepares thirteen data blocks. Build with logical=11 to match the inode’s last direct pointer. Select 12 to obtain a different physical block through the actual indirect lookup. The table remains present in both runs. bmap can allocate missing blocks, but this fixture has already populated both paths.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="indirect" aria-labelledby="concept-title-indirect"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-indirect">Direct pointers and an indirect table</strong></figcaption><p class="concept-summary">Logical indices 0–11 use inode entries directly. Index 12 starts at entry 0 in the indirect table.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-indirect"><li class="concept-parent"><div class="concept-node" data-node="inode"><strong>Inode block map</strong><span class="concept-value">addrs[0..11] name data blocks; addrs[12] names an indirect table.</span></div><ol class="concept-branches"><li class="concept-node" data-node="direct"><span class="concept-edge-label">Direct path</span><strong>Logical block 11</strong><span class="concept-value">addrs[11] → data block.</span></li><li class="concept-node" data-node="indirect"><span class="concept-edge-label">Indirect path</span><strong>Logical block 12</strong><span class="concept-value">addrs[12] → table[0] → data block.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/fs.h · NDIRECT · NINDIRECT; kernel/fs.c · bmap</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

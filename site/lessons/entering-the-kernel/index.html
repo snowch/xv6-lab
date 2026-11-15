@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="entering-the-kernel">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -56,7 +56,8 @@
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>The C declaration does not explain how a user program reaches protected kernel code. xv6 supplies a small assembly <strong>stub</strong>: a short function that arranges a system-call request.</p><p>The real <code>getpid</code> stub below loads <code>SYS_getpid</code>, the call’s number, into <code>a7</code>, a CPU register: a small storage location used here to hold the call number. The RISC-V instruction <code>ecall</code> then causes the CPU to enter xv6’s trap handling code. A <strong>trap</strong> transfers control so the kernel can handle an event; here the event is a user system call.</p><p>xv6’s <code>usertrap</code> recognises this event and calls <code>syscall</code>. That dispatcher uses the number to select <code>sys_getpid</code>, the kernel function that implements this request. After the kernel returns to user mode, the stub’s <code>ret</code> returns to the C caller.</p><p class="call-path">getpid → ecall → usertrap → syscall → sys_getpid</p></div>
+        <div id="reading-content"><p>The C declaration does not explain how a user program reaches protected kernel code. xv6 supplies a small assembly <strong>stub</strong>: a short function that arranges a system-call request.</p><p>The real <code>getpid</code> stub below loads <code>SYS_getpid</code>, the call’s number, into <code>a7</code>, a CPU register: a small storage location used here to hold the call number. The RISC-V instruction <code>ecall</code> then causes the CPU to enter xv6’s trap handling code. A <strong>trap</strong> transfers control so the kernel can handle an event; here the event is a user system call.</p><p>xv6’s <code>usertrap</code> recognises this event and calls <code>syscall</code>. That dispatcher uses the number to select <code>sys_getpid</code>, the kernel function that implements this request. After the kernel returns to user mode, the stub’s <code>ret</code> returns to the C caller.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="entry" aria-labelledby="concept-title-entry"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-entry">The stub requests a kernel service</strong></figcaption><p class="concept-summary">ecall requests kernel entry; a7 tells xv6 which service was requested.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-entry"><li class="concept-node" data-node="stub"><span class="concept-zone">User</span><strong>getpid stub</strong><span class="concept-value">The C call reaches the stub, which sets a7 = SYS_getpid and executes ecall.</span></li><li class="concept-node" data-node="handler"><span class="concept-zone">Kernel</span><strong>Trap and dispatch</strong><span class="concept-value">usertrap calls syscall; the call number selects sys_getpid.</span></li><li class="concept-node" data-node="caller"><span class="concept-zone">User</span><strong>Return to the caller</strong><span class="concept-value">The stub’s ret resumes the C caller with the returned integer.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> user/usys.S · kernel/trap.c · kernel/syscall.c · kernel/sysproc.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: function declarations</summary><div class="c-reminder-content"><p>A declaration tells the compiler a function’s name, parameter types and result type. void inside the parameter list means no arguments. The declaration describes how to call the function; its implementation can live elsewhere.</p><pre translate="no"><code>int getpid(void);  // no arguments; returns an int</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters, return values and prototypes <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
@@ -104,7 +105,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -244,6 +246,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

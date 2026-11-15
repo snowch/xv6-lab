@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="ecall-must-advance-the-return-pc">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>For a user ecall, sepc points at the ecall instruction itself. Returning to that same address would execute it again. usertrap therefore adds four to the saved PC: ecall is a four-byte instruction, even on a system that also supports compressed instructions.</p><p>The lab setting changes this advance only for getpid. All other system calls keep their normal four-byte advance, so boot, I/O and cancellation still work. The supplied program forks a child that calls getpid. The parent later cancels a child that has not finished and collects its status.</p><p>With advance 4, the call returns and the child exits with status 0. With advance 0, the child repeats the same ecall and never reaches its message. Timer scheduling lets the parent run and kill it; the collected status becomes -1. This bounds the experiment without requiring an endless browser run.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="syscall" aria-labelledby="concept-title-syscall"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-syscall">A request crosses a privilege boundary</strong></figcaption><p class="concept-summary">A getpid example: the stub supplies a service number; the kernel selects the handler and returns a result.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-syscall"><li class="concept-node" data-node="stub" data-active="true"><span class="concept-zone">User</span><strong>User stub</strong><span class="concept-value">a7 = SYS_getpid; ecall</span></li><li class="concept-node" data-node="trap"><span class="concept-zone">Kernel</span><strong>uservec → usertrap</strong><span class="concept-value">Save user registers; advance epc past ecall.</span></li><li class="concept-node" data-node="dispatch"><span class="concept-zone">Kernel</span><strong>syscall → sys_getpid</strong><span class="concept-value">Select the handler; put its result in saved a0.</span></li><li class="concept-node" data-node="return"><span class="concept-zone">User</span><strong>userret → caller</strong><span class="concept-value">Restore user registers; sret returns to user mode.</span></li></ol><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-syscall" disabled>← Previous step</button><span class="concept-position">Step 1 of 3</span><button type="button" data-concept-next aria-controls="concept-map-syscall">Next step →</button></div><div class="concept-frame" id="concept-frame-syscall" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Request</strong><p class="concept-frame-text">The user stub places the service number in a7. ecall requests kernel entry; it does not implement getpid.</p></div><details class="concept-transcript"><summary>Read all 3 steps</summary><ol><li><strong>Request.</strong> The user stub places the service number in a7. ecall requests kernel entry; it does not implement getpid.</li><li><strong>Enter and dispatch.</strong> The trampoline saves user registers. usertrap recognizes scause 8, advances epc by four and calls the dispatcher.</li><li><strong>Return.</strong> The handler result is stored in trapframe-&gt;a0. The return path restores that value as the user’s a0.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> user/usys.S · kernel/trampoline.S · kernel/trap.c · kernel/syscall.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: a conditional expression</summary><div class="c-reminder-content"><p>condition ? a : b evaluates the condition and then just one of the two alternatives. Its result is a value. Parentheses can make that selection easier to read inside an assignment or array index. This differs from if, which chooses statements to execute.</p><pre translate="no"><code>int step = is_getpid ? lab_advance : 4;
 pc += step;</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/values/3" target="_blank" rel="noopener noreferrer">Expressions and operators <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/1" target="_blank" rel="noopener noreferrer">Conditions and branches <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ pc += step;</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a hr
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

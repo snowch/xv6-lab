@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="the-current-process">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>We have reached <code>sys_getpid</code>, the kernel handler. The editor now contains that actual function from <code>kernel/sysproc.c</code>. Your changes will compile into the kernel; a fixed user program will call it.</p><p><button class="code-link" data-focus="myproc">myproc()</button> returns a pointer to the current process’s <code>struct proc</code> record. The expression <button class="code-link" data-focus="pid">myproc()->pid</button> reads the <code>pid</code> field in that record.</p><p>Inside <code>myproc</code>, <code>c</code> is the current CPU’s record, and <code>c->proc</code> points to the process it is running. The surrounding <code>push_off</code>/<code>pop_off</code> calls keep this CPU lookup stable by temporarily disabling interrupts. We will study that mechanism later; here follow the pointer returned as <code>p</code>.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="currentproc" aria-labelledby="concept-title-currentproc"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-currentproc">Follow the current CPU’s process pointer</strong></figcaption><p class="concept-summary">While handling this process’s call, myproc follows c-&gt;proc to the caller’s kernel record.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-currentproc"><li class="concept-node" data-node="cpu"><strong>Current CPU record</strong><span class="concept-value">c = mycpu(); interrupts are temporarily disabled for this lookup.</span></li><li class="concept-node" data-node="process"><strong>Process record</strong><span class="concept-value">p = c-&gt;proc; this is the process running on that CPU.</span></li><li class="concept-node" data-node="pid"><strong>Stored identifier</strong><span class="concept-value">p-&gt;pid is a field in that process record.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · myproc; kernel/proc.h · struct cpu · struct proc</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

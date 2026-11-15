@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="fork-creates-a-child">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>In Chapter 1, a process asked the kernel for information. Now it asks the kernel to create another process. <button class="code-link" data-focus="fork">fork()</button> creates a <strong>child</strong> of the calling process, which becomes the <strong>parent</strong>.</p><p>On success, both continue just after the same call. The child receives <code>0</code>; the parent receives the child’s PID. That lets <code>if (child == 0)</code> choose the child’s work. A negative result means creation failed, so the example handles that before either success branch.</p><p>The parent uses <code>wait(0)</code> to wait for its child to exit before printing the final line. wait returns the collected child’s PID. The zero means it does not request an exit status. We will examine wait on the next page; here it keeps the example’s output together.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="fork" aria-labelledby="concept-title-fork"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-fork">One fork creates two continuations</strong></figcaption><p class="concept-summary">On success, both processes continue after fork, with separate user memory and different return values.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-fork"><li class="concept-parent"><div class="concept-node" data-node="call"><strong>Parent calls fork</strong><span class="concept-value">One running process enters the kernel.</span></div><ol class="concept-branches"><li class="concept-node" data-node="parent"><span class="concept-edge-label">Parent result &gt; 0</span><strong>Parent continuation</strong><span class="concept-value">fork returns the child’s PID; its memory remains its own.</span></li><li class="concept-node" data-node="child"><span class="concept-edge-label">Child result = 0</span><strong>Child continuation</strong><span class="concept-value">fork returns 0; copied user pages can now change independently.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · fork · uvmcopy</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: comparisons and branches</summary><div class="c-reminder-content"><p>== compares two values; = assigns a value. if chooses a branch when its condition is nonzero. A test for a negative result is separate from a test for zero, which matters when an interface uses different outcomes for each.</p><pre translate="no"><code>if (child &lt; 0) { /* creation failed */ }
 if (child == 0) { /* child’s path */ }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/1" target="_blank" rel="noopener noreferrer">Conditions and branches <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ if (child == 0) { /* child’s path */ }</code></pre><p class="c-refresher-links
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

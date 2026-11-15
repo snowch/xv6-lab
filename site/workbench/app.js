@@ -1,5 +1,9 @@
+import {
+  renderConcept,
+  enhanceConcepts,
+} from "./concept-diagrams.js?v=concepts1";
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter15";
+import { lessons, sourceExcerpt } from "./lessons.js?v=concepts1";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -88,6 +92,8 @@ function render() {
   $("test-program-details").hidden = !lesson.build?.probe;
   say("test-program-source", lesson.build?.probe || "");
   $("reading-content").innerHTML = lesson.reading;
+  $("concept-slot").innerHTML = renderConcept(kind);
+  enhanceConcepts($("concept-slot"));
   say("context-title", lesson.contextTitle);
   const excerpt = sourceExcerpt(files, lesson);
   say("source-location", `${excerpt.file} · line ${excerpt.first}`);
@@ -162,9 +168,12 @@ async function build(runAfter) {
   if (buildJob || !files) return;
   const exercise = kind,
     source = drafts.get(kind),
-    worker = new Worker(new URL("./build-worker.js?v=guest4", import.meta.url), {
-      type: "module",
-    }),
+    worker = new Worker(
+      new URL("./build-worker.js?v=guest4", import.meta.url),
+      {
+        type: "module",
+      },
+    ),
     job = { worker, exercise, source, runAfter };
   buildJob = job;
   document.body.dataset.buildState = "building";

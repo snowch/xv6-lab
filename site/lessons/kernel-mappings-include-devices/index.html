@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="kernel-mappings-include-devices">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A kernel often needs stable access to physical RAM and device registers. xv6 directly maps its kernel RAM: a virtual address in that region translates to the same numerical physical address. This is an <strong>identity mapping</strong>, not an absence of translation.</p><p>The kernel also maps memory-mapped I/O, or MMIO. Reads and writes at those physical addresses communicate with devices rather than ordinary RAM. UART0 names the console device’s register region. Merely reading its PTE does not access a UART register.</p><p>Build with KERNBASE. The mapping should be an identity mapping, read-only and executable. Then query UART0: it is also mapped at its physical address, but is writable and not executable. Other mappings, including the high trampoline, deliberately use different virtual and physical addresses.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="kernelmap" aria-labelledby="concept-title-kernelmap"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-kernelmap">Kernel mappings include memory and devices</strong></figcaption><p class="concept-summary">Kernel virtual addresses provide access to RAM and memory-mapped device registers.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-kernelmap"><li class="concept-parent"><div class="concept-node" data-node="table"><strong>Kernel page table</strong><span class="concept-value">kvminit builds the mappings; kvminithart installs satp.</span></div><ol class="concept-branches"><li class="concept-node" data-node="ram"><span class="concept-edge-label">Memory access</span><strong>RAM mappings</strong><span class="concept-value">Kernel text, data and managed RAM use appropriate kernel mappings.</span></li><li class="concept-node" data-node="mmio"><span class="concept-edge-label">Device access</span><strong>MMIO mappings</strong><span class="concept-value">UART, VirtIO and PLIC register addresses route access to devices.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/vm.c · kvminit · kvminithart; kernel/memlayout.h</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: extracting fields with shifts and masks</summary><div class="c-reminder-content"><p>Right shift discards low bits, and bitwise &amp; keeps the bits selected by a mask. 0x1ff has nine low bits set; 4095 has twelve. A cast to int makes these small extracted values suitable for printf’s %d argument.</p><pre translate="no"><code>int index = (int)((va &gt;&gt; 12) &amp; 0x1ff);
 int offset = (int)(va &amp; 4095);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/files-bytes/2" target="_blank" rel="noopener noreferrer">Bitwise operations and masks <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/4" target="_blank" rel="noopener noreferrer">Conversions and casts <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ int offset = (int)(va &amp; 4095);</code></pre><p class="c-refresher-links">Refr
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

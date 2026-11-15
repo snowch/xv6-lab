@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="inode-references-and-loaded-metadata-differ">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>An inode number identifies a file on a device. iget returns a referenced in-memory inode object, but it need not read the on-disk inode yet. Newly reused cache entries start with valid=0.</p><p>ilock acquires the inode’s sleeping lock. If metadata is not loaded, it reads the corresponding inode block and fills type, size and block addresses before setting valid. The supplied README lookup starts with a fresh inode-cache reference in this fixture. Its before sample is a controlled diagnostic; normal callers acquire ilock before using inode metadata.</p><p>Build and observe valid=0 before ilock. Select after to observe 1. A reference keeps the inode object alive; its lock protects the loaded metadata. Neither is the directory link count, which governs names and on-disk lifetime.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="inode" aria-labelledby="concept-title-inode"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-inode">An inode reference can precede loaded metadata</strong></figcaption><p class="concept-summary">Object lifetime and metadata access use different protection.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-inode"><li class="concept-node" data-node="reference"><strong>iget / namei</strong><span class="concept-value">Retain an inode identity; a fresh entry can have valid = 0.</span></li><li class="concept-node" data-node="locked"><strong>ilock</strong><span class="concept-value">Acquire the sleeping lock; load on-disk metadata if needed.</span></li><li class="concept-node" data-node="release"><strong>iunlockput</strong><span class="concept-value">Release the metadata lock and drop the retained reference.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/fs.c · iget · ilock · iput</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

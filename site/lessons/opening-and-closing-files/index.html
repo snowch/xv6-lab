@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="opening-and-closing-files">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A <strong>file descriptor</strong> is a small integer indexing the calling process’s open-file table. We used descriptor <code>1</code> for standard output. <button class="code-link" data-focus="open">open</button> allocates another slot and connects it to an open file.</p><p><code>O_CREATE</code> creates a missing file, <code>O_RDWR</code> allows reading and writing, and <code>O_TRUNC</code> empties an existing regular file. These constants come from xv6’s <code>fcntl.h</code>.</p><p>The example opens a file, closes that descriptor, then opens the file again. xv6 searches from the lowest free slot, so this run reuses the number. Closing a descriptor releases a handle; it does not remove the file’s name.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="descriptors" aria-labelledby="concept-title-descriptors"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-descriptors">A descriptor is an index, not the file itself</strong></figcaption><p class="concept-summary">An example of a regular-file descriptor: the slot refers to an open object, which refers to an inode.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-descriptors"><li class="concept-node" data-node="slots"><strong>Process descriptor slot</strong><span class="concept-value">ofile[3] holds a reference to an open-file object.</span></li><li class="concept-node" data-node="open"><strong>One struct file</strong><span class="concept-value">Contains access mode, current offset and an inode reference.</span></li><li class="concept-node" data-node="inode"><strong>File’s inode</strong><span class="concept-value">The inode identifies the stored file and its block map.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/proc.h · ofile; kernel/file.h · struct file; kernel/sysfile.c · sys_dup</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: headers and flag bits</summary><div class="c-reminder-content"><p>#include makes declarations and constants available to the compiler. The | operator combines flag bits. It differs from ||, which evaluates a logical condition. xv6 defines the meanings of these particular open flags in its own header.</p><pre translate="no"><code>O_CREATE | O_RDWR | O_TRUNC</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/files-bytes/2" target="_blank" rel="noopener noreferrer">Bitwise operations and masks <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/larger-programs/1" target="_blank" rel="noopener noreferrer">Headers and compilation <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
@@ -104,7 +105,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -244,6 +246,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="writing-bytes">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The previous program used <code>printf</code> to format a message. Here we call <button class="code-link" data-focus="write">write</button> directly. It asks the kernel to copy bytes to an open output.</p><p>In <code>write(1, "hello\n", 6)</code>, <code>1</code> names this process’s standard output, the string supplies the bytes, and <code>6</code> is their count. The newline <code>\n</code> is one byte, so the six bytes are <code>h e l l o</code> and a newline.</p><p>The kernel’s <code>sys_write</code> handler obtains these arguments, then passes them to <code>filewrite</code>. For this run, standard output leads to the xv6 console.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="bytes" aria-labelledby="concept-title-bytes"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-bytes">The count selects bytes, not a whole string</strong></figcaption><p class="concept-summary">The string hello followed by a newline occupies seven bytes including its C terminator.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-bytes"><li class="concept-node" data-node="memory"><strong>Bytes in memory</strong><span class="concept-value">h · e · l · l · o · newline · NUL</span></li><li class="concept-node" data-node="request"><strong>write(1, message, 3)</strong><span class="concept-value">Copy the first three bytes to standard output.</span></li><li class="concept-node" data-node="output"><strong>Console output</strong><span class="concept-value">hel — neither the newline nor the NUL is included.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/sysfile.c · sys_write; kernel/file.c · filewrite</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: strings and byte counts</summary><div class="c-reminder-content"><p>A C string is a character array ending with a zero byte. The newline escape \n is one byte. A byte-counted write uses the count you pass; it does not search for the string terminator.</p><pre translate="no"><code>char text[] = &quot;hello\n&quot;;
 // Six message bytes, followed by one zero terminator.</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/2" target="_blank" rel="noopener noreferrer">Character arrays and zero termination <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

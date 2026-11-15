@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="dup-shares-the-open-file">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p><button class="code-link" data-focus="dup">dup(fd)</button> allocates another descriptor pointing to the <em>same</em> open-file object. Both descriptors therefore share its offset.</p><p>The first descriptor reads <code>a</code>. Reading through its duplicate then produces <code>b</code>, because the first read advanced their shared position. The two descriptor numbers identify separate table slots, but those slots point to one object.</p><p>Opening the pathname again is a different operation: it creates another open-file object with its own offset, even though both objects refer to the same underlying file.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="dup" aria-labelledby="concept-title-dup"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-dup">Dup adds a slot, not another offset</strong></figcaption><p class="concept-summary">Both descriptor slots in this example refer to the same open-file object.</p><ol class="concept-map concept-branch concept-count-3 concept-references" id="concept-map-dup"><li class="concept-parent"><div class="concept-node" data-node="file"><strong>Shared struct file</strong><span class="concept-value">One offset advances when either descriptor reads.</span></div><ol class="concept-branches"><li class="concept-node" data-node="fd3"><span class="concept-edge-label">Original reference</span><strong>Descriptor 3</strong><span class="concept-value">ofile[3] → shared object.</span></li><li class="concept-node" data-node="fd4"><span class="concept-edge-label">Added by dup</span><strong>Descriptor 4</strong><span class="concept-value">ofile[4] → same shared object.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/sysfile.c · sys_dup; kernel/file.c · filedup · fileread</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: passing a variable’s address</summary><div class="c-reminder-content"><p>&amp;ch supplies the address of a char variable so read can fill that byte in the caller. The return value separately reports how many bytes were read. Use a count of one for this single-char destination; a larger count would run past it.</p><pre translate="no"><code>char ch = 0;
 int n = read(fd, &amp;ch, 1);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ int n = read(fd, &amp;ch, 1);</code></pre><p class="c-refresher-links">Refresh i
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 import { lessons as legacyLessons } from "../lessons.js";
-import { lessons, lessonHref } from "./lessons.js?v=chapter15";
+import { lessons, lessonHref } from "./lessons.js?v=concepts1";
 function legacyLink() {
   const id = location.hash.slice(1);
   if (legacyLessons.some((lesson) => lesson.id === id)) {

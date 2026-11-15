@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="elf-headers-identify-an-executable">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>exec does not execute a C source file or arbitrary text. It reads an ELF executable containing a header, a program-header table and bytes to load. The magic identifies this format before the kernel creates a replacement address space.</p><p>The kernel probe opens the actual lab executable, locks its inode and reads its header with readi. Build and observe ELF magic matches=1. Select README to read an ordinary text file and observe 0.</p><p>Magic is only the first check. This pinned loader also checks segment sizes, address overflow and alignment as it loads. It assumes the course’s RV64 executable format; recognizing a magic word alone is not a complete general-purpose ELF validation policy.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="elf" aria-labelledby="concept-title-elf"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-elf">Construct a memory image from ELF segments</strong></figcaption><p class="concept-summary">A loadable segment supplies filesz file bytes and requires memsz bytes of memory.</p><ol class="concept-map concept-stack concept-count-3" id="concept-map-elf"><li class="concept-node" data-node="file"><strong>File-backed prefix</strong><span class="concept-value">Copy filesz bytes from the segment’s file offset.</span></li><li class="concept-node" data-node="tail"><strong>Zero-filled tail</strong><span class="concept-value">The remaining memsz − filesz bytes have no stored file payload.</span></li><li class="concept-node" data-node="stack"><strong>User stack and arguments</strong><span class="concept-value">Allocate a guarded stack area; copy strings and argv pointers.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/exec.c · exec · loadseg; kernel/vm.c · uvmalloc</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

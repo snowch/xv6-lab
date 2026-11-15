@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="checked-copies-translate-user-addresses">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A user pointer names an address in the user page table. The kernel is running under a different page table, so treating that number as an ordinary kernel pointer would not perform the required user-address translation.</p><p>copyin rounds the source down to a page boundary, asks walkaddr for a permitted user translation, then copies through the physical page’s kernel mapping. walkaddr rejects invalid mappings and entries without U. copyout performs the reverse data transfer using the same translation helper.</p><p>The default copy targets the guard page. Build and expect -1 from copyin, with no usertrap report: this is a checked kernel operation returning an error, rather than a user instruction attempting a forbidden load. This pinned walkaddr checks V and U; its source does not add a separate W-bit check for copyout.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="copy" aria-labelledby="concept-title-copy"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-copy">Checked copies cross one page at a time</strong></figcaption><p class="concept-summary">A user buffer may begin in one mapped page and extend into a different mapping.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-copy"><li class="concept-node" data-node="first"><strong>First user page</strong><span class="concept-value">Translate the current address; copy up to the page boundary.</span></li><li class="concept-node" data-node="next"><strong>Next user page</strong><span class="concept-value">Translate again; the next page may have different validity.</span></li><li class="concept-node" data-node="result"><strong>Progress or failure</strong><span class="concept-value">An earlier chunk can already be copied before a later translation fails.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/vm.c · copyin · copyout</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: a destination passed by address</summary><div class="c-reminder-content"><p>&amp;byte supplies the address of the kernel’s local variable, letting copyin write into it. The function’s returned integer is a separate result. Check that result before treating the destination as successfully filled; an initialized local value alone does not prove the copy succeeded.</p><pre translate="no"><code>char byte = 0;
 int result = copyin(table, &amp;byte, source, 1);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ int result = copyin(table, &amp;byte, source, 1);</code></pre><p class="c-refres
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

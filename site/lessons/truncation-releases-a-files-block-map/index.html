@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="truncation-releases-a-files-block-map">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>O_TRUNC keeps a file’s name and inode but discards its data. itrunc frees the direct data blocks, follows and frees every indirect entry, frees the indirect table, clears pointers and records a size of zero.</p><p>The program writes thirteen blocks, closes the file and reopens it with O_TRUNC. Build and observe size 0 with one directory link. Remove O_TRUNC only from the second open to retain all 13312 bytes.</p><p>This differs from unlink, which removes a name and decrements the link count. Unlink may defer reclamation while references remain; truncation deliberately changes the still-named file’s data. Both must coordinate inode locking, bitmap changes and logging.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="indirect" aria-labelledby="concept-title-indirect"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-indirect">Direct pointers and an indirect table</strong></figcaption><p class="concept-summary">Logical indices 0–11 use inode entries directly. Index 12 starts at entry 0 in the indirect table.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-indirect"><li class="concept-parent"><div class="concept-node" data-node="inode"><strong>Inode block map</strong><span class="concept-value">addrs[0..11] name data blocks; addrs[12] names an indirect table.</span></div><ol class="concept-branches"><li class="concept-node" data-node="direct"><span class="concept-edge-label">Direct path</span><strong>Logical block 11</strong><span class="concept-value">addrs[11] → data block.</span></li><li class="concept-node" data-node="indirect"><span class="concept-edge-label">Indirect path</span><strong>Logical block 12</strong><span class="concept-value">addrs[12] → table[0] → data block.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/fs.h · NDIRECT · NINDIRECT; kernel/fs.c · bmap</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: headers and flag bits</summary><div class="c-reminder-content"><p>#include makes declarations and constants available to the compiler. The | operator combines flag bits. It differs from ||, which evaluates a logical condition. xv6 defines the meanings of these particular open flags in its own header.</p><pre translate="no"><code>O_CREATE | O_RDWR | O_TRUNC</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/files-bytes/2" target="_blank" rel="noopener noreferrer">Bitwise operations and masks <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/larger-programs/1" target="_blank" rel="noopener noreferrer">Headers and compilation <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
@@ -106,7 +107,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

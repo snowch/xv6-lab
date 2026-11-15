@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="the-buffer-cache-reuses-block-identity">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>bread returns a locked cache buffer for a device and block number. bget finds an existing identity or recycles an unreferenced buffer; bread reads the device only if that buffer is not valid.</p><p>This controlled probe releases the superblock buffer, then requests the same block again. Build and observe the same cache object. Request block 2 instead to obtain a different identity. Comparing these fixed cache-object addresses does not grant permission to keep using a released buffer.</p><p>brelse drops the reference and moves an unused buffer to the most-recently-used end of the list. bget searches from the opposite end when recycling. A live reference prevents that buffer from being recycled; the next lesson inspects that protection.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="cache" aria-labelledby="concept-title-cache"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-cache">Identity, references and content locking differ</strong></figcaption><p class="concept-summary">A cached block can remain valid after release; recycling requires its reference count to reach zero.</p><ol class="concept-map concept-compare concept-count-3" id="concept-map-cache"><li class="concept-node" data-node="identity"><strong>Buffer identity</strong><span class="concept-value">Device + block number identify one cached block.</span></li><li class="concept-node" data-node="refs"><strong>References and pins</strong><span class="concept-value">Prevent reuse while a caller or journal still needs the buffer.</span></li><li class="concept-node" data-node="lock"><strong>Sleeping lock</strong><span class="concept-value">Protects access to the buffer contents.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/bio.c · bget · brelse · bpin · bunpin</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

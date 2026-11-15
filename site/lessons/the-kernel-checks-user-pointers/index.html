@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="the-kernel-checks-user-pointers">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A system call can receive a pointer without directly trusting it as a kernel address. xv6’s copy helpers translate user addresses through the calling process’s page table and reject an unmapped address.</p><p>The example asks the console to write four bytes from a deliberately unmapped user address. It does not dereference that pointer in user code. The kernel’s copy fails before it obtains a byte.</p><p>For this pinned xv6 console, <code>consolewrite</code> stops at that failed copy and returns the number of bytes sent: <code>0</code>. The caller remains alive. Other operations can report failure differently, so read the actual path rather than assuming a universal return value.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="copy" aria-labelledby="concept-title-copy"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-copy">Checked copies cross one page at a time</strong></figcaption><p class="concept-summary">A user buffer may begin in one mapped page and extend into a different mapping.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-copy"><li class="concept-node" data-node="first"><strong>First user page</strong><span class="concept-value">Translate the current address; copy up to the page boundary.</span></li><li class="concept-node" data-node="next"><strong>Next user page</strong><span class="concept-value">Translate again; the next page may have different validity.</span></li><li class="concept-node" data-node="result"><strong>Progress or failure</strong><span class="concept-value">An earlier chunk can already be copied before a later translation fails.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/vm.c · copyin · copyout</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: a pointer argument versus a dereference</summary><div class="c-reminder-content"><p>Casting an integer to a pointer creates an address value; dereferencing it would request access to memory. Passing that value as an argument lets the called interface inspect it. The syscall’s result is determined by xv6’s checked-copy path, which this lesson explains.</p><pre translate="no"><code>write(1, (char*)0x40000000, 4);
 // This call passes a pointer; it does not load *pointer in user C.</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

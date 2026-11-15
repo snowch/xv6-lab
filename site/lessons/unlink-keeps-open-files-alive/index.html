@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="unlink-keeps-open-files-alive">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A directory entry associates a name with a file’s <strong>inode</strong>, the kernel’s record of that file’s type, size and data blocks. An open descriptor also keeps a reference to the inode through its open-file object.</p><p><button class="code-link" data-focus="unlink">unlink("note")</button> removes the directory name. A later open by that name fails, but the descriptor opened earlier can still read the data.</p><p>xv6 frees the inode’s data only when no directory links remain and its last retained reference is released. That is why unlink and close do different jobs.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="names" aria-labelledby="concept-title-names"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-names">Two names can identify one inode</strong></figcaption><p class="concept-summary">Directory links and open references have different lifetimes.</p><ol class="concept-map concept-branch concept-count-3 concept-references" id="concept-map-names"><li class="concept-parent"><div class="concept-node" data-node="inode"><strong>One inode</strong><span class="concept-value">The inode records nlink; open-file references can outlive a removed name.</span></div><ol class="concept-branches"><li class="concept-node" data-node="first"><span class="concept-edge-label">Name → inode</span><strong>Directory entry: first</strong><span class="concept-value">A name stores the inode number.</span></li><li class="concept-node" data-node="alias"><span class="concept-edge-label">Name → same inode</span><strong>Directory entry: alias</strong><span class="concept-value">Another name stores the same inode number.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/fs.c · dirlink · iput; kernel/sysfile.c · sys_link · sys_unlink</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: buffers and string terminators</summary><div class="c-reminder-content"><p>The array has six char elements, initially all zero. Reading at most five bytes leaves the final element zero, so the displayed text remains terminated. read reports bytes obtained; it does not append a C string terminator for you.</p><pre translate="no"><code>char buf[6] = {0};
 int n = read(fd, buf, 5);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/1" target="_blank" rel="noopener noreferrer">Array bounds <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/2" target="_blank" rel="noopener noreferrer">Character arrays and zero termination <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ int n = read(fd, buf, 5);</code></pre><p class="c-refresher-links">Refresh in C 
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

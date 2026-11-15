@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="changing-the-answer">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The handler currently returns the value stored in <code>myproc()->pid</code>. A <button class="code-link" data-focus="return">return</button> expression computes an answer for the caller. It does not automatically assign that answer back into the process record.</p><p>Change it to <code>return myproc()->pid + 1000;</code>. When compiled, this kernel will read the PID, add 1000, and return the sum. The user program prints that sum. The evidence panel independently reads the process record at system-call entry and at process exit.</p><p>The dispatcher puts the handler’s returned value in the saved user <code>a0</code> register, as shown below. The kernel keeps the user registers in a saved record called a trapframe while it handles the call. Setting its <code>a0</code> field delivers the answer as the calling C function’s result.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="changedanswer" aria-labelledby="concept-title-changedanswer"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-changedanswer">Computing an answer does not assign to the record</strong></figcaption><p class="concept-summary">For return p-&gt;pid + 1000, let the stored PID be n. These are two different destinations.</p><ol class="concept-map concept-compare concept-count-2" id="concept-map-changedanswer"><li class="concept-node" data-node="stored"><strong>Kernel process record</strong><span class="concept-value">p-&gt;pid stays n; the expression never assigns to this field.</span></li><li class="concept-node" data-node="returned"><strong>Caller’s return value</strong><span class="concept-value">Saved a0 receives n + 1000; the user program can print that sum.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/sysproc.c · sys_getpid; kernel/syscall.c · syscall</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

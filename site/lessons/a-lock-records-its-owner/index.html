@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="a-lock-records-its-owner">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -58,6 +58,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The lock word answers whether a lock is held. xv6 also records the owning CPU in lk-&gt;cpu. holding checks both fields; release rejects a caller that does not own the lock.</p><p>The probe acquires a real local spinlock, samples ownership, releases it and samples again. holding requires interrupts off so the CPU lookup stays stable, which is why the second sample has an explicit push_off/pop_off pair. The first sample already has interrupts disabled by acquire.</p><p>Build and expect 0 from the after sample. Select before to observe 1. This is CPU ownership for a spinlock, not the process PID ownership used by a sleeping lock.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="locks" aria-labelledby="concept-title-locks"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-locks">The lock guards a protocol, not just a word</strong></figcaption><p class="concept-summary">Acquisition and release combine ownership, interrupt nesting and memory ordering.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-locks"><li class="concept-node" data-node="enter"><strong>Enter</strong><span class="concept-value">push_off; atomically claim the word; order later accesses.</span></li><li class="concept-node" data-node="critical"><strong>Critical section</strong><span class="concept-value">This CPU owns the lock while using protected state.</span></li><li class="concept-node" data-node="leave"><strong>Leave</strong><span class="concept-value">Order prior accesses; clear ownership; unlock; pop_off.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/spinlock.c · acquire · release</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -106,7 +107,8 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

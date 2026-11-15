@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="reading-page-permissions">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>V says a PTE is valid. U permits user-mode access; W permits writes; X permits instruction fetch. These are separate questions. A valid supervisor mapping can exist in a process’s page table without granting that process user-mode access to it.</p><p>The default query examines address 0 in the current user page table. This pinned xv6 allocates ordinary user pages with R, W, X and U set. Build and observe user=1, writable=1 and executable=1. Those are this implementation’s actual permissions.</p><p>The kernel’s own text mapping instead allows reads and instruction fetch, while excluding writes and user access. Change the table and address together to inspect that mapping. The experiment reads permission bits; the guard-page lesson later tests a denied access with actual user execution.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="permissions" aria-labelledby="concept-title-permissions"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-permissions">Read permissions before using an address</strong></figcaption><p class="concept-summary">These flags describe a PTE, not the size or ownership of a C object.</p><ol class="concept-map concept-compare concept-count-3" id="concept-map-permissions"><li class="concept-node" data-node="valid"><strong>V · valid</strong><span class="concept-value">Is this PTE present?</span></li><li class="concept-node" data-node="user"><strong>U · user</strong><span class="concept-value">May user mode access this page?</span></li><li class="concept-node" data-node="access"><strong>R / W / X</strong><span class="concept-value">Which hardware access types are permitted?</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/riscv.h · PTE flags; kernel/vm.c · walkaddr</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: bit masks and short-circuit checks</summary><div class="c-reminder-content"><p>The bitwise &amp; operator selects flag bits. A selected flag can have a value such as 16, so compare with zero when you want a printed 0 or 1. Logical &amp;&amp; evaluates its right side only if the left side is true; entry &amp;&amp; (*entry &amp; PTE_V) therefore avoids dereferencing a null pointer.</p><pre translate="no"><code>int user = (flags &amp; PTE_U) != 0;
 int valid = entry &amp;&amp; (*entry &amp; PTE_V);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/files-bytes/2" target="_blank" rel="noopener noreferrer">Bitwise operations and masks <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/3" target="_blank" rel="noopener noreferrer">Expressions and operators <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ int valid = entry &amp;&amp; (*entry &amp; PTE_V);</code></pre><p class="c-refre
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="references-keep-cache-buffers-resident">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A valid cached block can still be recycled once nobody references it. A pin adds a reference that survives an ordinary brelse. The journal uses this to retain modified buffers until commit has copied their final bytes.</p><p>The probe holds a real buffer, adds one pin, reads the change in refcnt, then balances the pin and its original bread reference. Build and observe 1. Change PINS to 2 to observe two real additional references.</p><p>A pin does not itself grant the content lock, write the disk or make an inode persist. These are separate protocols. Leaving a pin unbalanced can exhaust the fixed cache by making buffers permanently ineligible for recycling.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="cache" aria-labelledby="concept-title-cache"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-cache">Identity, references and content locking differ</strong></figcaption><p class="concept-summary">A cached block can remain valid after release; recycling requires its reference count to reach zero.</p><ol class="concept-map concept-compare concept-count-3" id="concept-map-cache"><li class="concept-node" data-node="identity"><strong>Buffer identity</strong><span class="concept-value">Device + block number identify one cached block.</span></li><li class="concept-node" data-node="refs"><strong>References and pins</strong><span class="concept-value">Prevent reuse while a caller or journal still needs the buffer.</span></li><li class="concept-node" data-node="lock"><strong>Sleeping lock</strong><span class="concept-value">Protects access to the buffer contents.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/bio.c · bget · brelse · bpin · bunpin</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: loops and bounds</summary><div class="c-reminder-content"><p>The initialiser runs once, the condition is checked before each iteration, and i++ advances the index afterwards. With i &lt; count, the visited indices are 0 through count - 1. The array must have enough elements for those accesses.</p><pre translate="no"><code>for (int i = 0; i &lt; count; i++) {
   /* use element i */
 }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">Loops and repetition <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/1" target="_blank" rel="noopener noreferrer">Array indexing and bounds <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -108,7 +109,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -248,6 +250,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

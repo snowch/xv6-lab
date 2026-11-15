@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="splitting-a-virtual-address">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A virtual address is not a physical RAM address. Under Sv39, its low 12 bits select a byte within a 4096-byte page. Three fields of nine bits select entries in three levels of page tables. Nine bits select one of 512 entries.</p><p>The <code>PX(level, va)</code> macro extracts an index by shifting and masking. The chosen address is a number for this calculation; this first experiment does <em>not</em> claim that it is mapped. Build and find indices 0, 145 and 325, with byte offset 1656.</p><p>xv6 uses the lower positive half of the Sv39 address range, below MAXVA, to avoid sign-extension complications. We follow its ordinary 4 KiB mappings here. In these lessons, the edited getpid handler is a temporary inspection hook: the supplied user program calls it, the handler prints its observations, then returns the real PID unless the lesson explicitly changes that result.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="address" aria-labelledby="concept-title-address"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-address">Split an Sv39 virtual address</strong></figcaption><p class="concept-summary">For xv6’s low user addresses, three 9-bit indices choose page-table entries; the 12-bit offset is unchanged.</p><ol class="concept-map concept-compare concept-count-4" id="concept-map-address"><li class="concept-node" data-node="l2"><strong>VPN[2] · bits 38–30</strong><span class="concept-value">Select an entry in the root page table.</span></li><li class="concept-node" data-node="l1"><strong>VPN[1] · bits 29–21</strong><span class="concept-value">Select an entry in the next table.</span></li><li class="concept-node" data-node="l0"><strong>VPN[0] · bits 20–12</strong><span class="concept-value">Select the final entry.</span></li><li class="concept-node" data-node="offset"><strong>Offset · bits 11–0</strong><span class="concept-value">Select a byte in a 4096-byte page.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/riscv.h · PX · PXSHIFT · PGSIZE</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: extracting fields with shifts and masks</summary><div class="c-reminder-content"><p>Right shift discards low bits, and bitwise &amp; keeps the bits selected by a mask. 0x1ff has nine low bits set; 4095 has twelve. A cast to int makes these small extracted values suitable for printf’s %d argument.</p><pre translate="no"><code>int index = (int)((va &gt;&gt; 12) &amp; 0x1ff);
 int offset = (int)(va &amp; 4095);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/files-bytes/2" target="_blank" rel="noopener noreferrer">Bitwise operations and masks <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/4" target="_blank" rel="noopener noreferrer">Conversions and casts <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ int offset = (int)(va &amp; 4095);</code></pre><p class="c-refresher-links">Refr
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

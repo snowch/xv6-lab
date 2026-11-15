@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="the-shell-composes-kernel-interfaces">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The shell is a user program that combines kernel interfaces. It does not need a special “run this command with redirection” syscall. A child closes descriptor 1, opens the output file into the lowest free slot, and execs the requested program.</p><p>The open descriptor survives exec. echo writes to its ordinary stdout, which now names the file. The parent retains its own console descriptors and waits for the child before opening the completed output.</p><p>This program builds that composition directly, without a parser. Build to read kernel from the actual redirected file, then change the echo argument to source. The matching runcmd code shows the same descriptor manipulation in xv6’s real shell. Earlier pipe lessons supply the parallel composition used by its PIPE case.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="redirect" aria-labelledby="concept-title-redirect"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-redirect">The child changes where stdout leads</strong></figcaption><p class="concept-summary">Descriptor tables belong to processes. The child arranges its descriptor 1 before exec.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-redirect"><li class="concept-parent"><div class="concept-node" data-node="fork"><strong>After fork</strong><span class="concept-value">Parent and child have separate descriptor tables.</span></div><ol class="concept-branches"><li class="concept-node" data-node="parent"><span class="concept-edge-label">Parent continues</span><strong>Parent stdout</strong><span class="concept-value">Descriptor 1 still leads to the console.</span></li><li class="concept-node" data-node="child"><span class="concept-edge-label">Child redirects</span><strong>Child stdout</strong><span class="concept-value">close(1); open the file into slot 1; exec echo keeps that reference.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> user/sh.c · runcmd; kernel/sysfile.c · sys_open; kernel/exec.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arrays used as output arguments</summary><div class="c-reminder-content"><p>int p[2] reserves two integer elements. Passing p to pipe supplies the array’s starting address, so the function can fill p[0] and p[1]. They are integer handles, not pointers to the pipe’s bytes.</p><pre translate="no"><code>int p[2];
 if (pipe(p) == 0) { /* use p[0] and p[1] */ }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays and pointers <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ if (pipe(p) == 0) { /* use p[0] and p[1] */ }</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

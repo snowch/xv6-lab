@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="kernel-contexts-save-a-call-boundary">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>Each process can be suspended while running kernel C code. Its <strong>kernel context</strong> records enough state to resume the call to swtch: the return address, stack pointer and twelve callee-saved registers. These are the registers an ordinary RISC-V function must preserve for its caller.</p><p>Caller-saved registers need no separate entries here. The compiler already saves any live caller-saved values around a function call, often on the kernel stack. swtch returns through that ordinary call boundary. The saved ra supplies the continuation; there is no separate pc field.</p><p>A user trap has no such C calling convention boundary. The trampoline therefore saves a much larger trapframe, including user argument and temporary registers. Build this actual kernel probe to count the context layout: 14 words. Then compare the trapframe’s 36 words, which also include five kernel transition fields.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="contexts" aria-labelledby="concept-title-contexts"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-contexts">Two saved contexts serve different boundaries</strong></figcaption><p class="concept-summary">struct proc points to a saved user trapframe and contains a separate saved kernel context.</p><ol class="concept-map concept-compare concept-count-2" id="concept-map-contexts"><li class="concept-node" data-node="trapframe"><span class="concept-zone">trapframe</span><strong>Saved user state</strong><span class="concept-value">User registers, epc and kernel transition fields. Used for trap entry and return.</span></li><li class="concept-node" data-node="context"><span class="concept-zone">context</span><strong>Saved kernel call</strong><span class="concept-value">ra, sp and s0–s11. Used to resume a suspended kernel call.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/proc.h · struct trapframe · struct context; kernel/swtch.S</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: struct members and output arguments</summary><div class="c-reminder-content"><p>The dot operator reads a member of a struct value. &amp;st passes its address so fstat can fill it. Check that the call succeeded before reading those fields; declaring a local struct alone does not initialise its contents.</p><pre translate="no"><code>struct stat st;
 if (fstat(fd, &amp;st) == 0)
   printf(&quot;links=%d\n&quot;, st.nlink);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/1" target="_blank" rel="noopener noreferrer">Structs and member access <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -106,7 +107,8 @@ if (fstat(fd, &amp;st) == 0)
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="capstone-follow-a-byte-from-process-to-disk">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The child sends bytes through a pipe. The parent reads the stream until EOF, writes those bytes to a real file, collects the child and replaces itself with native cat to read the file back. Build and follow the output through the complete system.</p><p>Trace one write through the source picker: syscall checks and dispatch lead to filewrite; a pipe uses pipewrite, while a regular file reaches writei, bmap, buffer-cache updates and the journal. Commit submits actual VirtIO requests, whose interrupts wake blocked work. Checked copies connect the user buffers to those kernel paths.</p><p>Then trace the final exec: a new page table, ELF segments, zero-filled memory, arguments and entry state replace the parent’s image. Change the child’s message and find that exact text printed by cat after file readback. Use one source path at a time; the purpose is to connect mechanisms you have already changed, rather than memorize the whole kernel.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="integration" aria-labelledby="concept-title-integration"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-integration">Follow the capstone’s bytes</strong></figcaption><p class="concept-summary">The parent writes bytes received through a pipe, then execs cat to read the stored file.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-integration"><li class="concept-node" data-node="child"><strong>Child producer</strong><span class="concept-value">write to the pipe’s write end.</span></li><li class="concept-node" data-node="parent"><strong>Parent collector</strong><span class="concept-value">read the pipe; write the bytes to a file.</span></li><li class="concept-node" data-node="storage"><strong>Filesystem + journal + device</strong><span class="concept-value">Map blocks, commit the update and complete disk requests.</span></li><li class="concept-node" data-node="cat"><strong>Replacement program: cat</strong><span class="concept-value">exec loads cat; read copies file bytes back to user space.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/pipe.c · file.c · fs.c · log.c · virtio_disk.c · exec.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: assignment inside a loop condition</summary><div class="c-reminder-content"><p>The parenthesised assignment first stores the read result in n. The &gt; 0 comparison then decides whether to enter the loop. Use only the n bytes actually returned; a request for a larger count does not promise that many bytes arrived.</p><pre translate="no"><code>while ((n = read(fd, buf, sizeof(buf))) &gt; 0) {
   /* consume buf[0] through buf[n - 1] */
 }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">while and for loops <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/3" target="_blank" rel="noopener noreferrer">Expressions and precedence <span class="new-tab-label">(new tab)</span></a></p></div></details>
@@ -108,7 +109,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -248,6 +250,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

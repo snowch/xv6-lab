@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="a-system-call-result">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A process sometimes needs information held by the kernel. A <strong>system call</strong> is a request from a user program to the kernel. <button class="code-link" data-focus="getpid">getpid()</button> is a small example: it returns the identifier of the process making the call.</p><p>The program passes that returned integer to <code>printf</code>. The <code>%d</code> placeholder prints it as a decimal number. The kernel’s process record also stores a PID; the evidence beside the console reads that real record during this run.</p><p>Build the unchanged program. Compare its <code>reported pid</code> with the observed kernel PID. They should agree. You need not know the number in advance.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="result" aria-labelledby="concept-title-result"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-result">A request delivers a C return value</strong></figcaption><p class="concept-summary">getpid lets the caller read its identifier from the kernel.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-result"><li class="concept-node" data-node="caller"><strong>User program</strong><span class="concept-value">Call getpid().</span></li><li class="concept-node" data-node="handler"><strong>Kernel handler</strong><span class="concept-value">Read the calling process’s PID.</span></li><li class="concept-node" data-node="answer"><strong>User program continues</strong><span class="concept-value">Receive that integer; printf can display it.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> user/user.h · getpid; kernel/sysproc.c · sys_getpid</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arguments and return values</summary><div class="c-reminder-content"><p>A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.</p><pre translate="no"><code>int pid = getpid();
 printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters and return values <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-li
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

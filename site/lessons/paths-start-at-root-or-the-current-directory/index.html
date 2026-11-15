@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="paths-start-at-root-or-the-current-directory">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A directory is a file containing name-to-inode-number entries. Path traversal resolves one component at a time, locking each directory while checking its type and looking up the next entry.</p><p>namex starts at the root inode when a path begins with /. Otherwise it takes a reference to the process’s current directory. chdir changes that process reference; it does not move files or rewrite their names.</p><p>The program creates item at root containing R and notes/item containing S, then enters notes. Build to read the relative item and get S. Select /item to start at root and get R. Both final components have the same name, but traversal reaches different inodes.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="paths" aria-labelledby="concept-title-paths"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-paths">The starting inode changes path resolution</strong></figcaption><p class="concept-summary">The same final component can identify different files from different starting directories.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-paths"><li class="concept-parent"><div class="concept-node" data-node="lookup"><strong>Resolve item</strong><span class="concept-value">namex chooses a starting inode, then walks directory entries.</span></div><ol class="concept-branches"><li class="concept-node" data-node="root"><span class="concept-edge-label">Leading /</span><strong>Absolute: /item</strong><span class="concept-value">Start at the root inode; look up item there.</span></li><li class="concept-node" data-node="cwd"><span class="concept-edge-label">No leading /</span><strong>Relative: item</strong><span class="concept-value">Start at the current directory; look up item there.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/fs.c · namex · dirlookup; kernel/sysfile.c · sys_chdir</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: strings and byte counts</summary><div class="c-reminder-content"><p>A C string is a character array ending with a zero byte. The newline escape \n is one byte. A byte-counted write uses the count you pass; it does not search for the string terminator.</p><pre translate="no"><code>char text[] = &quot;hello\n&quot;;
 // Six message bytes, followed by one zero terminator.</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/2" target="_blank" rel="noopener noreferrer">Character arrays and zero termination <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="fork-inherits-pipe-ends">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A pipe created before fork is accessible to both processes. Fork copies descriptor references, so their descriptors connect to the same kernel pipe rather than independent byte buffers.</p><p>The child reads and closes its unused write end. The parent writes and closes its unused read end. After writing, the parent closes its writer and waits for the child.</p><p>The child reads the data and then checks EOF. Its own unused writer must be closed too: retaining any writer reference would keep that second read waiting. Every process must close the ends it does not need.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="pipe" aria-labelledby="concept-title-pipe"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-pipe">A pipe connects writers to readers</strong></figcaption><p class="concept-summary">A pipe carries bytes through a kernel buffer; write boundaries are not message boundaries.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-pipe"><li class="concept-node" data-node="writer"><strong>Write end</strong><span class="concept-value">write copies bytes into the shared pipe buffer.</span></li><li class="concept-node" data-node="buffer"><strong>Kernel pipe</strong><span class="concept-value">nwrite and nread track progress; a lock protects the buffer.</span></li><li class="concept-node" data-node="reader"><strong>Read end</strong><span class="concept-value">read copies available bytes into the reader’s user buffer.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/pipe.c · pipewrite · piperead</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arrays used as output arguments</summary><div class="c-reminder-content"><p>int p[2] reserves two integer elements. Passing p to pipe supplies the array’s starting address, so the function can fill p[0] and p[1]. They are integer handles, not pointers to the pipe’s bytes.</p><pre translate="no"><code>int p[2];
 if (pipe(p) == 0) { /* use p[0] and p[1] */ }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays and pointers <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ if (pipe(p) == 0) { /* use p[0] and p[1] */ }</code></pre><p class="c-refresher-
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

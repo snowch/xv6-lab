@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="a-wakeup-needs-the-right-condition-and-channel">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -58,6 +58,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A sleep channel is an identity, commonly an address. wakeup marks processes sleeping on exactly that channel RUNNABLE; it is not a stored token. The shared condition records whether work may proceed, and a loop rechecks it under the condition lock.</p><p>The supplied child calls the edited getpid hook first and waits for ready. Its parent sleeps briefly, calls the hook to set ready under the same lock, and wakes the matching channel. Build and expect waiter status=0. sleep’s acquire-before-release handoff prevents a notification from falling between the condition check and publication of the sleeping state.</p><p>Set MATCH to 0. The condition becomes true but the notification targets another address, so the child remains sleeping. The parent’s bounded cleanup kills it after two further ticks; the real exit status becomes -1. A notification and a condition are separate parts of one protocol.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="handoff" aria-labelledby="concept-title-handoff"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-handoff">Sleep closes the gap with overlapping protection</strong></figcaption><p class="concept-summary">For a condition lock different from p-&gt;lock, sleep acquires the process lock before releasing the condition lock.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-handoff"><li class="concept-node" data-node="condition" data-active="true"><strong>Check the condition</strong><span class="concept-value">Caller holds its condition lock.</span></li><li class="concept-node" data-node="overlap"><strong>Acquire p-&gt;lock</strong><span class="concept-value">Both locks are held briefly.</span></li><li class="concept-node" data-node="sleep"><strong>Publish sleep; switch</strong><span class="concept-value">Release the condition lock; set chan and SLEEPING; call sched.</span></li></ol><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-handoff" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-handoff">Next step →</button></div><div class="concept-frame" id="concept-frame-handoff" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Check under the condition lock</strong><p class="concept-frame-text">The protected condition is still false, so the caller prepares to sleep.</p></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Check under the condition lock.</strong> The protected condition is still false, so the caller prepares to sleep.</li><li><strong>Overlap the locks.</strong> sleep acquires p-&gt;lock while the caller’s condition lock is still held. wakeup must also acquire p-&gt;lock.</li><li><strong>Publish before wakeup can inspect.</strong> sleep releases the condition lock and publishes chan/state while still holding p-&gt;lock. The scheduler completes the handoff.</li><li><strong>Return with the original protection.</strong> After rescheduling, sleep clears chan and reacquires the original condition lock; the caller rechecks its condition.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · sleep · wakeup</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: static state shared by callbacks</summary><div class="c-reminder-content"><p>A file-scope static variable has one storage location for this compiled kernel unit and starts at zero. Its value persists between function calls in this VM, so a probe can arm an interrupt observer and later disarm it. An ordinary local variable is separate for each call. A fresh VM resets this state independently of the source draft saved in your browser.</p><pre translate="no"><code>static int watching;
 watching = !watching;  // toggle between 0 and 1</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/3" target="_blank" rel="noopener noreferrer">Scope and storage duration <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/2" target="_blank" rel="noopener noreferrer">Variables and initialisation <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -106,7 +107,8 @@ watching = !watching;  // toggle between 0 and 1</code></pre><p class="c-refresh
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

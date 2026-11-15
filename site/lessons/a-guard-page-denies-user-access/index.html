@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="a-guard-page-denies-user-access">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>exec allocates two pages for the initial stack region and clears U on the lower page. That page remains backed by physical memory, but user-mode access is denied. It is a <strong>guard page</strong>, intended to catch a stack that grows beyond its allowed page.</p><p>This lesson deliberately changes getpid’s result into a lab address. The handler locates the guard page below the saved user stack pointer and reports its real V and U bits. The supplied test program forks a child, has it load a byte from the returned address, and lets the parent collect its status. The handler’s return value is no longer a PID in this experiment.</p><p>Build and find guard valid=1 user=0, a user page-fault report and child status -1. The parent and shell continue. Changing the returned address to the adjacent usable stack page lets the child complete. volatile ensures the test actually attempts its load; it does not make a protected address valid.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="guard" aria-labelledby="concept-title-guard"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-guard">A mapped page can still deny user access</strong></figcaption><p class="concept-summary">The guard page has a mapping, but its user-access bit is cleared.</p><ol class="concept-map concept-stack concept-count-3" id="concept-map-guard"><li class="concept-node" data-node="stack"><span class="concept-zone">User accessible</span><strong>Usable stack page</strong><span class="concept-value">PTE_V = 1; PTE_U = 1</span></li><li class="concept-node" data-node="guard"><span class="concept-zone">User access denied</span><strong>Guard page below it</strong><span class="concept-value">PTE_V = 1; PTE_U = 0</span></li><li class="concept-node" data-node="fault"><strong>Crossing into the guard</strong><span class="concept-value">A user load or store faults; mapping existence is insufficient.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/exec.c · uvmclear; kernel/vm.c · uvmclear</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: casts, dereferences and volatile</summary><div class="c-reminder-content"><p>The cast converts an address value to a pointer type. The leading * then performs the memory access. volatile requires this read to occur, but it does not grant permission to the address or make an invalid access valid. The experiment confines that deliberate access to a child process.</p><pre translate="no"><code>volatile char value = *(volatile char*)address;</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/4" target="_blank" rel="noopener noreferrer">Conversions and casts <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
           <figcaption id="source-location">Matching xv6 source</figcaption>
@@ -106,7 +107,8 @@
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -246,6 +248,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

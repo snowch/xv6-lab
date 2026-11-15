@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="writes-pass-through-the-log">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -57,6 +57,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A regular-file write passes from the descriptor’s open-file object to the inode and block layer. xv6 records changed disk blocks in a <strong>log</strong>, or journal, so updates can be committed in an ordered way.</p><p>In the excerpt, <code>begin_op</code> reserves room for a filesystem operation. <code>writei</code> changes inode data, and <code>end_op</code> participates in committing the logged changes. A large write is split into bounded chunks, so one write syscall can involve several transactions.</p><p>The program writes a known byte pattern, closes the file, clears its C buffer, and reads the file back. The static buffer is stored in the program’s data area rather than its small user stack. This experiment verifies the running write/read path; each new run starts with a fresh guest filesystem.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="commit" aria-labelledby="concept-title-commit"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-commit">Publish the commit record between data and installation</strong></figcaption><p class="concept-summary">A nonzero journal header tells recovery that the logged images are committed.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-commit"><li class="concept-node" data-node="data" data-active="true"><strong>1 · Write log data</strong><span class="concept-value">Copy final cached block images into the log.</span></li><li class="concept-node" data-node="header"><strong>2 · Write header</strong><span class="concept-value">Publish n and home-block numbers: the commit point.</span></li><li class="concept-node" data-node="home"><strong>3 · Install home blocks</strong><span class="concept-value">Copy committed images to their normal locations.</span></li><li class="concept-node" data-node="clear"><strong>4 · Clear header</strong><span class="concept-value">Mark the completed transaction empty.</span></li></ol><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-commit" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-commit">Next step →</button></div><div class="concept-frame" id="concept-frame-commit" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Write ahead</strong><p class="concept-frame-text">The header has not yet announced this transaction. Log-data bytes alone do not make it committed.</p></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Write ahead.</strong> The header has not yet announced this transaction. Log-data bytes alone do not make it committed.</li><li><strong>Commit.</strong> After log data is written, write_head publishes a nonzero count. Recovery can now identify the committed images.</li><li><strong>Install.</strong> Committed images reach their home blocks. If interrupted here, replay can repeat these copies.</li><li><strong>Finish.</strong> Clear the header only after installation, so the next boot sees no transaction to replay.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/log.c · commit · write_log · write_head · install_trans</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: array storage and compile-time sizes</summary><div class="c-reminder-content"><p>enum supplies an integer constant usable as an array size. A static local array has storage lasting for the process, rather than living in this function’s call stack. static does not make user memory shared between separate processes or preserve it across a fresh run.</p><pre translate="no"><code>enum { N = 6000 };
 static char data[N];</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/3" target="_blank" rel="noopener noreferrer">Scope and storage duration <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/allocation/1" target="_blank" rel="noopener noreferrer">Stack and heap storage <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -105,7 +106,8 @@ static char data[N];</code></pre><p class="c-refresher-links">Refresh in C Found
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -245,6 +247,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>

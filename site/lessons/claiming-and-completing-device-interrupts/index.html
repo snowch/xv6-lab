@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=chapter15" />
+    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
   </head>
   <body class="lesson-page" data-lesson="claiming-and-completing-device-interrupts">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -59,6 +59,7 @@
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A supervisor external interrupt says that some external source needs attention. The PLIC supplies the device ID through a <strong>claim</strong>. xv6 routes UART ID 10 to uartintr and VirtIO ID 1 to virtio_disk_intr. After servicing a nonzero claim, it writes a completion so that source can interrupt again.</p><p>This edited unit contains the real devintr and a small lab hook. The supplied program calls getpid to arm tracing, performs disk and console I/O, then calls it again to disarm before the shell prompt. Tracing is capped at two matched events, so observing UART interrupts cannot create an endless trace of its own output.</p><p>Build and find claimed irq=1 followed by completed irq=1. The values come from the actual controller claim, not a requested file’s descriptor number. Changing the filter selects UART events while the same claim/service/complete protocol runs.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="interrupt" aria-labelledby="concept-title-interrupt"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-interrupt">Service the device and complete the claim</strong></figcaption><p class="concept-summary">Device acknowledgement and interrupt-controller completion are separate parts of handling an IRQ.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-interrupt"><li class="concept-node" data-node="device"><strong>Device requests attention</strong><span class="concept-value">UART or VirtIO raises an interrupt.</span></li><li class="concept-node" data-node="claim"><strong>PLIC claim</strong><span class="concept-value">Read the source ID; devintr selects its handler.</span></li><li class="concept-node" data-node="service"><strong>Device handler</strong><span class="concept-value">Read input or consume completed requests; acknowledge device state.</span></li><li class="concept-node" data-node="complete"><strong>PLIC completion</strong><span class="concept-value">Return the claimed source ID to the controller.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/trap.c · devintr; kernel/plic.c · plic_claim · plic_complete</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: static state shared by callbacks</summary><div class="c-reminder-content"><p>A file-scope static variable has one storage location for this compiled kernel unit and starts at zero. Its value persists between function calls in this VM, so a probe can arm an interrupt observer and later disarm it. An ordinary local variable is separate for each call. A fresh VM resets this state independently of the source draft saved in your browser.</p><pre translate="no"><code>static int watching;
 watching = !watching;  // toggle between 0 and 1</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/3" target="_blank" rel="noopener noreferrer">Scope and storage duration <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/2" target="_blank" rel="noopener noreferrer">Variables and initialisation <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
@@ -107,7 +108,8 @@ watching = !watching;  // toggle between 0 and 1</code></pre><p class="c-refresh
           <div class="diagnostics">
             <h3>Build messages</h3>
             <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre>
+Loading the matching xv6 sources…</pre
+            >
           </div>
           <details class="build-details">
             <summary>About this build</summary>
@@ -247,6 +249,6 @@ Loading the matching xv6 sources…</pre>
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=chapter15"></script>
+    <script type="module" src="workbench/app.js?v=concepts1"></script>
   </body>
 </html>
