@@ -4,11 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:editor": "node tools/build-workbench-editor.mjs",
     "test": "node --test tests/*.test.js",
     "serve": "python3 -m http.server 8000 --directory site",
     "test:browser": "node tests/browser.cjs"
   },
   "devDependencies": {
+    "@codemirror/lang-cpp": "^6.0.3",
+    "@codemirror/lint": "^6.8.5",
+    "codemirror": "^6.0.2",
+    "esbuild": "^0.25.12",
     "jsdom": "^27.4.0",
     "playwright": "^1.56.1"
   }

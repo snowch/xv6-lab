@@ -11,6 +11,10 @@ SECTIONS
 
   .text : {
     *(.text .text.*)
+    . = ALIGN(16);
+    workbench_patch_start = .;
+    . += 65536;
+    workbench_patch_end = .;
     . = ALIGN(0x1000);
     _trampoline = .;
     *(trampsec)
@@ -31,6 +35,11 @@ SECTIONS
     *(.sdata .sdata.*) /* do not need to distinguish this from .data */
     . = ALIGN(16);
     *(.data .data.*)
+    . = ALIGN(16);
+    workbench_data_start = .;
+    BYTE(0);
+    . = workbench_data_start + 16384;
+    workbench_data_end = .;
   }
 
   .bss : {

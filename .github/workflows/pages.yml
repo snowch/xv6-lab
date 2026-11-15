@@ -23,6 +23,8 @@ jobs:
       - name: Build xv6 from pinned sources
         run: tools/build-guest.sh
       - run: npm ci
+      - name: Check committed editor bundle
+        run: npm run build:editor && git diff --exit-code -- site/workbench/editor.js site/workbench/EDITOR-LICENSES.txt
       - run: npm test
       - name: Check desktop, tablet and phone UX in Chromium
         run: npm run test:browser
