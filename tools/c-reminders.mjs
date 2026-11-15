@@ -319,7 +319,7 @@ const topics = {
   },
 };
 const map = {
-  "an-atomic-swap-returns-the-old-value": "structValue",
+  "an-atomic-swap-returns-the-old-value": "calls",
   "a-lock-records-its-owner": "structPointer",
   "nested-critical-sections-restore-interrupts": "calls",
   "locks-order-protected-publication": "kernelStatic",
