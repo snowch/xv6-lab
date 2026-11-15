@@ -155,11 +155,22 @@ const server = http.createServer((req, res) => {
           if (concept.steps) {
             const before = await page.locator(".cm-content").textContent();
             const next = figure.locator("[data-concept-next]");
+            const controlTop = await next.evaluate(
+              (el) => el.getBoundingClientRect().top + scrollY,
+            );
             await next.focus();
             await page.keyboard.press("Enter");
             assert.equal(
               await figure.locator(".concept-position").textContent(),
               "Step 2 of " + concept.steps.length,
+            );
+            assert.ok(
+              Math.abs(
+                (await next.evaluate(
+                  (el) => el.getBoundingClientRect().top + scrollY,
+                )) - controlTop,
+              ) < 2,
+              id + ": changing step text keeps controls in place",
             );
             await figure.locator("[data-concept-prev]").focus();
             await page.keyboard.press("Enter");

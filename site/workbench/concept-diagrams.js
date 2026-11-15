@@ -1379,20 +1379,25 @@ export function renderConcept(id) {
           .join("") +
         "</ol></li>"
       : spec.nodes.map((n, i) => card(n, i)).join("");
-  const controls = first
+  const stepExplanation = first
     ? '<div class="concept-frame" id="concept-frame-' +
       key +
       '" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">' +
       escape(first.title) +
       '</strong><p class="concept-frame-text">' +
       escape(first.text) +
-      '</p></div><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-' +
+      "</p></div>"
+    : "";
+  const controls = first
+    ? '<div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-' +
       key +
       '" disabled>← Previous step</button><span class="concept-position">Step 1 of ' +
       spec.steps.length +
       '</span><button type="button" data-concept-next aria-controls="concept-map-' +
       key +
-      '">Next step →</button></div><details class="concept-transcript"><summary>Read all ' +
+      '">Next step →</button></div>' +
+      stepExplanation +
+      '<details class="concept-transcript"><summary>Read all ' +
       spec.steps.length +
       " steps</summary><ol>" +
       spec.steps
