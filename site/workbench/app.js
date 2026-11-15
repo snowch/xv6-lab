@@ -1,5 +1,5 @@
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=chapter2";
+import { lessons, sourceExcerpt } from "./lessons.js?v=chapter3";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -359,7 +359,9 @@ function runBuild(record) {
           say(
             "run-message",
             problem
-              ? "The guest reported a fault. Read the console, then inspect your edit."
+              ? lessons[run.exercise].expectedFault
+                ? "The guest reported a fault, as this lesson explores. Check which process continued in the console."
+                : "The guest reported a fault. Read the console, then inspect your edit."
               : "The program returned to the shell. Compare the output and kernel evidence with your source.",
           );
           activity(

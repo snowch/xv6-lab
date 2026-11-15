@@ -53,6 +53,8 @@ const server = http.createServer((req, res) => {
       lessonIds,
       chapters,
     } = await import("../site/workbench/lessons.js");
+    const { edits } = await import("./lesson-edits.js");
+    const latest = chapters.at(-1);
     for (const [name, width, height] of [
       ["desktop", 1680, 1050],
       ["tablet", 1024, 1000],
@@ -102,28 +104,42 @@ const server = http.createServer((req, res) => {
           await page.locator(".lesson-menu summary").textContent(),
           new RegExp("Chapter " + chapter[id].chapter),
         );
-        const mobileEdit =
+        const latestMobile =
           name !== "desktop" &&
-          ["a-childs-exit-status", "exec-replaces-the-program"].includes(id);
+          latest.number >= 3 &&
+          [latest.lessonIds[0], latest.lessonIds.at(-1)].includes(id);
+        const mobileEdit =
+          latestMobile ||
+          (name !== "desktop" &&
+            ["a-childs-exit-status", "exec-replaces-the-program"].includes(id));
         let expected = chapter[id].expected;
         if (mobileEdit) {
           const source = await page.locator(".cm-content").innerText();
           await page.locator(".cm-content").click();
           await page.keyboard.press("ControlOrMeta+a");
           await page.keyboard.insertText(
-            id === "a-childs-exit-status"
-              ? source.replace("exit(7)", "exit(23)")
-              : source.replace(
-                  "The new program is echo",
-                  "EDITED EXEC ARGUMENT",
-                ),
+            latestMobile
+              ? edits[id].edit(source)
+              : id === "a-childs-exit-status"
+                ? source.replace("exit(7)", "exit(23)")
+                : source.replace(
+                    "The new program is echo",
+                    "EDITED EXEC ARGUMENT",
+                  ),
           );
-          expected =
-            id === "a-childs-exit-status"
+          expected = latestMobile
+            ? edits[id].expected
+            : id === "a-childs-exit-status"
               ? "exited with status 23"
               : "EDITED EXEC ARGUMENT";
         }
-        if (name === "desktop" || mobileEdit) {
+        if (
+          (name === "desktop" &&
+            (chapter[id].chapter === latest.number ||
+              chapter[id].observePid ||
+              id === lessonIds[0])) ||
+          mobileEdit
+        ) {
           await page.locator("#build-run").click();
           await page.waitForFunction(
             () =>
@@ -140,6 +156,11 @@ const server = http.createServer((req, res) => {
             await page.locator("#pid-evidence").isVisible(),
             chapter[id].observePid,
           );
+          if (chapter[id].expectedFault)
+            assert.match(
+              await page.locator("#run-message").textContent(),
+              /as this lesson explores/,
+            );
           if (id === "exec-replaces-the-program") {
             const before = Number(
               await page.locator("#pid-entry").textContent(),
@@ -182,9 +203,9 @@ const server = http.createServer((req, res) => {
           .click();
       }
       await page.locator("#resume-lesson").waitFor();
-      assert.match(
+      assert.equal(
         await page.locator("#resume-lesson").getAttribute("href"),
-        /when-exec-fails/,
+        "lessons/" + lessonIds.at(-1) + "/",
       );
       await page.locator("#resume-lesson").click();
       await page
@@ -192,14 +213,14 @@ const server = http.createServer((req, res) => {
         .click();
       assert.equal(
         new URL(page.url()).pathname,
-        "/lessons/exec-replaces-the-program/",
+        "/lessons/" + lessonIds.at(-2) + "/",
       );
       await page.goBack();
       await page.locator(".cm-content").waitFor();
       assert.equal(await page.locator("#build-run").isDisabled(), false);
       assert.deepEqual(errors, [], "chapter runtime errors");
       await page.close();
-      console.log("Chapters 1–2 " + name + " passed");
+      console.log("Chapters 1–" + latest.number + " " + name + " passed");
     }
     for (const [name, width, height] of [
       ["desktop", 1680, 1050],
