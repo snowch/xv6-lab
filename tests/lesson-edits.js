@@ -1,4 +1,28 @@
 export const edits = {
+  "a-pipe-connects-two-descriptors": {
+    edit: (s) => s.replace('"cat"', '"dog"'),
+    expected: "read=3 data=dog",
+  },
+  "eof-needs-closed-writers": {
+    edit: (s) => s.replace("read(p[0], buf, 8)", "read(p[0], buf, 1)"),
+    expected: "next=1",
+  },
+  "fork-inherits-pipe-ends": {
+    edit: (s) => s.replace('"hello"', '"world"'),
+    expected: "child data=world bytes=5 eof=0",
+  },
+  "pipes-are-byte-streams": {
+    edit: (s) => s.replace("read(p[0], buf, 4)", "read(p[0], buf, 3)"),
+    expected: "read=3 data=ABC",
+  },
+  "a-pipe-reader-can-block": {
+    edit: (s) => s.replace('"K"', '"Z"'),
+    expected: "reader: byte=Z",
+  },
+  "redirecting-output-through-a-pipe": {
+    edit: (s) => s.replace('"from echo"', '"new message"'),
+    expected: "pipeline=new message",
+  },
   "opening-and-closing-files": {
     edit: (s) =>
       s.replace("  close(fd);", "  // Keep the first slot occupied."),
