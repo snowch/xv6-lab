@@ -21,4 +21,6 @@ The quiz checks an explanation. The completion checkbox records the learner’s 
 
 The browser route sweep covered 404 course, lesson and redirect visits and 500 Explorer task views at 320, 390, 820 and 1440 pixels with light and dark system preferences. The site uses a light page palette and dark console in both preferences. The sweep found no horizontal page overflow or JavaScript errors. Keyboard runs checked the introductory PID comparison, a failed compile with earlier evidence intact, the capstone, the two-address walk and draft recovery. The guard-page walkthrough reproduced an original contained fault and a successful edited child read.
 
+The 16 shell variations and five debugger variations were replayed through the Explorer. The directory variation uses `/cat item` after changing directories, because this xv6 shell resolves the executable from the current directory when the command omits an absolute path.
+
 The automated corpus uses the browser C compiler and actual xv6 guest execution to check 99 starters, their 99 taught edits and the 25 Explorer experiments. Hosted checks rebuild xv6 from the pinned source before running the corpus and browser suite. These checks establish functional behavior. Learner understanding, physical-board performance and assistive-technology usability were not measured.

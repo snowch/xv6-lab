@@ -655,6 +655,27 @@ const server = http.createServer((req, res) => {
     assert.equal(await page.locator("#lesson-search").inputValue(), "memory");
 
     assert.match(await page.locator("#lesson > h2").textContent(), /Sv39/);
+    await page.goto(base + "explorer/?step=observe#directories");
+    await page.locator("#flow-next").press("Enter");
+    await page.waitForFunction(() =>
+      document.querySelector("#status").textContent.startsWith("Stopped at sys_mkdir"),
+    );
+    await page.locator("#flow-next").press("Enter");
+    await page.waitForFunction(() => document.querySelector("#status").textContent === "Shell ready");
+    await page.locator('[data-flow-link="3"]').press("Enter");
+    await page.locator("#load-command").press("Enter");
+    assert.equal(await page.locator("#command").inputValue(), "echo hello > labdir/item");
+    for (const command of ["echo hello > labdir/item", "cd labdir", "/cat item"]) {
+      await page.locator("#command").fill(command);
+      const before = (await page.locator("#terminal").textContent()).length;
+      await page.locator("#send").press("Enter");
+      await page.waitForFunction(offset => {
+        const output = document.querySelector("#terminal").textContent;
+        return output.length > offset && output.endsWith("$ ") &&
+          document.querySelector("#status").textContent === "Shell ready";
+      }, before);
+    }
+    assert.match(await page.locator("#terminal").textContent(), /\/cat item\nhello\n\$ /);
     await page.close();
     console.log("deep link passed");
     // Source workbench: real browser-side C compilation and guest execution.

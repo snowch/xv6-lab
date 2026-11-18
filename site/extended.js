@@ -259,7 +259,7 @@ const course = [
       "Continue after mkdir, run ls labdir, then cd labdir and ls. Use cd / to return.",
     expected: "ls labdir shows . and ..; the new directory is visible in ls.",
     experiment:
-      "Load echo hello > labdir/item and choose Run. Then run cd labdir and cat item in the xv6 command field. Why does the short name work in that directory? Run cd /, rm labdir/item and rm labdir when finished.",
+      "Load echo hello > labdir/item and choose Run. Then run cd labdir and /cat item in the xv6 command field. The / finds the cat executable at the root. Why can cat find item by its short name in this directory? Run cd /, rm labdir/item and rm labdir when finished.",
     question: "What determines the starting point of a relative pathname?",
     choices: [
       "The process’s current working directory.",
@@ -505,7 +505,7 @@ const course = [
       "Continue after sys_sleep. Watch sleeping for 3 timer ticks followed by awake. For a deeper stop, choose sleep in Advanced and inspect sleeping channels.",
     expected: "sleeping for 3 timer ticks, then awake after timer wakeup.",
     experiment:
-      "Load lab yield, then choose Run in the xv6 command field. Compare the alternating work with the sleeping and awake lines from lab sleep. What evidence shows another process can use the CPU during a wait?",
+      "Load lab yield, then choose Run in the xv6 command field. Compare parent turn and child turn with the sleeping and awake lines from lab sleep. What evidence shows another process can use the CPU during a wait?",
     question: "What should code do after a wakeup?",
     choices: [
       "Recheck the condition it was waiting for.",
