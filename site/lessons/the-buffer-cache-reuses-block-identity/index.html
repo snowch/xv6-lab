@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="the-buffer-cache-reuses-block-identity">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -51,33 +51,36 @@
           <h1 id="lesson-title">The buffer cache reuses a block’s identity</h1>
           <p id="lesson-subtitle">Observe a cached buffer without confusing its address with a disk block number.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>bread returns a locked cache buffer for a device and block number. bget finds an existing identity or recycles an unreferenced buffer; bread reads the device only if that buffer is not valid.</p><p>This controlled probe releases the superblock buffer, then requests the same block again. Build and observe the same cache object. Request block 2 instead to obtain a different identity. Comparing these fixed cache-object addresses does not grant permission to keep using a released buffer.</p><p>brelse drops the reference and moves an unused buffer to the most-recently-used end of the list. bget searches from the opposite end when recycling. A live reference prevents that buffer from being recycled; the next lesson inspects that protection.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="cache" aria-labelledby="concept-title-cache"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-cache">Identity, references and content locking differ</strong></figcaption><p class="concept-summary">A cached block can remain valid after release; recycling requires its reference count to reach zero.</p><ol class="concept-map concept-compare concept-count-3" id="concept-map-cache"><li class="concept-node" data-node="identity"><strong>Buffer identity</strong><span class="concept-value">Device + block number identify one cached block.</span></li><li class="concept-node" data-node="refs"><strong>References and pins</strong><span class="concept-value">Prevent reuse while a caller or journal still needs the buffer.</span></li><li class="concept-node" data-node="lock"><strong>Sleeping lock</strong><span class="concept-value">Protects access to the buffer contents.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/bio.c · bget · brelse · bpin · bunpin</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p>bread returns a locked cache buffer for a device and block number. bget finds an existing identity or recycles an unreferenced buffer; bread reads the device only if that buffer is not valid.</p><p>This controlled probe releases the superblock buffer, then requests the same block again. The probe compares the cache-object addresses for its two requests. Comparing these fixed cache-object addresses does not grant permission to keep using a released buffer.</p><p>brelse drops the reference and moves an unused buffer to the most-recently-used end of the list. bget searches from the opposite end when recycling. A live reference prevents that buffer from being recycled; the next lesson inspects that protection.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="cache" aria-labelledby="concept-title-cache"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-cache">Identity, references and content locking differ</strong></figcaption><p class="concept-summary">A cached block can remain valid after release; recycling requires its reference count to reach zero.</p><ol class="concept-map concept-compare concept-count-3" id="concept-map-cache"><li class="concept-node" data-node="identity"><strong>Buffer identity</strong><span class="concept-value">Device + block number identify one cached block.</span></li><li class="concept-node" data-node="refs"><strong>References and pins</strong><span class="concept-value">Prevent reuse while a caller or journal still needs the buffer.</span></li><li class="concept-node" data-node="lock"><strong>Sleeping lock</strong><span class="concept-value">Protects access to the buffer contents.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> kernel/bio.c · bget · brelse · bpin · bunpin</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">The cache lock protects identities and reference counts; each buffer's sleeping lock protects its contents. The cache array remains allocated, but callers must own a reference and content lock to use a buffer.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change only the second bread call’s block number from 1 to 2. Build and run; same cache object becomes 0.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/sysproc.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>same cache object=1</samp>.
+        </p>
+        <p id="assignment">Change only the second bread call’s block number from 1 to 2. Choose Build &amp; run again. Same cache object becomes 0.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -101,18 +104,21 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
             tabindex="-1"
             style="--editor-height: 660px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -123,8 +129,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -151,9 +157,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -173,9 +179,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -193,16 +197,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -211,19 +214,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">A buffer cache manages reusable memory objects keyed by device and block identity.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why must an unreferenced buffer be eligible for recycling even if its bytes remain valid?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why must an unreferenced buffer be eligible for recycling even if its bytes remain valid?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/the-superblock-describes-disk-regions/"><small>← Previous lesson</small>The superblock describes disk regions</a><a data-direction="next" href="lessons/references-keep-cache-buffers-resident/"><small>Next lesson →</small>References keep cache buffers resident</a>
         </nav>
@@ -231,15 +229,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -249,6 +244,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

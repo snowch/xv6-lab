@@ -26,7 +26,7 @@ export const chapter4Lessons = {
     sourceNote:
       "fdalloc finds an empty ofile entry, stores the struct file pointer, and returns that index. Different processes can use the same descriptor number for different open files.",
     assignment:
-      "Remove the first close(fd) call. Build and run. The first slot is still occupied, so the second open should use another descriptor and reused should become 0.",
+      "Remove the first close(fd) call. Choose Build & run again. The first slot is still occupied, so the second open should use another descriptor and reused should become 0.",
     takeaway:
       "A descriptor number belongs to a process’s table; close releases its slot.",
     reflection:
@@ -53,7 +53,7 @@ export const chapter4Lessons = {
     sourceNote:
       "readi receives f->off. When it returns a positive byte count, fileread adds that count to the open file’s offset. The offset is not stored in the pathname string.",
     assignment:
-      "Change only the first read’s count from 2 to 1. Build and run. The first result should be a, and the next two bytes should be bc.",
+      "Change only the first read’s count from 2 to 1. Choose Build & run again. The first result should be a, and the next two bytes should be bc.",
     takeaway:
       "Repeated reads use and advance the open file’s current position.",
     reflection:
@@ -80,7 +80,7 @@ export const chapter4Lessons = {
     sourceNote:
       "sys_dup passes the existing struct file pointer f to fdalloc, then increments its reference count with filedup. It does not create a new struct file or reset f->off.",
     assignment:
-      'Replace dup(fd) with open("note", O_RDONLY). Build and run. The second descriptor now has an independent offset, so both reads should produce a.',
+      'Replace dup(fd) with open("note", O_RDONLY). Choose Build & run again. The second descriptor now has an independent offset, so both reads should produce a.',
     takeaway:
       "Sharing a file’s contents and sharing an open-file position are different relationships.",
     reflection:
@@ -107,7 +107,7 @@ export const chapter4Lessons = {
     sourceNote:
       "The reclamation check requires both no links and no other inode references. An open file can keep the inode alive after its final name has been removed.",
     assignment:
-      'Remove the unlink("note") line. Build and run. Opening the name should now succeed, while the original descriptor still reads alive.',
+      'Remove the unlink("note") line. Choose Build & run again. Opening the name should now succeed, while the original descriptor still reads alive.',
     takeaway:
       "A name can disappear while an existing open handle remains usable.",
     reflection:
@@ -133,7 +133,7 @@ export const chapter4Lessons = {
     sourceNote:
       "sys_link increments the inode’s link count before adding the new directory entry, with rollback on failure. Removing a name decrements that count; it does not invalidate another name.",
     assignment:
-      'Remove unlink("first"). Build and run. The inode numbers should still agree, but links_now should be 2 because both names remain.',
+      'Remove unlink("first"). Choose Build & run again. The inode numbers should still agree, but links_now should be 2 because both names remain.',
     takeaway:
       "Names, inodes and open descriptors are connected objects with different lifetimes and counts.",
     reflection:
@@ -162,7 +162,7 @@ export const chapter4Lessons = {
     sourceNote:
       "The inode is locked while writei uses and advances f->off. The log implementation records and installs changed blocks. The larger edit also exercises bmap’s indirect-block path; readback verifies all returned bytes.",
     assignment:
-      "Change N from 6000 to 13000. Build and run. Both byte counts should grow to 13000 and errors should remain zero. Read bmap in the surrounding source to find the direct-to-indirect block boundary.",
+      "Change N from 6000 to 13000. Choose Build & run again. Compare written, read and errors. Do all the bytes still match? For the block boundary, read bmap under Read the filesystem write path.",
     takeaway:
       "A file write is mediated by inode, block and transaction code; successful readback checks the bytes through that path.",
     reflection:

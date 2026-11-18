@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="an-atomic-swap-returns-the-old-value">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -50,33 +50,36 @@
           <h1 id="lesson-title">An atomic swap returns the old value</h1>
           <p id="lesson-subtitle">Observe the read-and-write operation used to claim a spinlock.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>A spinlock needs to test whether a word is free and claim it as one indivisible operation. A separate load followed by a store would let two CPUs both observe zero before either stores one.</p><p>xv6 uses an atomic exchange: it writes 1 and returns the previous value. Returning 0 means this attempt claimed an unlocked word; returning 1 means someone already held it. acquire repeats the exchange until it observes 0.</p><p>The native instruction helper executes the real atomic operation. Build and observe old values 0,1 with a final word of 1. Changing the second new value changes what gets stored, while its return still reports the preceding 1. This isolated word is an instruction experiment, not a complete lock: ownership, interrupt control and ordering come next.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="atomic" aria-labelledby="concept-title-atomic"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-atomic">Each exchange returns the value it replaced</strong></figcaption><p class="concept-summary">In the starter, both atomic exchanges store 1. The second sees the value left by the first.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-atomic"><li class="concept-node" data-node="initial"><strong>Initial word</strong><span class="concept-value">Stored value = 0.</span></li><li class="concept-node" data-node="first"><strong>First exchange</strong><span class="concept-value">Store 1; return old value 0. The word is now 1.</span></li><li class="concept-node" data-node="second"><strong>Second exchange</strong><span class="concept-value">Store 1; return old value 1. The word remains 1.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/spinlock.c · acquire · __sync_lock_test_and_set</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p>A spinlock needs to test whether a word is free and claim it as one indivisible operation. A separate load followed by a store would let two CPUs both observe zero before either stores one.</p><p>xv6 uses an atomic exchange: it writes 1 and returns the previous value. Returning 0 means this attempt claimed an unlocked word; returning 1 means someone already held it. acquire repeats the exchange until it observes 0.</p><p>The native instruction helper executes the real atomic operation. The probe reports the value returned by each exchange and the word’s final value. This isolated word is an instruction experiment, not a complete lock: ownership, interrupt control and ordering come next.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="atomic" aria-labelledby="concept-title-atomic"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-atomic">Each exchange returns the value it replaced</strong></figcaption><p class="concept-summary">In the starter, both atomic exchanges store 1. The second sees the value left by the first.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-atomic"><li class="concept-node" data-node="initial"><strong>Initial word</strong><span class="concept-value">Stored value = 0.</span></li><li class="concept-node" data-node="first"><strong>First exchange</strong><span class="concept-value">Store 1; return old value 0. The word is now 1.</span></li><li class="concept-node" data-node="second"><strong>Second exchange</strong><span class="concept-value">Store 1; return old value 1. The word remains 1.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> kernel/spinlock.c · acquire · __sync_lock_test_and_set</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arguments and return values</summary><div class="c-reminder-content"><p>A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.</p><pre translate="no"><code>int pid = getpid();
 printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters and return values <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">The comment identifies amoswap.w.aq. Atomicity applies to the exchange itself; a whole critical section needs the surrounding acquire/release protocol.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change only the second exchange’s new value from 1 to 7. Build and run. The old values remain 0,1, while final word becomes 7.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/sysproc.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>old values=0,1 final word=1</samp>.
+        </p>
+        <p id="assignment">Change only the second exchange’s new value from 1 to 7. Choose Build &amp; run again. The old values remain 0,1, while final word becomes 7.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -100,18 +103,21 @@ printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-li
             tabindex="-1"
             style="--editor-height: 640px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -122,8 +128,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -150,9 +156,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -172,9 +178,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -192,16 +196,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -210,19 +213,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">An atomic exchange reports what it replaced as well as publishing a new value.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why can two separate C statements not supply this indivisible claim?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why can two separate C statements not supply this indivisible claim?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/sleep-transfers-lock-protection/"><small>← Previous chapter</small>Sleep transfers protection before releasing a condition lock</a><a data-direction="next" href="lessons/a-lock-records-its-owner/"><small>Next lesson →</small>A spinlock records its owning CPU</a>
         </nav>
@@ -230,15 +228,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -248,6 +243,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

@@ -53,7 +53,7 @@ const kernelLesson = (build, details) =>
       "kernel/syscall.c",
       "kernel/proc.h",
     ],
-    ...details,
+   ...details,
   });
 export const chapter9Lessons = {
   "a-trapframe-saves-user-registers": kernelLesson(getpidContext, {
@@ -62,7 +62,7 @@ export const chapter9Lessons = {
     editorHeight: 420,
     starter: () =>
       'uint64\nsys_getpid(void)\n{\n  struct proc *p = myproc();\n  uint64 selected = p->trapframe->a7;\n  printf("selected equals syscall number=%d\\n", selected == SYS_getpid);\n  return p->pid;\n}\n',
-    reading: `<p>When user code enters the kernel, the CPU does not automatically save every general register. The trampoline’s uservec assembly saves them into the process’s <strong>trapframe</strong> before using registers for kernel work.</p><p>The saved a7 contains the user’s system-call number. The kernel’s live a7 can already mean something else while C functions execute. The observation reads p->trapframe->a7 inside getpid, and compares it with SYS_getpid from the matching header. Build and expect 1.</p><p>The saved epc is a user instruction address, not a syscall number. usertrap records it from sepc and advances it past ecall before calling the handler. Selecting epc instead should therefore make this comparison false; it does not change the process’s real PID.</p>`,
+    reading: `<p>When user code enters the kernel, the CPU does not automatically save every general register. The trampoline’s uservec assembly saves them into the process’s <strong>trapframe</strong> before using registers for kernel work.</p><p>The saved a7 contains the user’s system-call number. The kernel’s live a7 can already mean something else while C functions execute. The observation reads p->trapframe->a7 inside getpid, and compares it with SYS_getpid from the matching header. A printed 1 means the values match.</p><p>The saved epc is a user instruction address, not a syscall number. usertrap records it from sepc and advances it past ecall before calling the handler. Selecting epc instead should therefore make this comparison false; it does not change the process’s real PID.</p>`,
     excerpt: {
       file: "kernel/trampoline.S",
       anchor: "sd a7, 168(a0)",
@@ -72,7 +72,7 @@ export const chapter9Lessons = {
     sourceNote:
       "The stores put user register values at the offsets defined by struct trapframe. a0 temporarily holds the trapframe address; its original user value is recovered from sscratch and saved separately.",
     assignment:
-      "Change selected = p->trapframe->a7 to selected = p->trapframe->epc. Build and run. selected equals syscall number should become 0: an aligned instruction address is not the syscall number 11.",
+      "Replace selected = p->trapframe->a7 with selected = p->trapframe->epc. Choose Build & run again. Read selected equals syscall number in both runs. What does the changed field tell you about the two saved registers?",
     takeaway:
       "Saved user registers and live kernel registers are different execution contexts.",
     reflection:
@@ -87,7 +87,7 @@ export const chapter9Lessons = {
         "  if(r_scause() == 8){",
         '  if (r_scause() == 8 && p->trapframe->a7 == SYS_getpid &&\n      strncmp(p->name, "workbench", 9) == 0)\n    printf("observed syscall=%d cause=%d\\n", (int)p->trapframe->a7, (int)r_scause());\n\n  if(r_scause() == 8){',
       ),
-    reading: `<p>A <strong>trap</strong> can be a synchronous exception or an interrupt. A user ecall is a deliberate synchronous request, identified by scause value 8. usertrap distinguishes that path from device interrupts and unexpected user faults.</p><p>The editable function is now the actual usertrap. Its observation runs after saving the user PC but before intr_on. That position matters: a later interrupt can overwrite trap-related CPU registers, so a handler must preserve the state it needs first.</p><p>Build and find observed syscall=11 cause=8 for getpid. Then observe write instead. The cause remains 8 because both are system calls; their saved a7 numbers distinguish the requested operation. User printf can issue many write calls, so several observations are expected.</p>`,
+    reading: `<p>A <strong>trap</strong> can be a synchronous exception or an interrupt. A user ecall is a deliberate synchronous request, identified by scause value 8. usertrap distinguishes that path from device interrupts and unexpected user faults.</p><p>The editable function is now the actual usertrap. Its observation runs after saving the user PC but before intr_on. That position matters: a later interrupt can overwrite trap-related CPU registers, so a handler must preserve the state it needs first.</p><p>Both getpid and write enter with cause 8. Their saved a7 values identify which operation was requested. User printf can issue many write calls, so several observations are expected.</p>`,
     excerpt: {
       file: "kernel/trap.c",
       within: "usertrap(void)",
@@ -97,7 +97,7 @@ export const chapter9Lessons = {
     sourceNote:
       "The ecall branch saves the return position before enabling interrupts and dispatching the syscall. Other causes go through devintr or the unexpected-fault path.",
     assignment:
-      "In the added observation condition, replace SYS_getpid with SYS_write. Build and run. The trace should show observed syscall=16 cause=8. The new filter changes what you observe, while normal dispatch remains intact.",
+      "In the added observation condition, replace SYS_getpid with SYS_write. Choose Build & run again. The trace should show observed syscall=16 cause=8. The new filter changes what you observe, while normal dispatch remains intact.",
     takeaway:
       "A trap cause explains why control entered the kernel; the syscall number identifies which service a user ecall requests.",
     reflection:
@@ -106,7 +106,7 @@ export const chapter9Lessons = {
   }),
   "ecall-must-advance-the-return-pc": kernelLesson(
     {
-      ...trapContext,
+     ...trapContext,
       probe: program(
         forkCheck +
           '  if (child == 0) {\n    getpid();\n    printf("child syscall returned\\n");\n    exit(0);\n  }\n  sleep(4);\n  kill(child);\n  int status = 0;\n  wait(&status);\n  printf("return pc child status=%d\\n", status);',
@@ -132,7 +132,7 @@ export const chapter9Lessons = {
       sourceNote:
         "The saved PC is the instruction address later restored for return to user mode. Changing this value changes actual execution flow, not just a printed result.",
       assignment:
-        "Change LAB_GETPID_ADVANCE from 4 to 0. Build and run. The child should not print child syscall returned, and the parent should report return pc child status=-1 after cancelling it.",
+        "Change LAB_GETPID_ADVANCE from 4 to 0. Choose Build & run again. The child should not print child syscall returned, and the parent should report return pc child status=-1 after cancelling it.",
       takeaway:
         "The return PC is part of syscall correctness: resuming at the trapping instruction repeats the request.",
       reflection:
@@ -142,7 +142,7 @@ export const chapter9Lessons = {
   ),
   "dispatch-chooses-a-kernel-handler": kernelLesson(
     {
-      ...dispatchContext,
+     ...dispatchContext,
       probe: program(
         '  int first = getpid();\n  sleep(2);\n  int second = getpid();\n  printf("same result=%d changed=%d\\n", first == second, second > first);',
       ),
@@ -156,7 +156,7 @@ export const chapter9Lessons = {
           "syscalls[num]();",
           "syscalls[num == SYS_getpid ? SYS_getpid : num]();",
         ),
-      reading: `<p>The user stub puts a small number in a7; it does not pass a kernel function address. syscall checks that number’s bounds, checks for a populated table entry, then calls the selected kernel handler. This gives the kernel control over which services are callable.</p><p>The table holds function pointers, indexed by the SYS_ constants. The editable function is the actual dispatcher. Its initial selection preserves the normal getpid entry. The supplied user program calls getpid twice with a sleep between them; both results should be the same PID.</p><p>Now select sys_uptime for the getpid request. The user stub still sends the same number, but the changed kernel dispatcher runs a different handler. The returned tick counts increase across the sleep. This demonstrates dispatch rather than a change to the stored PID.</p>`,
+      reading: `<p>The user stub puts a small number in a7; it does not pass a kernel function address. syscall checks that number’s bounds, checks for a populated table entry, then calls the selected kernel handler. This gives the kernel control over which services are callable.</p><p>The table holds function pointers, indexed by the SYS_ constants. The editable function is the actual dispatcher. Its initial selection preserves the normal getpid entry. The supplied user program calls getpid twice with a sleep between them; both results should be the same PID.</p><p>The variation routes getpid requests to sys_uptime. The user stub still sends the same number, but the changed kernel dispatcher runs a different handler. The returned tick counts increase across the sleep. This demonstrates dispatch rather than a change to the stored PID.</p>`,
       excerpt: {
         file: "kernel/syscall.c",
         within: "syscall(void)",
@@ -166,7 +166,7 @@ export const chapter9Lessons = {
       sourceNote:
         "Bounds and null-entry checks precede the indirect call. The return value is stored in saved a0 for the eventual return to the user caller.",
       assignment:
-        "In the conditional table index, change the first result SYS_getpid to SYS_uptime, keeping the condition and fallback unchanged. Build and run. Expect same result=0 changed=1.",
+        "In the conditional table index, change the first result SYS_getpid to SYS_uptime, keeping the condition and fallback as they are. Choose Build & run again. Find same result=0 changed=1. How did changing the selected handler affect the value returned to the same caller?",
       takeaway:
         "The syscall interface is a checked dispatch table, not permission for user code to jump to arbitrary kernel addresses.",
       reflection:
@@ -194,7 +194,7 @@ export const chapter9Lessons = {
           "  *ip = argraw(n);",
           '  *ip = argraw(n);\n  if (n == 0 && myproc()->trapframe->a7 == SYS_sleep) {\n    int extra = 0;\n    *ip += extra;\n    printf("decoded sleep ticks=%d\\n", *ip);\n  }',
         ),
-      reading: `<p>The syscall’s C handler has no ordinary C parameters for the user’s arguments. Helpers retrieve them from the saved user argument registers. argraw selects a0 through a5; argint converts the selected value to an int and writes it through a kernel pointer.</p><p>argint’s returned 0 is its own success result. The decoded argument is the separate value written through ip. sys_sleep uses that output as its requested tick count.</p><p>The supplied user program always requests sleep(2). The added code adjusts only argument 0 of that syscall. With extra 0, build and observe decoded sleep ticks=2. Changing extra to 3 makes the kernel use five ticks. The elapsed guest ticks should be at least five; scheduling can make them larger, so do not expect an exact duration.</p>`,
+      reading: `<p>The syscall’s C handler has no ordinary C parameters for the user’s arguments. Helpers retrieve them from the saved user argument registers. argraw selects a0 through a5; argint converts the selected value to an int and writes it through a kernel pointer.</p><p>argint’s returned 0 is its own success result. The decoded argument is the separate value written through ip. sys_sleep uses that output as its requested tick count.</p><p>The supplied user program always requests sleep(2). The added code adjusts only argument 0 of that syscall. The probe prints both the decoded request and the elapsed count. The elapsed guest ticks should be at least five; scheduling can make them larger, so do not expect an exact duration.</p>`,
       excerpt: {
         file: "kernel/syscall.c",
         within: "argraw(int n)",
@@ -204,7 +204,7 @@ export const chapter9Lessons = {
       sourceNote:
         "argraw reads the process’s trapframe rather than the kernel’s live argument registers. argaddr uses the same raw values as addresses; checked-copy routines validate accesses later.",
       assignment:
-        "Change extra from 0 to 3. Build and run. Expect decoded sleep ticks=5 and an elapsed count of at least 5, even though the supplied user program still calls sleep(2).",
+        "Change extra from 0 to 3. Choose Build & run again. Expect decoded sleep ticks=5 and an elapsed count of at least 5, even though the supplied user program still calls sleep(2).",
       takeaway:
         "Decoding arguments is an explicit kernel step; a helper’s return value and its output argument have different meanings.",
       reflection:
@@ -216,13 +216,13 @@ export const chapter9Lessons = {
     title: "Returning to user mode restores a protected context",
     goal: "Connect the return-mode bits to actual execution, and distinguish a kernel panic from a contained user fault.",
     editorHeight: 850,
-    teachesKernelPanic: true,
+    teachesKernelPanic: "panic: usertrap: not from user mode",
     starter: (files) =>
       kernelFunction(files, "kernel/trap.c", "usertrapret").replace(
         "  w_sstatus(x);",
         '  int lab_mode = 0;\n  if (strncmp(p->name, "workbench", 9) == 0) {\n    x |= lab_mode;\n    static int shown;\n    if (!shown) {\n      printf("prepared user mode=%d\\n", (x & SSTATUS_SPP) == 0);\n      shown = 1;\n    }\n  }\n  w_sstatus(x);',
       ),
-    reading: `<p>usertrapret prepares another boundary crossing. It disables interrupts during setup, selects the trampoline entry for the next user trap, records kernel state in the trapframe, sets the saved return PC, and jumps to the trampoline’s userret code.</p><p>The SPP bit chooses the privilege used by sret: clearing it requests user mode. The code also prepares SPIE, the saved interrupt-enable bit. The trampoline switches page tables, restores user registers and executes sret. This is more than an ordinary C return.</p><p>The lab setting applies only when returning to workbench. With lab_mode 0, build and expect prepared user mode=1 followed by the normal program. Setting SPP instead requests supervisor execution at user code. The user-page execution restriction causes a trap, and usertrap rejects that unexpected supervisor origin with a kernel panic.</p><p>A kernel panic affects the whole machine. The lab stops that virtual machine after showing its complete panic line, while keeping your source and build. Restore the starter and build again to start a fresh working machine.</p>`,
+    reading: `<p>usertrapret prepares another boundary crossing. It disables interrupts during setup, selects the trampoline entry for the next user trap, records kernel state in the trapframe, sets the saved return PC, and jumps to the trampoline’s userret code.</p><p>The SPP bit chooses the privilege used by sret: clearing it requests user mode. The code also prepares SPIE, the saved interrupt-enable bit. The trampoline switches page tables, restores user registers and executes sret. This is more than an ordinary C return.</p><p>The lab setting applies only when returning to workbench. The starter selects user mode. Setting SPP instead requests supervisor execution at user code. The user-page execution restriction causes a trap, and usertrap rejects that unexpected supervisor origin with a kernel panic.</p><p>A kernel panic affects the whole machine. The lab stops that virtual machine after showing its complete panic line, while keeping your source and build.</p>`,
     excerpt: {
       file: "kernel/trap.c",
       within: "usertrapret(void)",
@@ -232,7 +232,7 @@ export const chapter9Lessons = {
     sourceNote:
       "The mode bits, saved PC, page table and restored registers must agree. A bad kernel return path can stop the whole OS, unlike the child-only user faults in the earlier chapter.",
     assignment:
-      "Change lab_mode from 0 to SSTATUS_SPP. Build and run. Expect prepared user mode=0, then panic: usertrap: not from user mode. Restore the starter and build again; normal user execution should return.",
+      "Change lab_mode from 0 to SSTATUS_SPP. Choose Build & run again. Find prepared user mode=0 and panic: usertrap: not from user mode. The edited kernel stops here. Choose Restore starter and then Build & run to see the user program and shell complete again.",
     takeaway:
       "A trap return explicitly restores privilege and execution state; a kernel mistake at this boundary can affect every process.",
     reflection:

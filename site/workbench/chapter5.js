@@ -21,7 +21,7 @@ export const chapter5Lessons = {
     sourceNote:
       "The read object is readable, the write object is writable, and both store the same pi pointer. The descriptor array gives the caller handles to those objects.",
     assignment:
-      "Change cat to dog, keeping the count at 3. Build and run. The pipe should deliver the new three bytes.",
+      "Change cat to dog, keeping the count at 3. Choose Build & run again. The pipe should deliver the new three bytes.",
     takeaway:
       "A pipe is a kernel byte stream accessed through a read descriptor and a write descriptor.",
     reflection:
@@ -48,7 +48,7 @@ export const chapter5Lessons = {
     sourceNote:
       "piperead waits while the pipe is empty and a writer remains. After writers close, its copy loop returns zero if there are no buffered bytes left.",
     assignment:
-      "Change only the first read’s count from 8 to 1. Build and run. The next read should return 1, because the second byte was still buffered despite the closed writer.",
+      "Change only the first read’s count from 8 to 1. Choose Build & run again. The next read should return 1, because the second byte was still buffered despite the closed writer.",
     takeaway:
       "A closed writer allows EOF after the reader drains the remaining bytes.",
     reflection:
@@ -77,7 +77,7 @@ export const chapter5Lessons = {
     sourceNote:
       "Fork duplicates references to each open-file object with filedup. A pipe’s writer becomes closed only when its last open-file reference is released, not merely when one process closes a descriptor.",
     assignment:
-      "Change the parent’s five-byte message from hello to world. Build and run. The child should receive world and still observe EOF after the writer closes.",
+      "Change the parent’s five-byte message from hello to world. Choose Build & run again. The child should receive world and still observe EOF after the writer closes.",
     takeaway:
       "Inherited descriptors connect processes; closing unused references is part of correct pipe communication.",
     reflection:
@@ -104,7 +104,7 @@ export const chapter5Lessons = {
     sourceNote:
       "The copy loop consumes available bytes until the requested count or current buffer content is exhausted. The pipe records byte counters, not the boundaries between the caller’s write operations.",
     assignment:
-      "Change the read count from 4 to 3. Build and run. It should return ABC, leaving D for a later read rather than preserving the two original writes.",
+      "Change the final argument of read from 4 to 3. Choose Build & run again. Compare read and data. Which byte remains in the pipe after that read?",
     takeaway:
       "Applications define message boundaries on top of the pipe’s byte stream.",
     reflection:
@@ -134,7 +134,7 @@ export const chapter5Lessons = {
     sourceNote:
       "sleep releases the pipe lock while the reader waits and reacquires it when the reader resumes. Otherwise the producer could not acquire that lock to supply data.",
     assignment:
-      "Change the producer’s byte from K to Z. Build and run. The waiting reader should resume with Z.",
+      "Change the producer’s byte from K to Z. Choose Build & run again. The waiting reader should resume with Z.",
     takeaway:
       "A blocked read waits for a condition while the CPU can run other processes.",
     reflection:
@@ -163,7 +163,7 @@ export const chapter5Lessons = {
     sourceNote:
       "The real shell rewires its left child’s output this way and also connects a right child’s input. This smaller experiment uses the parent as the reader so the destination is easy to observe.",
     assignment:
-      'Change echo’s argument from "from echo" to "new message". Build and run. The parent should print pipeline=new message, having received echo’s output through the pipe.',
+      'Change echo’s argument from "from echo" to "new message". Choose Build & run again. The parent should print pipeline=new message, having received echo’s output through the pipe.',
     takeaway:
       "Redirection rearranges descriptor references; ordinary programs keep using the same read/write interfaces.",
     reflection:

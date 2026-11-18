@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="timer-interrupts-advance-kernel-ticks">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -51,34 +51,37 @@
           <h1 id="lesson-title">Timer interrupts advance a kernel counter</h1>
           <p id="lesson-subtitle">Connect the machine timer path to xv6’s software tick counter.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>A timer interrupt lets the OS regain control without a user program requesting a syscall. In this kernel, timerinit programs the machine timer. timervec handles that machine-mode interrupt, schedules the next one, and raises a supervisor software interrupt. devintr recognizes that forwarded event and calls clockintr.</p><p>The editable clockintr is the actual kernel routine: it updates ticks under tickslock and wakes processes waiting on that counter. The supplied user program samples uptime until the counter changes. With one runnable test program in this small fixture, observe an increment of 1.</p><p>Changing the increment changes logical kernel time, including what timed sleepers observe. It does not measure browser speed. General programs can miss counter updates between samples, so elapsed-time code should use bounds rather than assume every observed difference is exactly one tick.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="timer" aria-labelledby="concept-title-timer"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-timer">A machine timer event becomes a kernel tick</strong></figcaption><p class="concept-summary">This xv6 forwards a machine-mode timer interrupt through a supervisor software interrupt.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-timer"><li class="concept-node" data-node="machine"><span class="concept-zone">Machine</span><strong>Machine timer interrupt</strong><span class="concept-value">timervec schedules the next timer and sets SSIP.</span></li><li class="concept-node" data-node="supervisor"><span class="concept-zone">Supervisor</span><strong>Supervisor software interrupt</strong><span class="concept-value">devintr identifies the forwarded event.</span></li><li class="concept-node" data-node="ticks"><span class="concept-zone">Kernel</span><strong>clockintr</strong><span class="concept-value">Update ticks under tickslock; wake timed sleepers.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/start.c · kernel/kernelvec.S · kernel/trap.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="timer" aria-labelledby="concept-title-timer"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-timer">A machine timer event becomes a kernel tick</strong></figcaption><p class="concept-summary">This xv6 forwards a machine-mode timer interrupt through a supervisor software interrupt.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-timer"><li class="concept-node" data-node="machine"><span class="concept-zone">Machine</span><strong>Machine timer interrupt</strong><span class="concept-value">timervec schedules the next timer and sets SSIP.</span></li><li class="concept-node" data-node="supervisor"><span class="concept-zone">Supervisor</span><strong>Supervisor software interrupt</strong><span class="concept-value">devintr identifies the forwarded event.</span></li><li class="concept-node" data-node="ticks"><span class="concept-zone">Kernel</span><strong>clockintr</strong><span class="concept-value">Update ticks under tickslock; wake timed sleepers.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> kernel/start.c · kernel/kernelvec.S · kernel/trap.c</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: a loop that checks after its body</summary><div class="c-reminder-content"><p>do ... while runs its body at least once, then repeats while the condition is nonzero. Here each iteration stores a fresh counter sample in after. The semicolon after while is part of this C syntax; the comparison == tests equality without assigning.</p><pre translate="no"><code>do {
   after = uptime();
 } while (after == before);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">Loops and repetition <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">The machine timer forwards an event through SSIP. The supervisor acknowledges it by clearing that pending bit; clockintr separately maintains the OS counter and wakeups.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change ticks += 1 to ticks += 2. Build and run. This sampling fixture should now report observed increment=2. Restore the starter on this page to observe 1 again; each lesson boots its own fresh image.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/trap.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>observed increment=1</samp>.
+        </p>
+        <p id="assignment">Change ticks += 1 to ticks += 2. Choose Build &amp; run again. This sampling fixture should now report observed increment=2. Restore the starter on this page to observe 1 again. Each lesson boots its own fresh image.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -102,18 +105,21 @@
             tabindex="-1"
             style="--editor-height: 400px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -124,8 +130,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -152,9 +158,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -174,9 +180,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -194,16 +198,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -212,19 +215,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">Hardware timer delivery and the kernel’s logical tick count are connected by explicit interrupt-handling code.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why can a timer interrupt make progress even when a user program never calls sleep?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why can a timer interrupt make progress even when a user program never calls sleep?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/returning-to-user-mode/"><small>← Previous chapter</small>Returning to user mode restores a protected context</a><a data-direction="next" href="lessons/masking-supervisor-interrupts/"><small>Next lesson →</small>An enable bit controls supervisor interrupt delivery</a>
         </nav>
@@ -232,15 +230,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -250,6 +245,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

@@ -14,7 +14,7 @@ const k = (build, details) =>
       target: "sys_getpid",
       file: "kernel/sysproc.c",
       offset: 20,
-      ...build,
+     ...build,
     },
     editorHeight: 660,
     contextTitle: "Read program loading",
@@ -24,7 +24,7 @@ const k = (build, details) =>
       "kernel/vm.c",
       "user/bssprobe.c",
     ],
-    ...details,
+   ...details,
   });
 const elf = {
   headers: ["kernel/elf.h"],
@@ -69,7 +69,7 @@ export const chapter15Lessons = {
           closeELF,
       ),
     reading:
-      "<p>exec does not execute a C source file or arbitrary text. It reads an ELF executable containing a header, a program-header table and bytes to load. The magic identifies this format before the kernel creates a replacement address space.</p><p>The kernel probe opens the actual lab executable, locks its inode and reads its header with readi. Build and observe ELF magic matches=1. Select README to read an ordinary text file and observe 0.</p><p>Magic is only the first check. This pinned loader also checks segment sizes, address overflow and alignment as it loads. It assumes the course’s RV64 executable format; recognizing a magic word alone is not a complete general-purpose ELF validation policy.</p>",
+      "<p>exec does not execute a C source file or arbitrary text. It reads an Executable and Linkable Format (ELF) file. The file contains a header, a table of loadable regions and bytes to load. A fixed byte sequence, the magic value, identifies the format.</p><p>The kernel probe opens the actual lab executable, locks its inode and reads its header with readi. The probe reports whether the selected file starts with the required bytes.</p><p>Magic is only the first check. This pinned loader also checks segment sizes, address overflow and alignment as it loads. It assumes the course’s RV64 executable format; recognizing a magic word alone is not a complete general-purpose ELF validation policy.</p>",
     excerpt: {
       file: "kernel/exec.c",
       within: "exec(char *path",
@@ -79,7 +79,7 @@ export const chapter15Lessons = {
     sourceNote:
       "readi with user_dst=0 writes into a kernel buffer. The inode stays locked while the loader interprets its file data.",
     assignment:
-      'Change selected = "lab" to selected = "README". Build and run; ELF magic matches becomes 0.',
+      'Change selected = "lab" to selected = "README". Choose Build & run again. ELF magic matches becomes 0.',
     expected: "ELF magic matches=1",
     takeaway:
       "The loader interprets a structured executable file before replacing a program.",
@@ -97,7 +97,7 @@ export const chapter15Lessons = {
           closeELF,
       ),
     reading:
-      "<p>A loadable program segment names a file offset, a virtual address, a file byte count and a memory byte count. The kernel allocates memsz bytes but copies only filesz bytes. The remaining memory must start at zero.</p><p>The supplied native bssprobe contains an uninitialized 4096-byte object in a real ELF NOBITS section. Its loadable segment therefore has memsz greater than filesz. The probe reads the actual program header from that executable. Build and observe 1, then select filesz itself to observe 0.</p><p>ELF segment flags and the kernel’s chosen page permissions are separate. As the earlier memory chapter showed, this pinned xv6 maps ordinary user allocations RWX; it does not derive per-segment permissions from these ELF flags.</p>",
+      "<p>A loadable program segment names a file offset, a virtual address, a file byte count and a memory byte count. The kernel allocates memsz bytes but copies only filesz bytes. The remaining memory must start at zero.</p><p>The supplied native bssprobe contains an uninitialized 4096-byte object in an ELF NOBITS section, which occupies memory without storing those bytes in the file. Its loadable segment therefore has memsz greater than filesz. The probe reads the actual program header from that executable. The probe reports whether the selected size is larger than filesz.</p><p>ELF segment flags and the kernel’s chosen page permissions are separate. As the earlier memory chapter showed, this pinned xv6 maps ordinary user allocations RWX; it does not derive per-segment permissions from these ELF flags.</p>",
     excerpt: {
       file: "kernel/exec.c",
       within: "exec(char *path",
@@ -107,7 +107,7 @@ export const chapter15Lessons = {
     sourceNote:
       "The loader checks memsz >= filesz and rejects address wraparound before allocation. loadseg copies the file-backed prefix into already mapped pages.",
     assignment:
-      "Change span = segment.memsz to span = segment.filesz. Build and run; span exceeds file bytes becomes 0.",
+      "Change span = segment.memsz to span = segment.filesz. Choose Build & run again. Span exceeds file bytes becomes 0.",
     expected: "span exceeds file bytes=1",
     takeaway:
       "A program’s file representation and its initialized memory image have different sizes.",
@@ -143,7 +143,7 @@ export const chapter15Lessons = {
           'memset(mem, myproc() && strncmp(myproc()->name, "workbench", 10) == 0 ? FILL : 0, PGSIZE);',
         ),
       reading:
-        "<p>C requires an uninitialized object with static storage to start at zero. For a native ELF BSS region, those bytes are absent from the file. xv6 satisfies the requirement by zeroing allocated pages before copying each segment’s file-backed bytes over the prefix.</p><p>The editable uvmalloc is the actual allocator. The supplied workbench program execs native bssprobe, whose source is available below. Its volatile array read forces an actual memory load. Build and observe BSS byte=0.</p><p>Set FILL to 7. Only allocations while the caller is named workbench receive that fill, isolating this exec experiment from normal init and shell loading. The file copy does not overwrite BSS, so the native program reads 7. This deliberately violates the initialization contract. It does not use a browser link-slot global as evidence of ELF zero-fill.</p>",
+        "<p>C requires an uninitialized object with static storage to start at zero. For a native ELF BSS region, those bytes are absent from the file. xv6 satisfies the requirement by zeroing allocated pages before copying each segment’s file-backed bytes over the prefix.</p><p>The editable uvmalloc is the actual allocator. The supplied workbench program execs native bssprobe, whose source is available below. Its volatile array read forces an actual memory load. The native program reports the array byte it actually reads.</p><p>Only allocations while the caller is named workbench receive that fill, isolating this exec experiment from normal init and shell loading. The file copy does not overwrite BSS, so the native program reads 7. This deliberately violates the initialization contract. It does not use a browser link-slot global as evidence of ELF zero-fill.</p>",
       excerpt: {
         file: "kernel/vm.c",
         within: "uvmalloc(pagetable_t",
@@ -154,7 +154,7 @@ export const chapter15Lessons = {
       sourceNote:
         "bssprobe is built by the native toolchain with a real NOBITS region and memsz > filesz. loadseg copies only filesz; zero-fill supplies the remaining initialized memory.",
       assignment:
-        "Change FILL from 0 to 7. Build and run; the actual native program should report BSS byte=7. Restore 0 to restore the C initialization contract.",
+        "Change FILL from 0 to 7. Choose Build & run again. The actual native program should report BSS byte=7. Restore 0 to restore the C initialization contract.",
       expected: "BSS byte=0",
       takeaway:
         "Executable loading must construct bytes that are required in memory but absent from the file.",
@@ -169,7 +169,7 @@ export const chapter15Lessons = {
     starter: () =>
       '#include "kernel/types.h"\n#include "user/user.h"\n\nint main(int argc, char **argv)\n{\n  if (argc == 1) {\n    char *next[] = {"workbench", "small", "kernel", 0};\n    exec("workbench", next);\n    printf("exec failed\\n");\n    exit(1);\n  }\n  printf("argc=%d first=%s second=%s\\n", argc, argv[1], argv[2]);\n  exit(0);\n}\n',
     reading:
-      "<p>An exec caller supplies pointers into its old address space. The replacement cannot keep using those old pointers after its image is freed. xv6 copies the argument strings into the new user stack and creates a new array of pointers to those copies.</p><p>ustack is a temporary kernel array containing new user addresses. Its final zero entry terminates argv. copyout writes both strings and the pointer array through the new page table, before that table becomes the process’s active image.</p><p>This program execs its own file once with two extra arguments. The replacement enters main with argc=3 and prints the copied strings. Change small to clear to observe the new argument after a real image replacement. The new argc prevents repeated self-exec.</p>",
+      "<p>An exec caller supplies pointers into its old address space. The replacement cannot keep using those old pointers after its image is freed. xv6 copies the argument strings into the new user stack and creates a new array of pointers to those copies.</p><p>ustack is a temporary kernel array containing new user addresses. Its final zero entry terminates argv. copyout writes both strings and the pointer array through the new page table, before that table becomes the process’s active image.</p><p>This program execs its own file once with two extra arguments. The replacement enters main with argc=3 and prints the copied strings. The new argc prevents repeated self-exec.</p>",
     excerpt: {
       file: "kernel/exec.c",
       within: "exec(char *path",
@@ -179,7 +179,7 @@ export const chapter15Lessons = {
     sourceNote:
       "The pointer array contains user virtual addresses, not kernel stack addresses. argc reaches a0 through the syscall return value, while a1 names the new argv array.",
     assignment:
-      'Change "small" in the next array to "clear". Build and run; the replacement prints argc=3 first=clear second=kernel.',
+      'Change "small" in the next array to "clear". Choose Build & run again. The replacement prints argc=3 first=clear second=kernel.',
     expected: "argc=3 first=small second=kernel",
     takeaway:
       "Exec reconstructs arguments in the new address space before discarding the old one.",
@@ -199,7 +199,7 @@ export const chapter15Lessons = {
         'p->trapframe->sp = sp + (strncmp(path, "workbench", 10) == 0 ? STACK_BIAS : 0);\n  if (strncmp(path, "workbench", 10) == 0)\n    printf("entry stack alignment=%d\\n", (int)(p->trapframe->sp % 16));',
       ),
     reading:
-      "<p>The RISC-V calling convention requires a 16-byte-aligned stack at program entry. exec rounds its argument placements accordingly, records argv in a1 and puts the final entry stack pointer in the trapframe.</p><p>It also allocates two stack-area pages and clears user access on the lower one, creating the guard page studied earlier. The usable stack and the argument vector are related parts of the new image, but a1 and sp are distinct saved values.</p><p>The editor contains the actual complete exec function. Build and observe entry stack alignment=0, meaning remainder zero modulo 16. Set STACK_BIAS to 8 to deliberately misalign only workbench’s entry pointer and observe 8. This small integer-only test can still run, but that does not relax the ABI contract; code may depend on its required alignment. Init and shell entry pointers remain normal in this fixture.</p>",
+      "<p>The RISC-V application binary interface (ABI) specifies the machine state that compiled programs expect. At program entry it requires the stack address to be a multiple of 16. exec rounds its argument placements accordingly, records argv in a1 and puts the final entry stack pointer in the trapframe.</p><p>It also allocates two stack-area pages and clears user access on the lower one, creating the guard page studied earlier. The usable stack and the argument vector are related parts of the new image, but a1 and sp are distinct saved values.</p><p>The editor contains the actual complete exec function. The printed entry stack alignment is the remainder after dividing its address by 16. The variation deliberately misaligns the entry pointer only for workbench. This small integer-only test can still run, but that does not relax the ABI contract; code may depend on its required alignment. Init and shell entry pointers remain normal in this fixture.</p>",
     excerpt: {
       file: "kernel/exec.c",
       within: "exec(char *path",
@@ -209,7 +209,7 @@ export const chapter15Lessons = {
     sourceNote:
       "The kernel commits epc and sp only after constructing the replacement image. The observation reads the actual saved entry sp, not the kernel's live stack-pointer register.",
     assignment:
-      "Change STACK_BIAS from 0 to 8. Build and run; entry stack alignment becomes 8. Restore 0 to return to the valid entry contract.",
+      "Change STACK_BIAS from 0 to 8. Choose Build & run again. Compare entry stack alignment, the remainder after division by 16. Which value meets the 16-byte entry requirement? Restore 0 and choose Build & run to confirm it.",
     expected: "entry stack alignment=0",
     takeaway:
       "A loader establishes both a memory image and the machine state expected by its entry ABI.",
@@ -226,7 +226,7 @@ export const chapter15Lessons = {
         { headers: ["kernel/fcntl.h"] },
       ),
     reading:
-      "<p>Building a new image can fail while reading headers, allocating pages or copying arguments. xv6 constructs a candidate page table while retaining the old one. Only after successful preparation does it assign p-&gt;pagetable and free the previous image.</p><p>The bad path frees any candidate image and releases the executable inode and filesystem operation. The original program can then receive -1 from exec and handle the failure.</p><p>The program creates a text file and tries to execute it. Build and observe failure, the original canary value 42, and the same process identity. Change the canary to 73 and see that value survive the failed replacement. A successful exec would enter a new program instead of returning to this printf.</p>",
+      "<p>Building a new image can fail while reading headers, allocating pages or copying arguments. xv6 constructs a candidate page table while retaining the old one. Only after successful preparation does it assign p-&gt;pagetable and free the previous image.</p><p>The bad path frees any candidate image and releases the executable inode and filesystem operation. The original program can then receive -1 from exec and handle the failure.</p><p>The program creates a text file and tries to execute it. A canary is a known value the probe checks after the operation. Here it checks that the old program’s variable remains accessible after the failed replacement. A successful exec would enter a new program instead of returning to this printf.</p>",
     excerpt: {
       file: "kernel/exec.c",
       within: "exec(char *path",
@@ -236,7 +236,7 @@ export const chapter15Lessons = {
     sourceNote:
       "The commit section above bad changes p->pagetable, size, epc and sp only after all preparation succeeds. Failure cleanup must preserve the currently running image.",
     assignment:
-      "Change canary = 42 to canary = 73. Build and run; old value becomes 73 while exec failed and same process remain 1.",
+      "Change canary = 42 to canary = 73. Choose Build & run again. Old value becomes 73 while exec failed and same process remain 1.",
     expected: "exec failed=1 old value=42 same process=1",
     takeaway:
       "Replacement needs a commit boundary so preparation failures can return to the old program.",
@@ -255,7 +255,7 @@ export const chapter15Lessons = {
         { headers: ["kernel/fcntl.h"] },
       ),
     reading:
-      "<p>The shell is a user program that combines kernel interfaces. It does not need a special “run this command with redirection” syscall. A child closes descriptor 1, opens the output file into the lowest free slot, and execs the requested program.</p><p>The open descriptor survives exec. echo writes to its ordinary stdout, which now names the file. The parent retains its own console descriptors and waits for the child before opening the completed output.</p><p>This program builds that composition directly, without a parser. Build to read kernel from the actual redirected file, then change the echo argument to source. The matching runcmd code shows the same descriptor manipulation in xv6’s real shell. Earlier pipe lessons supply the parallel composition used by its PIPE case.</p>",
+      "<p>The shell is a user program that combines kernel interfaces. It does not need a special “run this command with redirection” syscall. A child closes descriptor 1, opens the output file into the lowest free slot, and execs the requested program.</p><p>The open descriptor survives exec. echo writes to its ordinary stdout, which now names the file. The parent retains its own console descriptors and waits for the child before opening the completed output.</p><p>This program builds that composition directly, without a parser. The console reports the readback text and the collected child’s exit status. The matching runcmd code shows the same descriptor manipulation in xv6’s real shell. Earlier pipe lessons supply the parallel composition used by its PIPE case.</p>",
     excerpt: {
       file: "user/sh.c",
       within: "runcmd(struct cmd",
@@ -265,7 +265,7 @@ export const chapter15Lessons = {
     sourceNote:
       "The shell arranges descriptors before exec; the executed program uses the normal write interface. The kernel's descriptor table and file object implement the resulting routing.",
     assignment:
-      'Change the echo argument "kernel" to "source". Build and run; redirected output becomes source and child status remains 0.',
+      'Change the echo argument "kernel" to "source". Choose Build & run again. Redirected output becomes source and child status remains 0.',
     expected: "child status=0 redirected output=kernel",
     takeaway:
       "A shell gains expressive behavior by composing a small set of process and file interfaces.",
@@ -289,7 +289,7 @@ export const chapter15Lessons = {
         { headers: ["kernel/fcntl.h"] },
       ),
     reading:
-      "<p>The child sends bytes through a pipe. The parent reads the stream until EOF, writes those bytes to a real file, collects the child and replaces itself with native cat to read the file back. Build and follow the output through the complete system.</p><p>Trace one write through the source picker: syscall checks and dispatch lead to filewrite; a pipe uses pipewrite, while a regular file reaches writei, bmap, buffer-cache updates and the journal. Commit submits actual VirtIO requests, whose interrupts wake blocked work. Checked copies connect the user buffers to those kernel paths.</p><p>Then trace the final exec: a new page table, ELF segments, zero-filled memory, arguments and entry state replace the parent’s image. Change the child’s message and find that exact text printed by cat after file readback. Use one source path at a time; the purpose is to connect mechanisms you have already changed, rather than memorize the whole kernel.</p>",
+      "<p>The child sends bytes through a pipe. The parent reads the stream until EOF, writes those bytes to a real file, collects the child and replaces itself with native cat to read the file back. The console reports child status and the count of transferred bytes before cat prints the file.</p><p>Open Trace one path at a time and select kernel/file.c. In filewrite, compare the pipe branch, which calls pipewrite, with the regular-file branch, which calls writei inside a journal operation. Commit submits actual VirtIO requests, whose interrupts wake blocked work. Checked copies connect the user buffers to those kernel paths.</p><p>The last exec loads cat into a new user address space and sets its entry arguments. The console output comes from that replacement program reading the file.</p>",
     excerpt: {
       file: "kernel/file.c",
       within: "filewrite(struct file",
@@ -298,8 +298,9 @@ export const chapter15Lessons = {
     },
     sourceNote:
       "The final output is produced by the unchanged cat executable reading the guest file. The parent checks every file write and counts the actual bytes transferred from the pipe.",
+    starterEvidence: "Find collected child=0 file bytes=21 and the line from process to disk that cat outputs in the xv6 console.",
     assignment:
-      'Change "from process to disk\\n" to "OS capstone complete\\n". Build and run; cat should print the new text, with collected child=0 and the actual file byte count.',
+      "Replace \"from process to disk\\n\" with \"OS capstone complete\\n\". Choose Build & run again. Find collected child=0 file bytes=21 and cat’s output. Does the text change while the reported byte count stays the same, including the newline?",
     expected: "from process to disk",
     takeaway:
       "An OS is a set of cooperating mechanisms whose contracts compose into complete programs.",

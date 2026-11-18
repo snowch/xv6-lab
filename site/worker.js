@@ -218,7 +218,7 @@ onmessage = async ({ data }) => {
           }
           table = (pte >> 10n) << 12n;
         }
-        send("pagetable", { steps, result, pid: proc.pid });
+        send("pagetable", { steps, result, pid: proc.pid, address: data.address });
         break;
       }
       case "memory": {

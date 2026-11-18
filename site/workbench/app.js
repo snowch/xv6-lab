@@ -1,9 +1,9 @@
 import {
   renderConcept,
   enhanceConcepts,
-} from "./concept-diagrams.js?v=concepts1";
+} from "./concept-diagrams.js?v=learner-flow1";
 import { createEditor } from "./editor.js";
-import { lessons, sourceExcerpt } from "./lessons.js?v=concepts1";
+import { lessons, sourceExcerpt } from "./lessons.js?v=learner-flow1";
 const $ = (id) => document.getElementById(id),
   say = (id, value) => {
     if ($(id).textContent !== value) $(id).textContent = value;
@@ -16,23 +16,52 @@ let files,
   buildJob = null,
   machine = null,
   undoRestore = null,
-  storageOK = true;
+  draftScope = "starter";
+const draftKey = "xv6-lesson:" + kind;
+const recoveryKey = "xv6-lesson-restore:" + kind;
 function activity(text) {
+  $("activity-status").hidden = !text;
   say("activity-status", text);
 }
-function save() {
+function persist(key, value) {
   try {
-    localStorage.setItem("xv6-lesson:" + kind, drafts.get(kind));
-    say("draft-status", "Draft saved in this browser");
+    localStorage.setItem(key, value);
+    try {
+      sessionStorage.removeItem(key);
+    } catch {}
+    return "browser";
   } catch {
-    storageOK = false;
-    say("draft-status", "Draft kept in this tab");
-    $("storage-warning").hidden = false;
-    say(
-      "storage-warning",
-      "Browser storage is unavailable. Download your source before leaving this page.",
-    );
+    try {
+      sessionStorage.setItem(key, value);
+      return "tab";
+    } catch {
+      return "page";
+    }
   }
+}
+function load(key) {
+  try {
+    const value = sessionStorage.getItem(key);
+    if (value !== null) return { value, scope: "tab" };
+  } catch {}
+  try {
+    return { value: localStorage.getItem(key), scope: "browser" };
+  } catch {
+    return { value: null, scope: "page" };
+  }
+}
+function showDraftStatus() {
+  say("draft-status", {
+    starter: "Starter source",
+    browser: "Draft saved in this browser",
+    tab: "Draft saved for this tab",
+    page: "Draft kept on this page",
+  }[draftScope]);
+  $("storage-warning").hidden = ["starter", "browser"].includes(draftScope);
+  if (draftScope === "tab")
+    say("storage-warning", "Permanent storage is unavailable. Your draft can reopen in this tab. Use Download source under Build tools and source download to keep a copy before closing the tab.");
+  if (draftScope === "page")
+    say("storage-warning", "Browser storage is unavailable. Use Download source under Build tools and source download to keep your edit before reloading or leaving this page.");
 }
 function starter(id) {
   return lessons[id].starter(files);
@@ -44,18 +73,29 @@ function controls() {
   $("build-only").disabled = !files || !!buildJob;
   $("run-built").disabled = !same || !!buildJob;
   $("stop").disabled = !buildJob && !machine?.worker;
+  $("stop").hidden = $("stop").disabled;
   say("stop", buildJob ? "Cancel build" : "Stop run");
   $("restore").disabled = !files || drafts.get(kind) === starter(kind);
   $("export-source").disabled = !files;
-  $("undo-restore").hidden = !undoRestore || undoRestore.kind !== kind;
+  $("undo-restore").hidden = undoRestore === null;
   say(
     "build-relation",
     build
       ? same
         ? "Built from this draft"
-        : "Draft differs from the last valid build"
-      : "No build for this source yet",
+        : "Last build used earlier source"
+      : "No build yet",
   );
+  if (machine) {
+    const failed = document.body.dataset.buildState === "error";
+    const earlier = machine.source !== drafts.get(kind);
+    $("run-owner").hidden = !failed && !earlier;
+    say("run-owner", failed
+      ? "Latest build failed. The console and kernel evidence show the last run."
+      : earlier
+        ? "The console and kernel evidence show an earlier draft. Choose Build & run to run your current source."
+        : "");
+  }
 }
 function contextFile() {
   const path = $("context-file").value;
@@ -96,7 +136,7 @@ function render() {
   enhanceConcepts($("concept-slot"));
   say("context-title", lesson.contextTitle);
   const excerpt = sourceExcerpt(files, lesson);
-  say("source-location", `${excerpt.file} · line ${excerpt.first}`);
+  say("source-location", `${excerpt.file} · line ${excerpt.first} · read-only`);
   say("source-excerpt", excerpt.text);
   $("pid-evidence").hidden = !lesson.observePid || !!lesson.observeProcesses;
   $("process-evidence").hidden = !lesson.observeProcesses;
@@ -122,16 +162,16 @@ function render() {
     file: lesson.file,
     onChange(source) {
       drafts.set(kind, source);
-      undoRestore = null;
       editor?.clearDiagnostics();
-      save();
+      draftScope = persist(draftKey, source);
+      showDraftStatus();
       if (!buildJob) {
         document.body.dataset.buildState = "idle";
-        say("build-messages", "Draft changed. Build to check these changes.");
+        $("build-diagnostics").hidden = true;
       }
       controls();
       if (!buildJob && !machine?.worker)
-        activity("Draft saved. Build to test these changes.");
+        activity("");
     },
     onRun: () => build(true),
   });
@@ -140,20 +180,11 @@ function render() {
       (button.onclick = () => {
         if (!editor.focusText(button.dataset.focus))
           activity(
-            "That expression is no longer in this draft. Restore the starter to follow the original walkthrough.",
+            "The editor no longer contains that expression. Restore starter brings it back and keeps this edit under Undo restore.",
           );
       }),
   );
-  say(
-    "draft-status",
-    storageOK ? "Draft saved in this browser" : "Draft kept in this tab",
-  );
-  say(
-    "build-messages",
-    builds.has(kind)
-      ? "A valid build is available for this exercise."
-      : "Ready. Edit the source, or build the starter unchanged.",
-  );
+  showDraftStatus();
   say(
     "build-method",
     lesson.mode === "user"
@@ -161,7 +192,7 @@ function render() {
       : `This compiles ${[lesson.build?.target || "sys_getpid"].flat().join(" and ")} into the real kernel. The supplied user program runs after boot; all other functions come from the matching native build.`,
   );
   document.title = lesson.title + " — xv6 Lab";
-  activity("Ready to edit " + lesson.file);
+  activity("");
   controls();
 }
 async function build(runAfter) {
@@ -177,12 +208,9 @@ async function build(runAfter) {
     job = { worker, exercise, source, runAfter };
   buildJob = job;
   document.body.dataset.buildState = "building";
+  $("build-diagnostics").hidden = true;
   editor.clearDiagnostics();
-  say(
-    "build-messages",
-    "Loading the compiler, compiling C to RISC-V, and linking the edited object…",
-  );
-  activity("Building " + lessons[exercise].file + "…");
+  activity("Loading the compiler…");
   controls();
   const fail = (message) => {
     if (buildJob !== job) return;
@@ -190,13 +218,17 @@ async function build(runAfter) {
     worker.terminate();
     buildJob = null;
     document.body.dataset.buildState = "error";
+    $("build-diagnostics").hidden = false;
+    $("build-diagnostics").querySelector("h3").textContent = "Build error";
+    if (lessons[exercise].file === "user/workbench.c")
+      message = message.replaceAll("user/user/workbench.c:", "user/workbench.c:");
     say(
       "build-messages",
       message +
-        "\nThe last valid build and existing run are kept. Fix the source and build again.",
+        "\nFix the source, then choose Build & run.",
     );
     editor.diagnostic(message);
-    activity("Build failed. See the message under the source.");
+    activity("Build failed. See Build error below the editor.");
     controls();
   };
   job.timer = setTimeout(
@@ -223,10 +255,7 @@ async function build(runAfter) {
             ),
           15000,
         );
-        say(
-          "build-messages",
-          "Compiling C to RISC-V and linking the edited object…",
-        );
+        activity("Building " + lessons[exercise].file + "…");
       }
       return;
     }
@@ -242,17 +271,12 @@ async function build(runAfter) {
     builds.set(exercise, record);
     document.body.dataset.buildState = "ready";
     const current = kind === exercise && drafts.get(kind) === source;
-    say(
-      "build-messages",
-      `Build succeeded. A real RISC-V ELF image was created.\nEdited code/data: ${data.used} bytes in the exercise link area.` +
-        (current
-          ? ""
-          : "\nThis build belongs to an earlier draft. Build the current source before running."),
-    );
+    $("build-size").hidden = false;
+    say("build-size", `Edited code and data use ${data.used} bytes in the space reserved for this lesson.`);
     activity(
       current
         ? "Build ready for this draft."
-        : "Source changed during the build. Build your latest changes.",
+        : "The source changed during the build. Choose Build & run to test this draft.",
     );
     controls();
     if (runAfter && current) runBuild(record);
@@ -345,14 +369,15 @@ function runBuild(record) {
     complete: false,
   };
   machine = run;
+  $("run-status").hidden = false;
+  $("run-message").hidden = false;
   $("view-result").hidden = false;
   $("console-empty").hidden = true;
   say("terminal", "");
   say("run-status", "Booting…");
-  say("run-owner", "Running build: " + lessons[record.exercise].file);
   say(
     "run-message",
-    "A fresh xv6 machine is booting. The workbench program will launch when the shell is ready.",
+    "The lab will start your program as soon as the xv6 shell is ready.",
   );
   activity("Booting your built image…");
   processEvidence();
@@ -386,14 +411,15 @@ function runBuild(record) {
       say("terminal", run.output);
       const area = $("terminal").parentElement;
       area.scrollTop = area.scrollHeight;
-      if (/panic:[^\n]*\n/.test(run.output)) {
+      const panic = run.output.match(/(?:^|\n)(panic:[^\n]*)\n/)?.[1];
+      if (panic) {
         run.complete = true;
         run.worker.terminate();
         run.worker = null;
         say("run-status", "Kernel panic");
         say(
           "run-message",
-          lessons[run.exercise].teachesKernelPanic
+          lessons[run.exercise].teachesKernelPanic === panic
             ? "The kernel panicked, as this experiment explores. This stops the whole virtual machine. Restore the starter and build again to boot a fresh machine."
             : "The kernel reported a panic. We stopped this virtual machine. Inspect your edit, then build and run a fresh machine.",
         );
@@ -422,19 +448,17 @@ function runBuild(record) {
           run.worker.terminate();
           run.worker = null;
           say("run-status", "Run complete");
-          const problem = /usertrap\(\)|panic:|exec .*failed/.test(run.output);
+          const userFault = /(?:^|\n)usertrap\(\)/.test(run.output);
           say(
             "run-message",
-            problem
+            userFault
               ? lessons[run.exercise].expectedFault
-                ? "The guest reported a fault, as this lesson explores. Check which process continued in the console."
-                : "The guest reported a fault. Read the console, then inspect your edit."
-              : "The program returned to the shell. Compare the output and kernel evidence with your source.",
+                ? "A user process faulted. Check the console for which process continued."
+                : "The guest reported a fault. Check the console for the error, then inspect your edit."
+              : "The shell returned to its prompt.",
           );
           activity(
-            problem
-              ? "The guest reported a fault. Your build is kept."
-              : "Run complete. Edit the source to investigate another change.",
+            userFault ? "Guest reported a fault." : "",
           );
           evidence();
           controls();
@@ -476,6 +500,8 @@ $("stop").onclick = () => {
   clearTimeout(buildJob.timer);
   buildJob = null;
   document.body.dataset.buildState = "idle";
+  $("build-diagnostics").hidden = false;
+  $("build-diagnostics").querySelector("h3").textContent = "Build cancelled";
   say(
     "build-messages",
     "Build cancelled. Your draft and the last valid build are kept.",
@@ -484,17 +510,17 @@ $("stop").onclick = () => {
   controls();
 };
 $("restore").onclick = () => {
-  const old = drafts.get(kind);
+  undoRestore = drafts.get(kind);
+  persist(recoveryKey, undoRestore);
   editor.replace(starter(kind));
-  undoRestore = { kind, source: old };
   controls();
   activity("Starter restored. Undo restore is available beside the file.");
 };
 $("undo-restore").onclick = () => {
-  const restore = undoRestore;
-  if (!restore) return;
-  editor.replace(restore.source);
+  if (undoRestore === null) return;
+  editor.replace(undoRestore);
   undoRestore = null;
+  persist(recoveryKey, "");
   controls();
   activity("Your previous draft is restored.");
 };
@@ -528,10 +554,7 @@ window.addEventListener("pagehide", () => {
     clearTimeout(buildJob.timer);
     buildJob = null;
     document.body.dataset.buildState = "idle";
-    say(
-      "build-messages",
-      "Build cancelled when you left this lesson. Build again to continue.",
-    );
+    activity("Build cancelled when you left this lesson.");
     controls();
   }
   stopRun("Background run stopped when you left this lesson.");
@@ -542,33 +565,17 @@ try {
   );
   if (!response.ok) throw new Error("HTTP " + response.status);
   files = (await response.json()).files;
-  for (const id of Object.keys(lessons)) {
-    let saved;
-    try {
-      saved = localStorage.getItem("xv6-lesson:" + id);
-      // Retain drafts made in the original two-exercise preview.
-      if (
-        saved === null &&
-        ["a-system-call-result", "changing-the-answer"].includes(id)
-      )
-        saved = localStorage.getItem(
-          "xv6-workbench:" +
-            (id === "a-system-call-result" ? "user" : "kernel"),
-        );
-    } catch {
-      storageOK = false;
-    }
-    drafts.set(id, saved ?? starter(id));
-  }
-  if (!storageOK) {
-    $("storage-warning").hidden = false;
-    say(
-      "storage-warning",
-      "Source can be edited, but local storage is unavailable. Download drafts before leaving.",
-    );
-  }
+  let saved = load(draftKey);
+  // Retain drafts made in the original two-exercise preview.
+  if (saved.value === null && ["a-system-call-result", "changing-the-answer"].includes(kind))
+    saved = load("xv6-workbench:" + (kind === "a-system-call-result" ? "user" : "kernel"));
+  draftScope = saved.value === null && saved.scope === "browser" ? "starter" : saved.scope;
+  drafts.set(kind, saved.value ?? starter(kind));
+  undoRestore = load(recoveryKey).value || null;
   render();
 } catch (error) {
+  $("build-diagnostics").hidden = false;
+  $("build-diagnostics").querySelector("h3").textContent = "Source loading error";
   say(
     "build-messages",
     "Could not load the matching xv6 source: " +

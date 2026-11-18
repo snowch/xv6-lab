@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="boot-replays-a-committed-journal">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -49,33 +49,36 @@
           <h1 id="lesson-title">Boot replays a committed journal</h1>
           <p id="lesson-subtitle">Run xv6’s actual recovery on a prepared interrupted-install image.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>This lesson boots an explicitly prepared disk image. README’s home data block contains O. A committed one-entry journal names that block and contains its replacement byte R, as if commit completed but home installation had not. The browser prepares those bytes; it does not perform the recovery.</p><p>The editable recover_from_log is xv6’s actual boot routine. read_head loads the committed entry, install_trans(1) copies its recorded data to the home block, and write_head clears the transaction. Build and the supplied user program reads recovered byte=R from the real file after boot.</p><p>Skip install_trans(1) and build again. The broken recovery clears the header without installing the committed data, so the file still contains O. This disposable fixture isolates one committed data-block update. It demonstrates actual replay, not an emulated physical power cut or every possible storage-failure model.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="recovery" aria-labelledby="concept-title-recovery"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-recovery">Replay the committed image into its home block</strong></figcaption><p class="concept-summary">The lesson’s prepared example begins with O at home and R in a committed journal entry.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-recovery"><li class="concept-node" data-node="log" data-active="true"><span class="concept-zone">Journal data</span><strong>Journal payload</strong><span class="concept-value">R</span></li><li class="concept-node" data-node="home"><span class="concept-zone">Home data</span><strong>README home block</strong><span class="concept-value">O</span></li><li class="concept-node" data-node="header" data-active="true"><span class="concept-zone">Commit marker</span><strong>Journal header</strong><span class="concept-value">n = 1</span></li></ol><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-recovery" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-recovery">Next step →</button></div><div class="concept-frame" id="concept-frame-recovery" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Read the committed header</strong><p class="concept-frame-text">read_head discovers the committed entry naming README’s home block.</p></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Read the committed header.</strong> read_head discovers the committed entry naming README’s home block.</li><li><strong>Install its final image.</strong> install_trans copies the logged block. README’s home byte is now R.</li><li><strong>Repeat safely.</strong> Copying the identical image again leaves R unchanged. This is redo idempotence, not a second increment.</li><li><strong>Clear after installation.</strong> Recovery clears n only after installing the image. The home byte remains R.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/log.c · recover_from_log · install_trans</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p>This lesson boots an explicitly prepared disk image. README’s home data block contains O. A committed one-entry journal names that block and contains its replacement byte R, as if commit completed but home installation had not. The browser prepares those bytes; it does not perform the recovery.</p><p>The editable recover_from_log is xv6’s actual boot routine. read_head loads the committed entry, install_trans(1) copies its recorded data to the home block, and write_head clears the transaction. After boot, the supplied program reads the first byte from README.</p><p>Skipping installation leaves the original home byte in place even though the log header is cleared. This disposable fixture isolates one committed data-block update. It demonstrates actual replay, not an emulated physical power cut or every possible storage-failure model.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="recovery" aria-labelledby="concept-title-recovery"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-recovery">Replay the committed image into its home block</strong></figcaption><p class="concept-summary">The lesson’s prepared example begins with O at home and R in a committed journal entry.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-recovery"><li class="concept-node" data-node="log" data-active="true"><span class="concept-zone">Journal data</span><strong>Journal payload</strong><span class="concept-value">R</span></li><li class="concept-node" data-node="home"><span class="concept-zone">Home data</span><strong>README home block</strong><span class="concept-value">O</span></li><li class="concept-node" data-node="header" data-active="true"><span class="concept-zone">Commit marker</span><strong>Journal header</strong><span class="concept-value">n = 1</span></li></ol><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-recovery" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-recovery">Next step →</button></div><div class="concept-frame" id="concept-frame-recovery" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Read the committed header</strong><p class="concept-frame-text">read_head discovers the committed entry naming README’s home block.</p></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Read the committed header.</strong> read_head discovers the committed entry naming README’s home block.</li><li><strong>Install its final image.</strong> install_trans copies the logged block. README’s home byte is now R.</li><li><strong>Repeat safely.</strong> Copying the identical image again leaves R unchanged. This is redo idempotence, not a second increment.</li><li><strong>Clear after installation.</strong> Recovery clears n only after installing the image. The home byte remains R.</li></ol></details><p class="concept-source"><strong>Related xv6 code</strong> kernel/log.c · recover_from_log · install_trans</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arguments and return values</summary><div class="c-reminder-content"><p>A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.</p><pre translate="no"><code>int pid = getpid();
 printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters and return values <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">Recovery does not bunpin the home buffer: pins were in the previous kernel's memory and do not survive reboot. Normal commit installation uses a different recovering flag.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Comment out install_trans(1), leaving the rest of recover_from_log intact. Build and run; recovered byte becomes O. Restore the starter to replay R again.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/log.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>recovered byte=R</samp>.
+        </p>
+        <p id="assignment">Comment out install_trans(1); in recover_from_log and leave the rest of the function. Choose Build &amp; run again. Compare recovered byte with the starter. Does the read see the byte that was already at its destination or the byte held in the committed journal? Choose Restore starter and Build &amp; run to replay the journal again.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -99,18 +102,21 @@ printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-li
             tabindex="-1"
             style="--editor-height: 460px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -121,8 +127,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -149,9 +155,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -171,9 +177,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -191,16 +195,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -209,19 +212,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">A committed redo record lets boot complete an interrupted home-block installation.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why does clearing the header before installing its data lose a committed update?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why does clearing the header before installing its data lose a committed update?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/the-header-is-the-commit-point/"><small>← Previous lesson</small>The journal header marks the commit point</a><a data-direction="next" href="lessons/redo-replay-is-idempotent/"><small>Next lesson →</small>Redo replay can be repeated safely</a>
         </nav>
@@ -229,15 +227,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -247,6 +242,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

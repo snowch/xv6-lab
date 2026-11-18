@@ -11,7 +11,7 @@ const lesson = (details) => ({
   file: "user/workbench.c",
   offset: 1,
   editorHeight: 600,
-  ...details,
+ ...details,
 });
 export const chapter2Lessons = {
   "fork-creates-a-child": lesson({
@@ -31,8 +31,9 @@ export const chapter2Lessons = {
     },
     sourceNote:
       "fork copies the saved user registers, then sets the child’s saved a0 register to zero. The parent takes a different return path: fork returns the newly allocated child PID. Both returns belong to this one fork call.",
+    starterEvidence: "In the xv6 console, find child: fork returned 0. In the parent line, compare fork returned with collected.",
     assignment:
-      "Change only the child’s message and build again. Find its zero return value and the parent’s positive return value. The parent’s fork result and collected PID should match.",
+      "In the child branch, change only the label child: to new child: and keep the %d. Choose Build & run again. Compare new child: fork returned with parent: fork returned and collected. Which two fields identify the same child?",
     takeaway:
       "fork creates a second process. Its return value tells each process which side of the creation it is on.",
     reflection:
@@ -58,8 +59,9 @@ export const chapter2Lessons = {
     },
     sourceNote:
       "This excerpt is inside wait’s branch for an exited child. freeproc releases its retained resources; the saved PID is then returned to the parent. The surrounding source contains the child scan and sleep path.",
+    starterEvidence: "In the xv6 console, find child: finishing and then parent: collected, followed by the child’s PID.",
     assignment:
-      'After the parent’s collected message, add printf("second wait=%d\\n", wait(0));. Build and run. With its only child already collected, the second wait should return -1.',
+      "Immediately after printf(\"parent: collected %d\\n\", collected);, add printf(\"second wait=%d\\n\", wait(0));. Choose Build & run again. Why does second wait=-1 appear after the first call found a child?",
     takeaway:
       "wait both waits for an exited child when necessary and collects its retained process record.",
     reflection:
@@ -86,7 +88,7 @@ export const chapter2Lessons = {
     sourceNote:
       "exit saves the supplied status in xstate and marks the process ZOMBIE. Later, wait copies xstate into the parent’s requested address before freeing the child’s record.",
     assignment:
-      "Change the child’s exit argument from 7 to 23. Build and run. The printed status should change to 23; the child PID still identifies a process, rather than an outcome.",
+      "In the child branch, change exit(7) to exit(23). Choose Build & run again. Compare exited with status across the two runs. Which field in the line still identifies the child?",
     takeaway:
       "A parent gets the child’s identity as wait’s return value and its exit status through a separate memory argument.",
     reflection:
@@ -114,7 +116,7 @@ export const chapter2Lessons = {
     sourceNote:
       "uvmcopy copies user memory from the parent’s page table to the child’s page table. This lesson concerns ordinary user memory; inherited file descriptors have different sharing rules, which the file lessons will examine.",
     assignment:
-      "Change the child’s assignment from 99 to 123. Build and run. The child should print 123 and the parent should still print 7.",
+      "Change the child’s assignment from 99 to 123. Choose Build & run again. The child should print 123 and the parent should still print 7.",
     takeaway:
       "After fork, assigning to an ordinary variable in the child changes the child’s copy of user memory.",
     reflection:
@@ -141,8 +143,9 @@ export const chapter2Lessons = {
     },
     sourceNote:
       "The kernel installs a new page table and sets the saved user program counter and stack pointer for the replacement executable. It frees the old memory image. The current process record is retained.",
+    starterEvidence: "In the xv6 console, find The new program is echo. Compare the PID reported by the program with Kernel PID at process exit.",
     assignment:
-      "Change only the message in args and build again. Find the new echo output, confirm that the old program’s final printf is absent, and compare the entry and exit PIDs.",
+      "Replace The new program is echo with The replacement printed this in args. Choose Build & run again. Find the new message and check that exec returned to the old program is absent. Does PID reported by the program still equal Kernel PID at process exit?",
     takeaway:
       "A process is not tied to one program forever. exec replaces its program; it does not create a second process.",
     reflection:
@@ -161,7 +164,7 @@ export const chapter2Lessons = {
         '  int before = getpid();\n  printf("reported pid=%d\\n", before);\n  char *args[] = {"echo", "The replacement ran", 0};\n  int result = exec("missing", args);\n  printf("exec result=%d\\n", result);\n  printf("caller pid before=%d after=%d\\n", before, getpid());',
         1,
       ),
-    reading: `<p>The file named <code>missing</code> is not present in this fresh xv6 filesystem. <button class="code-link" data-focus='exec("missing"'>exec</button> cannot load it, so it returns <code>-1</code>. The caller continues with its existing program and memory.</p><p>That is why the printf after exec is useful error handling: it is reached when exec fails. On success, the replacement program starts instead. The line after a successful exec is not a place to put work that the replacement should perform.</p><p>Build the unchanged example. You should see <code>exec result=-1</code> and the same caller PID before and after the failed request. The local variable <code>before</code> is still available because the old program was not replaced.</p>`,
+    reading: `<p>The file named <code>missing</code> is not present in this fresh xv6 filesystem. <button class="code-link" data-focus='exec("missing"'>exec</button> cannot load it, so it returns <code>-1</code>. The caller continues with its existing program and memory.</p><p>That is why the printf after exec is useful error handling: it is reached when exec fails. On success, the replacement program starts instead. The line after a successful exec is not a place to put work that the replacement should perform.</p><p>The local variable <code>before</code> is still available because the old program was not replaced.</p>`,
     excerpt: {
       file: "kernel/exec.c",
       within: "exec(char *path, char **argv)",
@@ -171,7 +174,7 @@ export const chapter2Lessons = {
     sourceNote:
       "namei looks up the requested path. When there is no matching file, exec ends the filesystem operation and returns -1 before committing a replacement image. Other load errors also use a failure path that discards the incomplete new image.",
     assignment:
-      'Change the path argument in exec from "missing" to "echo", leaving args intact. Build and run. The replacement message should appear, and the old exec-result and caller-after messages should disappear.',
+      'Change the path argument in exec from "missing" to "echo", leaving args intact. Choose Build & run again. The replacement message should appear, and the old exec-result and caller-after messages should disappear.',
     takeaway:
       "Code following exec handles failure. Successful replacement continues at the new program’s entry point.",
     reflection:

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="the-loader-zeroes-real-bss-memory">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -51,33 +51,36 @@
           <h1 id="lesson-title">The loader supplies zero bytes for BSS</h1>
           <p id="lesson-subtitle">Change actual page initialization before loading a native NOBITS object.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>C requires an uninitialized object with static storage to start at zero. For a native ELF BSS region, those bytes are absent from the file. xv6 satisfies the requirement by zeroing allocated pages before copying each segment’s file-backed bytes over the prefix.</p><p>The editable uvmalloc is the actual allocator. The supplied workbench program execs native bssprobe, whose source is available below. Its volatile array read forces an actual memory load. Build and observe BSS byte=0.</p><p>Set FILL to 7. Only allocations while the caller is named workbench receive that fill, isolating this exec experiment from normal init and shell loading. The file copy does not overwrite BSS, so the native program reads 7. This deliberately violates the initialization contract. It does not use a browser link-slot global as evidence of ELF zero-fill.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="elf" aria-labelledby="concept-title-elf"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-elf">Construct a memory image from ELF segments</strong></figcaption><p class="concept-summary">A loadable segment supplies filesz file bytes and requires memsz bytes of memory.</p><ol class="concept-map concept-stack concept-count-3" id="concept-map-elf"><li class="concept-node" data-node="file"><strong>File-backed prefix</strong><span class="concept-value">Copy filesz bytes from the segment’s file offset.</span></li><li class="concept-node" data-node="tail"><strong>Zero-filled tail</strong><span class="concept-value">The remaining memsz − filesz bytes have no stored file payload.</span></li><li class="concept-node" data-node="stack"><strong>User stack and arguments</strong><span class="concept-value">Allocate a guarded stack area; copy strings and argv pointers.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/exec.c · exec · loadseg; kernel/vm.c · uvmalloc</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p>C requires an uninitialized object with static storage to start at zero. For a native ELF BSS region, those bytes are absent from the file. xv6 satisfies the requirement by zeroing allocated pages before copying each segment’s file-backed bytes over the prefix.</p><p>The editable uvmalloc is the actual allocator. The supplied workbench program execs native bssprobe, whose source is available below. Its volatile array read forces an actual memory load. The native program reports the array byte it actually reads.</p><p>Only allocations while the caller is named workbench receive that fill, isolating this exec experiment from normal init and shell loading. The file copy does not overwrite BSS, so the native program reads 7. This deliberately violates the initialization contract. It does not use a browser link-slot global as evidence of ELF zero-fill.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="elf" aria-labelledby="concept-title-elf"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-elf">Construct a memory image from ELF segments</strong></figcaption><p class="concept-summary">A loadable segment supplies filesz file bytes and requires memsz bytes of memory.</p><ol class="concept-map concept-stack concept-count-3" id="concept-map-elf"><li class="concept-node" data-node="file"><strong>File-backed prefix</strong><span class="concept-value">Copy filesz bytes from the segment’s file offset.</span></li><li class="concept-node" data-node="tail"><strong>Zero-filled tail</strong><span class="concept-value">The remaining memsz − filesz bytes have no stored file payload.</span></li><li class="concept-node" data-node="stack"><strong>User stack and arguments</strong><span class="concept-value">Allocate a guarded stack area; copy strings and argv pointers.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> kernel/exec.c · exec · loadseg; kernel/vm.c · uvmalloc</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: array storage and compile-time sizes</summary><div class="c-reminder-content"><p>enum supplies an integer constant usable as an array size. A static local array has storage lasting for the process, rather than living in this function’s call stack. static does not make user memory shared between separate processes or preserve it across a fresh run.</p><pre translate="no"><code>enum { N = 6000 };
 static char data[N];</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/3" target="_blank" rel="noopener noreferrer">Scope and storage duration <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/allocation/1" target="_blank" rel="noopener noreferrer">Stack and heap storage <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">bssprobe is built by the native toolchain with a real NOBITS region and memsz &gt; filesz. loadseg copies only filesz; zero-fill supplies the remaining initialized memory.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change FILL from 0 to 7. Build and run; the actual native program should report BSS byte=7. Restore 0 to restore the C initialization contract.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/vm.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>BSS byte=0</samp>.
+        </p>
+        <p id="assignment">Change FILL from 0 to 7. Choose Build &amp; run again. The actual native program should report BSS byte=7. Restore 0 to restore the C initialization contract.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -101,18 +104,21 @@ static char data[N];</code></pre><p class="c-refresher-links">Refresh in C Found
             tabindex="-1"
             style="--editor-height: 850px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -123,8 +129,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -151,9 +157,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -173,9 +179,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -193,16 +197,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -211,19 +214,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">Executable loading must construct bytes that are required in memory but absent from the file.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Which writes initialize the BSS tail: reading file bytes or zeroing allocated pages?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Which writes initialize the BSS tail: reading file bytes or zeroing allocated pages?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/segments-separate-file-bytes-from-memory-size/"><small>← Previous lesson</small>A segment’s memory size can exceed its file bytes</a><a data-direction="next" href="lessons/exec-builds-a-new-argument-vector/"><small>Next lesson →</small>Exec builds a new argument vector</a>
         </nav>
@@ -231,15 +229,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -249,6 +244,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

@@ -296,7 +296,7 @@ const server = http.createServer((req, res) => {
                 ? source.replace("exit(7)", "exit(23)")
                 : source.replace(
                     "The new program is echo",
-                    "EDITED EXEC ARGUMENT",
+                    "The replacement printed this",
                   ),
           );
           expected =
@@ -304,7 +304,7 @@ const server = http.createServer((req, res) => {
               ? edits[id].expected
               : id === "a-childs-exit-status"
                 ? "exited with status 23"
-                : "EDITED EXEC ARGUMENT";
+                : "The replacement printed this";
         }
         if (
           (name === "desktop" &&
@@ -640,6 +640,18 @@ const server = http.createServer((req, res) => {
     );
     await page.locator("#flow-next").click();
     assert.equal(await page.locator('[data-flow-stage="2"]').isVisible(), true);
+    await page.locator("#flow-next").click();
+    await page.getByRole("button", { name: "Compare two addresses", exact: true }).press("Enter");
+    await page.waitForFunction(() => {
+      const compare = document.querySelector("#guide-variant-inspection").textContent;
+      return compare.includes("Physical address") && compare.includes("Unmapped");
+    }, null, { timeout: 60000 });
+    const comparison = page.locator("#guide-variant-inspection");
+    assert.match(await comparison.textContent(), /lab · 0x0[\s\S]*L0 \[0\][\s\S]*Physical address/);
+    assert.match(await comparison.textContent(), /lab · 0x40000000[\s\S]*L2 \[1\][\s\S]*Unmapped/);
+    assert.equal(await page.locator(".advanced-tools").getAttribute("open"), null);
+    await page.locator("#flow-next").press("Enter");
+    await page.waitForFunction(() => document.querySelector("#status").textContent === "Shell ready");
     assert.equal(await page.locator("#lesson-search").inputValue(), "memory");
 
     assert.match(await page.locator("#lesson > h2").textContent(), /Sv39/);
@@ -713,6 +725,10 @@ const server = http.createServer((req, res) => {
         previous,
         "compile errors retain last output",
       );
+      assert.match(
+        await page.locator("#run-owner").textContent(),
+        /Latest build failed.*last run/,
+      );
       await page.goto(base + "lessons/changing-the-answer/");
       await page.waitForFunction(
         () =>
@@ -754,6 +770,12 @@ const server = http.createServer((req, res) => {
       });
       await page.locator("#restore").click();
       assert.equal(await page.locator("#undo-restore").isVisible(), true);
+      if (name === "phone") {
+        await page.reload();
+        await page.locator(".cm-content").waitFor();
+        assert.doesNotMatch(await page.locator(".cm-content").innerText(), /\+ 1000/);
+        assert.equal(await page.locator("#undo-restore").isVisible(), true);
+      }
       await page.locator("#undo-restore").click();
       assert.match(await page.locator(".cm-content").innerText(), /\+ 1000/);
       if (name === "wide") {

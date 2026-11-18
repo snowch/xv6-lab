@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="a-guard-page-denies-user-access">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -51,32 +51,35 @@
           <h1 id="lesson-title">A guard page catches an invalid user access</h1>
           <p id="lesson-subtitle">Connect a cleared U bit with a real, contained user page fault.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>exec allocates two pages for the initial stack region and clears U on the lower page. That page remains backed by physical memory, but user-mode access is denied. It is a <strong>guard page</strong>, intended to catch a stack that grows beyond its allowed page.</p><p>This lesson deliberately changes getpid’s result into a lab address. The handler locates the guard page below the saved user stack pointer and reports its real V and U bits. The supplied test program forks a child, has it load a byte from the returned address, and lets the parent collect its status. The handler’s return value is no longer a PID in this experiment.</p><p>Build and find guard valid=1 user=0, a user page-fault report and child status -1. The parent and shell continue. Changing the returned address to the adjacent usable stack page lets the child complete. volatile ensures the test actually attempts its load; it does not make a protected address valid.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="guard" aria-labelledby="concept-title-guard"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-guard">A mapped page can still deny user access</strong></figcaption><p class="concept-summary">The guard page has a mapping, but its user-access bit is cleared.</p><ol class="concept-map concept-stack concept-count-3" id="concept-map-guard"><li class="concept-node" data-node="stack"><span class="concept-zone">User accessible</span><strong>Usable stack page</strong><span class="concept-value">PTE_V = 1; PTE_U = 1</span></li><li class="concept-node" data-node="guard"><span class="concept-zone">User access denied</span><strong>Guard page below it</strong><span class="concept-value">PTE_V = 1; PTE_U = 0</span></li><li class="concept-node" data-node="fault"><strong>Crossing into the guard</strong><span class="concept-value">A user load or store faults; mapping existence is insufficient.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/exec.c · uvmclear; kernel/vm.c · uvmclear</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p>exec allocates two pages for the initial stack region and clears U on the lower page. That page remains backed by physical memory, but user-mode access is denied. It is a <strong>guard page</strong>, intended to catch a stack that grows beyond its allowed page.</p><p>In the starter, the lab uses getpid to return a memory address instead of its normal process identifier. The handler locates the guard page below the saved user stack pointer and reports its real V and U bits. The supplied test program forks a child, has it load a byte from the returned address, and lets the parent collect its status. The handler’s return value is no longer a PID in this experiment.</p><p>The supplied program reads through a volatile pointer so the compiler keeps the load. The CPU still checks permission to access the address.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="guard" aria-labelledby="concept-title-guard"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-guard">A mapped page can still deny user access</strong></figcaption><p class="concept-summary">The guard page has a mapping, but its user-access bit is cleared.</p><ol class="concept-map concept-stack concept-count-3" id="concept-map-guard"><li class="concept-node" data-node="stack"><span class="concept-zone">User accessible</span><strong>Usable stack page</strong><span class="concept-value">PTE_V = 1; PTE_U = 1</span></li><li class="concept-node" data-node="guard"><span class="concept-zone">User access denied</span><strong>Guard page below it</strong><span class="concept-value">PTE_V = 1; PTE_U = 0</span></li><li class="concept-node" data-node="fault"><strong>Crossing into the guard</strong><span class="concept-value">A user load or store faults; mapping existence is insufficient.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> kernel/exec.c · uvmclear; kernel/vm.c · uvmclear</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: casts, dereferences and volatile</summary><div class="c-reminder-content"><p>The cast converts an address value to a pointer type. The leading * then performs the memory access. volatile requires this read to occur, but it does not grant permission to the address or make an invalid access valid. The experiment confines that deliberate access to a child process.</p><pre translate="no"><code>volatile char value = *(volatile char*)address;</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/4" target="_blank" rel="noopener noreferrer">Conversions and casts <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">uvmclear removes user permission from an allocated page. A guard fault therefore differs from an entirely missing translation, even though either can deny user access.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change return guard to return guard + PGSIZE. Build and run. The child should print child read succeeded, its collected status should be 0, and there should be no usertrap report.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/sysproc.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find guard valid=1 user=0, the usertrap fault and guard child status=-1. The parent and shell continue after the child stops.
+        </p>
+        <p id="assignment">In sys_getpid, replace return guard; with return guard + PGSIZE;. Choose Build &amp; run again. Find child read succeeded and guard child status=0. Compare the usertrap report with the first run. The printed guard bits still describe the original guard page. Which address did the child actually load from this time?</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -100,18 +103,21 @@
             tabindex="-1"
             style="--editor-height: 650px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -122,8 +128,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -150,9 +156,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -172,9 +178,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -192,16 +196,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -210,19 +213,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">A mapped page can still be inaccessible to user code; the CPU enforces the permissions when the load executes.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why does allocating physical memory for a guard page not make it safe for user code to access?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why does allocating physical memory for a guard page not make it safe for user code to access?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/kernel-mappings-include-devices/"><small>← Previous lesson</small>The kernel maps RAM and device registers</a><a data-direction="next" href="lessons/trampoline-mappings-cross-address-spaces/"><small>Next lesson →</small>The trampoline has a shared virtual location</a>
         </nav>
@@ -230,15 +228,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -248,6 +243,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

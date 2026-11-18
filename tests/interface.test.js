@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { JSDOM } from "jsdom";
 import { lessons } from "../site/lessons.js";
+import { commandChanges } from "../site/guide-content.js";
 
 test("all lessons navigate, grade answers, save explicit completion, and operate machine controls", async () => {
   const dom = new JSDOM(
@@ -58,8 +59,10 @@ test("all lessons navigate, grade answers, save explicit completion, and operate
     assert.equal($("complete").checked, false);
     $("complete").click();
     assert.equal(localStorage.getItem("xv6-lab:done:" + lesson.id), "1");
-    $("load-command").click();
-    assert.equal($("command").value, lesson.command);
+    if (commandChanges[lesson.id]) {
+      $("load-command").click();
+      assert.equal($("command").value, commandChanges[lesson.id]);
+    } else assert.equal($("load-command"), null);
   }
   assert.match($("progress").textContent, /25 \/ 25/);
   dom.window.location.hash = "step";

@@ -133,7 +133,7 @@ npm run serve
 
 Requires Node 24; local serving uses Python 3. The checked-in assets run without installing a host compiler, server backend, account, SharedArrayBuffer or special hosting headers. All runtime assets are served from the repository.
 
-Tests compile and execute all sixty-three source-led examples and their taught edits, then drive all 25 explorer experiments through the application using the actual Wasm worker and guest images, check guest outputs, breakpoints, source mapping, process/trapframe reads and real page-table translations. Independent runtime and interface tests also check error recovery, progress, predictions, grading, reset and asset hashes. GitHub Actions builds the guest from source before running these tests and deploying Pages.
+Tests compile and execute all 99 source-led examples and their taught edits. They also drive all 25 explorer experiments using the WebAssembly worker and guest images, checking guest output, breakpoints, source mapping, saved registers and page-table translations. Separate runtime and interface checks cover error recovery, drafts, progress, predictions, understanding checks, reset and asset hashes. GitHub Actions builds the guest from source before running these checks and deploying Pages.
 
 ## Build or modify the guest
 
