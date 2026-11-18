@@ -844,6 +844,49 @@ const server = http.createServer((req, res) => {
       await page.close();
       console.log("source workbench " + name + " passed");
     }
+    for (const recoveryInTab of [false, true]) {
+      const id = "a-system-call-result";
+      const key = "xv6-lesson:" + id;
+      const recoveryKey = "xv6-lesson-restore:" + id;
+      const source = chapter[id].starter(matchingFiles);
+      const previous = source.replace("Hello from my xv6 program!", "A longer learner draft that permanent storage can hold only once.");
+      const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      const page = await context.newPage();
+      await page.addInitScript(({ key, previous, recoveryKey, recoveryInTab }) => {
+        const save = Storage.prototype.setItem;
+        if (localStorage.getItem(key) === null) save.call(localStorage, key, previous);
+        Storage.prototype.setItem = function (name, value) {
+          if (name === recoveryKey && (this === localStorage || !recoveryInTab))
+            throw new DOMException("No space for a second copy", "QuotaExceededError");
+          return save.call(this, name, value);
+        };
+      }, { key, previous, recoveryKey, recoveryInTab });
+      const route = base + "lessons/" + id + "/";
+      await page.goto(route);
+      const editor = page.locator(".cm-content");
+      await editor.waitFor();
+      await page.getByRole("button", { name: "Restore starter" }).press("Enter");
+      assert.match(await editor.innerText(), /Hello from my xv6 program!/);
+      assert.equal(await page.evaluate(key => localStorage.getItem(key), key), previous);
+      assert.match(
+        await page.locator("#storage-warning").textContent(),
+        recoveryInTab ? /reopen in this tab/ : /available on this page/,
+      );
+      const newTab = await context.newPage();
+      await newTab.goto(route);
+      assert.match(await newTab.locator(".cm-content").innerText(), /A longer learner draft/);
+      await newTab.close();
+      await page.reload();
+      await editor.waitFor();
+      if (recoveryInTab) {
+        assert.match(await editor.innerText(), /Hello from my xv6 program!/);
+        await page.getByRole("button", { name: "Undo restore" }).press("Enter");
+      }
+      assert.match(await editor.innerText(), /A longer learner draft/);
+      assert.equal(await page.evaluate(key => localStorage.getItem(key), key), previous);
+      await context.close();
+    }
+    console.log("workbench recovery quotas passed");
   } finally {
     await browser.close();
     server.close();

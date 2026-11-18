@@ -16,12 +16,21 @@ let files,
   buildJob = null,
   machine = null,
   undoRestore = null,
+  recoveryScope = "browser",
   draftScope = "starter";
 const draftKey = "xv6-lesson:" + kind;
 const recoveryKey = "xv6-lesson-restore:" + kind;
 function activity(text) {
   $("activity-status").hidden = !text;
   say("activity-status", text);
+}
+function persistForTab(key, value) {
+  try {
+    sessionStorage.setItem(key, value);
+    return "tab";
+  } catch {
+    return "page";
+  }
 }
 function persist(key, value) {
   try {
@@ -31,13 +40,17 @@ function persist(key, value) {
     } catch {}
     return "browser";
   } catch {
-    try {
-      sessionStorage.setItem(key, value);
-      return "tab";
-    } catch {
-      return "page";
-    }
+    return persistForTab(key, value);
   }
+}
+function persistDraft(source) {
+  if (undoRestore !== null && recoveryScope !== "browser") {
+    recoveryScope = persist(recoveryKey, JSON.stringify(undoRestore));
+    // Retain the previous permanent draft if that is its only permanent copy.
+    if (recoveryScope === "tab") return persistForTab(draftKey, source);
+    if (recoveryScope === "page") return "page";
+  }
+  return persist(draftKey, source);
 }
 function load(key) {
   try {
@@ -58,9 +71,16 @@ function showDraftStatus() {
     page: "Draft kept on this page",
   }[draftScope]);
   $("storage-warning").hidden = ["starter", "browser"].includes(draftScope);
-  if (draftScope === "tab")
+  if (undoRestore !== null && recoveryScope !== "browser") {
+    say(
+      "storage-warning",
+      draftScope === "tab"
+        ? "The current source and Undo restore can reopen in this tab. A new tab opens your previous saved draft. To keep the current source, download it under Build tools and source download."
+        : "The current source and Undo restore are available on this page. Reloading opens your previous saved draft if you had one. To keep the current source, download it under Build tools and source download.",
+    );
+  } else if (draftScope === "tab")
     say("storage-warning", "Permanent storage is unavailable. Your draft can reopen in this tab. Use Download source under Build tools and source download to keep a copy before closing the tab.");
-  if (draftScope === "page")
+  else if (draftScope === "page")
     say("storage-warning", "Browser storage is unavailable. Use Download source under Build tools and source download to keep your edit before reloading or leaving this page.");
 }
 function starter(id) {
@@ -163,7 +183,7 @@ function render() {
     onChange(source) {
       drafts.set(kind, source);
       editor?.clearDiagnostics();
-      draftScope = persist(draftKey, source);
+      draftScope = persistDraft(source);
       showDraftStatus();
       if (!buildJob) {
         document.body.dataset.buildState = "idle";
@@ -511,16 +531,17 @@ $("stop").onclick = () => {
 };
 $("restore").onclick = () => {
   undoRestore = drafts.get(kind);
-  persist(recoveryKey, undoRestore);
+  recoveryScope = "page";
   editor.replace(starter(kind));
   controls();
   activity("Starter restored. Undo restore is available beside the file.");
 };
 $("undo-restore").onclick = () => {
   if (undoRestore === null) return;
-  editor.replace(undoRestore);
+  const source = undoRestore;
   undoRestore = null;
-  persist(recoveryKey, "");
+  editor.replace(source);
+  persist(recoveryKey, "null");
   controls();
   activity("Your previous draft is restored.");
 };
@@ -571,7 +592,13 @@ try {
     saved = load("xv6-workbench:" + (kind === "a-system-call-result" ? "user" : "kernel"));
   draftScope = saved.value === null && saved.scope === "browser" ? "starter" : saved.scope;
   drafts.set(kind, saved.value ?? starter(kind));
-  undoRestore = load(recoveryKey).value || null;
+  const recovery = load(recoveryKey);
+  let previous = null;
+  try {
+    previous = JSON.parse(recovery.value);
+  } catch {}
+  undoRestore = typeof previous === "string" && previous !== drafts.get(kind) ? previous : null;
+  recoveryScope = recovery.scope;
   render();
 } catch (error) {
   $("build-diagnostics").hidden = false;
