@@ -24,7 +24,7 @@ export const chapter3Lessons = {
     sourceNote:
       "The handler saves the old process size, calls growproc, and returns the saved address. A pointer returned by sbrk identifies a user virtual address, not a physical RAM address.",
     assignment:
-      "Change sbrk(4096) to sbrk(8192). Build and run. The reported growth should double, while the first stored byte remains 17.",
+      "Change sbrk(4096) to sbrk(8192). Choose Build & run again. The reported growth should double, while the first stored byte remains 17.",
     takeaway:
       "sbrk changes the process memory boundary and returns the previous boundary.",
     reflection:
@@ -51,7 +51,7 @@ export const chapter3Lessons = {
     sourceNote:
       "Each loop iteration maps one PGSIZE region. PTE_U permits user access; the other flags describe access permissions in this xv6 version. This program observes virtual addresses; it does not measure physical placement.",
     assignment:
-      "Change the second page’s byte from B to Z. Build and run. The bytes should be A and Z, still 4096 addresses apart.",
+      "Change the second page’s byte from B to Z. Choose Build & run again. The bytes should be A and Z, still 4096 addresses apart.",
     takeaway:
       "A user pointer names a virtual address; page mappings make the underlying memory accessible.",
     reflection:
@@ -78,7 +78,7 @@ export const chapter3Lessons = {
     sourceNote:
       "The kernel explicitly clears the allocated page. Uninitialised automatic C variables still follow C’s rules; this example reads bytes obtained from a fresh page allocation.",
     assignment:
-      "At the comment, insert p[0] = 9;. Build and run. Exactly one byte should now be nonzero.",
+      "Insert p[0] = 9; at the comment immediately before the counting loop. Choose Build & run again. Compare nonzero bytes across runs. How many bytes did the assignment change?",
     takeaway:
       "The allocator clears new user pages; later writes change those bytes normally.",
     reflection:
@@ -106,7 +106,7 @@ export const chapter3Lessons = {
     sourceNote:
       "uvmdealloc calculates which whole pages are no longer needed and calls uvmunmap with the free-memory argument set to 1. The logical boundary itself is recorded in bytes.",
     assignment:
-      "Change both 4096-byte amounts to 8192. Build and run. Added memory should be 8192 bytes and remaining growth should still be zero.",
+      "Change both 4096-byte amounts to 8192. Choose Build & run again. Added memory should be 8192 bytes and remaining growth should still be zero.",
     takeaway:
       "Releasing memory changes both the process boundary and, when appropriate, its page mappings.",
     reflection:
@@ -140,7 +140,7 @@ export const chapter3Lessons = {
     sourceNote:
       "The trap handler records the fault, marks the current process killed, and calls exit(-1). The parent can collect that child through the ordinary wait path.",
     assignment:
-      "Remove the child’s sbrk(-4096) line. Build and run. The page remains mapped, the read should produce 17, and the child should exit normally with status 0.",
+      "In the child branch, remove sbrk(-4096);. Choose Build & run again. Find child read=17 and parent survived; child status=0 in the console. Why can the child complete this time?",
     takeaway:
       "Page mappings enforce a boundary. A user fault can end one process without ending the OS.",
     reflection:
@@ -166,7 +166,7 @@ export const chapter3Lessons = {
     sourceNote:
       "either_copyin returns -1 for a failed user copy. consolewrite breaks its loop and returns i, the byte count. Here that converts a failed first copy into a zero-byte console write.",
     assignment:
-      'Replace (char*)0x40000000 with "safe". Build and run. The console should receive those four bytes and write should report 4.',
+      "In write, replace (char*)0x40000000 with \"safe\", keeping the count at 4. Choose Build & run again. Find safe immediately before write copied=4. Compare the byte count and process still running with the starter.",
     takeaway:
       "A kernel copy validates the user mapping and reports its outcome through the syscall’s own interface.",
     reflection:

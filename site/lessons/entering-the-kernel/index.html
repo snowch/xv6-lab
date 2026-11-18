@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="entering-the-kernel">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -49,32 +49,35 @@
           <h1 id="lesson-title">ecall crosses into the kernel</h1>
           <p id="lesson-subtitle">Follow getpid from its C call through the RISC-V ecall instruction.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The C declaration does not explain how a user program reaches protected kernel code. xv6 supplies a small assembly <strong>stub</strong>: a short function that arranges a system-call request.</p><p>The real <code>getpid</code> stub below loads <code>SYS_getpid</code>, the call’s number, into <code>a7</code>, a CPU register: a small storage location used here to hold the call number. The RISC-V instruction <code>ecall</code> then causes the CPU to enter xv6’s trap handling code. A <strong>trap</strong> transfers control so the kernel can handle an event; here the event is a user system call.</p><p>xv6’s <code>usertrap</code> recognises this event and calls <code>syscall</code>. That dispatcher uses the number to select <code>sys_getpid</code>, the kernel function that implements this request. After the kernel returns to user mode, the stub’s <code>ret</code> returns to the C caller.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="entry" aria-labelledby="concept-title-entry"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-entry">The stub requests a kernel service</strong></figcaption><p class="concept-summary">ecall requests kernel entry; a7 tells xv6 which service was requested.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-entry"><li class="concept-node" data-node="stub"><span class="concept-zone">User</span><strong>getpid stub</strong><span class="concept-value">The C call reaches the stub, which sets a7 = SYS_getpid and executes ecall.</span></li><li class="concept-node" data-node="handler"><span class="concept-zone">Kernel</span><strong>Trap and dispatch</strong><span class="concept-value">usertrap calls syscall; the call number selects sys_getpid.</span></li><li class="concept-node" data-node="caller"><span class="concept-zone">User</span><strong>Return to the caller</strong><span class="concept-value">The stub’s ret resumes the C caller with the returned integer.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> user/usys.S · kernel/trap.c · kernel/syscall.c · kernel/sysproc.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="entry" aria-labelledby="concept-title-entry"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-entry">The stub requests a kernel service</strong></figcaption><p class="concept-summary">ecall requests kernel entry; a7 tells xv6 which service was requested.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-entry"><li class="concept-node" data-node="stub"><span class="concept-zone">User</span><strong>getpid stub</strong><span class="concept-value">The C call reaches the stub, which sets a7 = SYS_getpid and executes ecall.</span></li><li class="concept-node" data-node="handler"><span class="concept-zone">Kernel</span><strong>Trap and dispatch</strong><span class="concept-value">usertrap calls syscall; the call number selects sys_getpid.</span></li><li class="concept-node" data-node="caller"><span class="concept-zone">User</span><strong>Return to the caller</strong><span class="concept-value">The stub’s ret resumes the C caller with the returned integer.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> user/usys.S · kernel/trap.c · kernel/syscall.c · kernel/sysproc.c</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: function declarations</summary><div class="c-reminder-content"><p>A declaration tells the compiler a function’s name, parameter types and result type. void inside the parameter list means no arguments. The declaration describes how to call the function; its implementation can live elsewhere.</p><pre translate="no"><code>int getpid(void);  // no arguments; returns an int</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters, return values and prototypes <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">This assembly comes from the matching xv6 build. You do not need to write assembly here: notice which instruction requests kernel entry, and which register identifies the service.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Call getpid twice by adding a second printf(&quot;reported pid=%d\n&quot;, getpid()); line. Build and run. Both requests come from the same process and should return the same PID.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the starter in user/workbench.c. The lab builds the code in the editor and starts it on a fresh xv6 machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>reported pid=</samp>.
+        </p>
+        <p id="assignment">Duplicate the line printf(&quot;reported pid=%d\n&quot;, getpid()); immediately before exit(0). Choose Build &amp; run again. Compare the two reported pid= lines in the xv6 console. Do the requests come from the same process?</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -98,18 +101,21 @@
             tabindex="-1"
             style="--editor-height: 330px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -120,8 +126,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -148,9 +154,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -170,9 +176,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -190,16 +194,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -208,19 +211,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">A C system-call name hides a real transition into the kernel. ecall initiates that transition; it does not itself choose or implement getpid.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">What tells the kernel which service the program requested: ecall alone, or the call number in a7?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">What tells the kernel which service the program requested: ecall alone, or the call number in a7?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/a-system-call-result/"><small>← Previous lesson</small>A system call returns a result</a><a data-direction="next" href="lessons/the-current-process/"><small>Next lesson →</small>The kernel finds the current process</a>
         </nav>
@@ -228,15 +226,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -246,6 +241,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

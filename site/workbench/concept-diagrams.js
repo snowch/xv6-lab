@@ -1417,7 +1417,7 @@ export function renderConcept(id) {
     key +
     '" aria-labelledby="concept-title-' +
     key +
-    '"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-' +
+    '"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-' +
     key +
     '">' +
     escape(spec.title) +
@@ -1434,9 +1434,9 @@ export function renderConcept(id) {
     cards +
     "</ol>" +
     controls +
-    '<p class="concept-source"><strong>Source anchors</strong> ' +
+    '<p class="concept-source"><strong>Related xv6 code</strong> ' +
     escape(spec.source) +
-    '</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure>'
+    '</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure>'
   );
 }
 

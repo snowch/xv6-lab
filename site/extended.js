@@ -17,7 +17,7 @@ const course = [
     expected:
       "user pid=<a positive number>; the PID varies as processes are created.",
     experiment:
-      "Run lab pid twice. Explain why two invocations can print different PIDs even though their executable is identical.",
+      "Load lab pid into the xv6 command field, then choose Run. Compare user pid= with the first invocation. What does a changed number tell you even though the executable is the same?",
     question:
       "What identifies a process independently of the program it is running?",
     choices: [
@@ -59,7 +59,7 @@ const course = [
       "Continue past the first exec stop. Compare before exec pid with user pid. Inspect the pinned exec source for the point where the old page table is freed.",
     expected: "before exec pid=N followed by user pid=N.",
     experiment:
-      "Run an unknown command, then lab exec. Explain why a failed exec must leave the old program able to handle the error.",
+      "Load banana, then choose Run in the xv6 command field. Compare its failed launch and returning $ prompt with the two matching PID lines from lab exec. Where does execution continue after each outcome?",
     question: "What changes on a successful exec?",
     choices: [
       "The program and user address space.",
@@ -99,7 +99,7 @@ const course = [
       "Continue and compare child value, parent value and child status. At kernel stops, the process inspector shows actual states; transient zombies may disappear before the next snapshot.",
     expected: "child value=99; parent value=7 child status=23.",
     experiment:
-      "Run zombie, then pause at a kernel function and inspect process states. This stock example leaves a child unreaped briefly; reset if you want a clean session.",
+      "Open the editable wait lesson linked below. Its test makes a second wait(0) call after the only child has been collected. Which result would show there is no remaining child?",
     question: "Why retain a zombie process record?",
     choices: [
       "So the parent can collect its exit information.",
@@ -139,7 +139,7 @@ const course = [
       "At sys_dup, refresh the process inspector and note lab’s descriptor count. Continue and read the shared-offset output.",
     expected: "shared offset: A then B",
     experiment:
-      "Compare the descriptor counts for init, sh and lab at the breakpoint. The count includes open handles, not unique inodes.",
+      "Choose Run changed command to pause at sys_dup before it adds the duplicate. Compare Open descriptors for init, sh and lab. Choose Continue execution. Why is that count different from a count of unique files?",
     question: "What does dup share?",
     choices: [
       "The underlying open-file object and offset.",
@@ -179,7 +179,7 @@ const course = [
       "Continue after sys_unlink and compare the read result with the absence of held in ls.",
     expected: "open descriptor still reads: alive",
     experiment:
-      "After the experiment run cat held. Explain why a new open fails while the earlier open descriptor succeeded.",
+      "Load cat held, then choose Run in the xv6 command field. Compare the failed new open with open descriptor still reads: alive. Which operation needs the directory name?",
     question: "What does unlink remove immediately?",
     choices: [
       "A directory name/link.",
@@ -219,7 +219,7 @@ const course = [
       "The first sys_link stop happens before the new link is installed. Continue and look for the bytes read through alias.",
     expected: "alias reads: linked",
     experiment:
-      "Try echo text > first, ln first second, rm first, then cat second. Clean up with rm second.",
+      "Load echo text > first and choose Run. In the same xv6 command field, run ln first second, then rm first, then cat second. Compare the text with the original run. Which name kept the file reachable? Run rm second to remove it afterwards.",
     question: "What does a hard link add?",
     choices: [
       "Another directory entry for the same inode.",
@@ -259,7 +259,7 @@ const course = [
       "Continue after mkdir, run ls labdir, then cd labdir and ls. Use cd / to return.",
     expected: "ls labdir shows . and ..; the new directory is visible in ls.",
     experiment:
-      "Create a file inside labdir, return to /, and read it by its relative path. Remove the file before removing labdir.",
+      "Load echo hello > labdir/item and choose Run. Then run cd labdir and /cat item in the xv6 command field. The / finds the cat executable at the root. Why can cat find item by its short name in this directory? Run cd /, rm labdir/item and rm labdir when finished.",
     question: "What determines the starting point of a relative pathname?",
     choices: [
       "The process’s current working directory.",
@@ -300,7 +300,7 @@ const course = [
       "At the first sys_sbrk, refresh processes and note lab’s size. Continue and read the growth result. Inspect uvmalloc in the source.",
     expected: "heap grew=4096 bytes value=42",
     experiment:
-      "Run the command again. Explain why a new process starts with its own initial heap rather than inheriting the prior lab invocation’s growth.",
+      "Load lab vm, then choose Run in the xv6 command field. Compare heap grew= and value= with the first run. Does the new process inherit the first program’s heap growth?",
     question: "In this eager-allocation xv6, what must growth install?",
     choices: [
       "Physical memory and valid user mappings.",
@@ -341,7 +341,7 @@ const course = [
     expected:
       "The walker shows a valid user executable mapping at 0x0 for lab; physical addresses vary.",
     experiment:
-      "Walk 0x40000000 for lab and compare its invalid PTE with 0x0. Do not confuse an unmapped address with a mapped page lacking U permission.",
+      "Choose Compare two addresses. The lab runs lab pid again, stops at sys_getpid and walks 0x0 and 0x40000000 for that same process. Compare the last displayed entry and its flags. Which walk has a physical address? Choose Continue execution when finished.",
     question:
       "Which part of a normal 4 KiB page address survives translation unchanged?",
     choices: [
@@ -381,7 +381,7 @@ const course = [
     expected:
       "An unexpected user trap diagnostic, followed by parent survived child fault, status=-1.",
     experiment:
-      "Run lab pid after the fault. Explain what the working shell and new process demonstrate about isolation.",
+      "Load lab pid, then choose Run in the xv6 command field. Find user pid= and the next $ prompt after the earlier child fault. Which parts of the system kept working?",
     question:
       "What prevents the invalid store from becoming an arbitrary physical write?",
     choices: [
@@ -423,7 +423,7 @@ const course = [
     expected:
       "The running lab row has a saved user PC and syscall number a7=11 (getpid).",
     experiment:
-      "Compare a saved user epc with the current kernel PC. Use the source panel to locate sys_getpid and trampoline.S in Go deeper.",
+      "Open the editable trapframe lesson linked below. It replaces a read of the saved syscall number with a read of the saved instruction address. Why does that change the equality test?",
     question:
       "Where should you look for original user syscall arguments during kernel execution?",
     choices: [
@@ -464,7 +464,7 @@ const course = [
       "At the sched stop, refresh the process table and compare states. Continue and observe turns from both parent and child.",
     expected: "Three parent turns and three child turns; order may vary.",
     experiment:
-      "Run lab yield twice and compare order without interpreting elapsed browser time as a CPU measurement.",
+      "Load lab yield, then choose Run in the xv6 command field. Count parent turn and child turn lines in both runs. Would a different order change how many turns each process got?",
     question: "What does a context switch preserve for later resumption?",
     choices: [
       "The suspended execution context.",
@@ -505,7 +505,7 @@ const course = [
       "Continue after sys_sleep. Watch sleeping for 3 timer ticks followed by awake. For a deeper stop, choose sleep in Advanced and inspect sleeping channels.",
     expected: "sleeping for 3 timer ticks, then awake after timer wakeup.",
     experiment:
-      "Run lab yield to see another process make progress while a peer sleeps.",
+      "Load lab yield, then choose Run in the xv6 command field. Compare parent turn and child turn with the sleeping and awake lines from lab sleep. What evidence shows another process can use the CPU during a wait?",
     question: "What should code do after a wakeup?",
     choices: [
       "Recheck the condition it was waiting for.",
@@ -545,7 +545,7 @@ const course = [
       "Continue after piperead and look for reader got 3 bytes and reader EOF=0. Inspect the source’s readopen/writeopen conditions.",
     expected: "reader got 3 bytes: hey; reader EOF=0.",
     experiment:
-      "Compare lab pipe with echo hey | wc. Explain how closing unused pipe ends enables both readers to finish.",
+      "Load echo hey | wc, then choose Run in the xv6 command field. Compare its byte count with reader got 3 bytes. Which command sends a newline, and what lets each reader detect the end?",
     question: "When can read on a pipe return EOF?",
     choices: [
       "When the buffer is drained and all write ends are closed.",
@@ -586,7 +586,7 @@ const course = [
     expected:
       "Execution pauses in acquire, then lab pid completes after Continue.",
     experiment:
-      "Compare the use of spinlocks in pipe.c with sleep locks in sleeplock.c. Identify which operations may block.",
+      "Open the editable sleeping-lock lesson linked below. It reads the process ownership and internal spinlock state separately. Which kind of lock can remain held while its owner waits for disk I/O?",
     question: "Why disable local interrupts while holding a spinlock?",
     choices: [
       "To prevent local interrupt re-entry from deadlocking on the same lock.",
@@ -625,7 +625,7 @@ const course = [
       "At bread inspect the matching source, then Continue and read the guest README. The breakpoint alone does not prove a cache miss.",
     expected: "The bundled README is printed and the shell returns.",
     experiment:
-      "Run cat README again. Use the source to explain why the same observable file contents do not imply identical device operations.",
+      "Load cat README, then choose Run in the xv6 command field. Compare the file text with the first run. Can matching text alone show that both reads sent identical requests to the disk?",
     question: "When can bread avoid issuing a device read?",
     choices: [
       "When the requested buffer already has valid contents.",
@@ -666,7 +666,7 @@ const course = [
       "Continue and confirm the 14336-byte file result. Inspect NDIRECT, NINDIRECT and bmap in the matching source.",
     expected: "file size=14336 bytes across direct and indirect blocks",
     experiment:
-      "Read the lab file mode source. Work out which logical block first requires an indirect entry (zero-based index 12).",
+      "Open the editable block-map lesson linked below. Change the inspected logical block index from 11 to 12 in that lesson. Which result field distinguishes a direct block from a block reached through the indirect table?",
     question: "What does an indirect block contain?",
     choices: [
       "Disk block addresses for file data.",
@@ -708,7 +708,7 @@ const course = [
     expected:
       "The link/unlink experiment completes. The source shows the log commit and replay ordering.",
     experiment:
-      "Find end_op in sysfile.c and explain why the final outstanding operation can trigger commit. Reset starts from the original disk, so it is not a crash-recovery test.",
+      "Open the editable commit lesson linked below. It moves a header observation across write_head. Which value tells you when the on-disk header records a commit?",
     question: "Which on-disk event says a log transaction is committed?",
     choices: [
       "Writing the nonzero log header after its data.",
@@ -748,7 +748,7 @@ const course = [
       "Run the program without a breakpoint. Then repeat using piperead or sys_wait from Advanced and use the inspectors to connect your explanation to actual state.",
     expected: "reader got 3 bytes: hey; reader EOF=0; then a shell prompt.",
     experiment:
-      "Explain echo hello > note and echo hello | wc using the same layers. Include what survives exec and what wait reclaims.",
+      "Load echo hello | wc, then choose Run in the xv6 command field. Compare the three counts with the bytes and EOF in lab pipe. How did each writer deliver bytes, and what made each reader finish?",
     question: "Which explanation accounts for both blocking and EOF?",
     choices: [
       "Scheduling handles waiting; descriptor lifetime determines when no writers remain.",

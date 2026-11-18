@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="the-last-operation-triggers-commit">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -49,34 +49,37 @@
           <h1 id="lesson-title">The last outstanding operation triggers commit</h1>
           <p id="lesson-subtitle">Observe pending changes before and after the final end_op.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>A transaction can contain updates from several overlapping filesystem operations. end_op decrements outstanding. Only the last completion sets committing and runs commit; earlier completions leave the recorded block list pending.</p><p>This controlled probe begins two operations and modifies one actual file block. It ends one operation, samples whether the log still has entries, and then completes the remaining operation. Build and observe pending before cleanup=1. The final cleanup commits Z, which the supplied program reads back.</p><p>Set FINISH to 2 to complete both operations before the sample. The real commit installs the data and clears the in-memory log count, so pending becomes 0. The loops still call end_op exactly twice. Returning from a particular syscall and defining a transaction boundary are related through this protocol, not through a one-syscall-one-transaction rule.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="commit" aria-labelledby="concept-title-commit"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-commit">Publish the commit record between data and installation</strong></figcaption><p class="concept-summary">A nonzero journal header tells recovery that the logged images are committed.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-commit"><li class="concept-node" data-node="data" data-active="true"><strong>1 · Write log data</strong><span class="concept-value">Copy final cached block images into the log.</span></li><li class="concept-node" data-node="header"><strong>2 · Write header</strong><span class="concept-value">Publish n and home-block numbers: the commit point.</span></li><li class="concept-node" data-node="home"><strong>3 · Install home blocks</strong><span class="concept-value">Copy committed images to their normal locations.</span></li><li class="concept-node" data-node="clear"><strong>4 · Clear header</strong><span class="concept-value">Mark the completed transaction empty.</span></li></ol><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-commit" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-commit">Next step →</button></div><div class="concept-frame" id="concept-frame-commit" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Write ahead</strong><p class="concept-frame-text">The header has not yet announced this transaction. Log-data bytes alone do not make it committed.</p></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Write ahead.</strong> The header has not yet announced this transaction. Log-data bytes alone do not make it committed.</li><li><strong>Commit.</strong> After log data is written, write_head publishes a nonzero count. Recovery can now identify the committed images.</li><li><strong>Install.</strong> Committed images reach their home blocks. If interrupted here, replay can repeat these copies.</li><li><strong>Finish.</strong> Clear the header only after installation, so the next boot sees no transaction to replay.</li></ol></details><p class="concept-source"><strong>Source anchors</strong> kernel/log.c · commit · write_log · write_head · install_trans</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p>A transaction can contain updates from several overlapping filesystem operations. end_op decrements outstanding. Only the last completion sets committing and runs commit; earlier completions leave the recorded block list pending.</p><p>This controlled probe begins two operations and modifies one actual file block. It ends one operation, samples whether the log still has entries, and then completes the remaining operation. The final cleanup commits Z, which the supplied program reads back.</p><p>When both operations complete before the sample, the real commit has already run. The commit installs the data and clears the in-memory log count, so pending becomes 0. The loops still call end_op exactly twice. Returning from a particular syscall and defining a transaction boundary are related through this protocol, not through a one-syscall-one-transaction rule.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="commit" aria-labelledby="concept-title-commit"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-commit">Publish the commit record between data and installation</strong></figcaption><p class="concept-summary">A nonzero journal header tells recovery that the logged images are committed.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-commit"><li class="concept-node" data-node="data" data-active="true"><strong>1 · Write log data</strong><span class="concept-value">Copy final cached block images into the log.</span></li><li class="concept-node" data-node="header"><strong>2 · Write header</strong><span class="concept-value">Publish n and home-block numbers: the commit point.</span></li><li class="concept-node" data-node="home"><strong>3 · Install home blocks</strong><span class="concept-value">Copy committed images to their normal locations.</span></li><li class="concept-node" data-node="clear"><strong>4 · Clear header</strong><span class="concept-value">Mark the completed transaction empty.</span></li></ol><div class="concept-controls" hidden><button type="button" data-concept-prev aria-controls="concept-map-commit" disabled>← Previous step</button><span class="concept-position">Step 1 of 4</span><button type="button" data-concept-next aria-controls="concept-map-commit">Next step →</button></div><div class="concept-frame" id="concept-frame-commit" aria-live="polite" aria-atomic="true"><strong class="concept-frame-title">Write ahead</strong><p class="concept-frame-text">The header has not yet announced this transaction. Log-data bytes alone do not make it committed.</p></div><details class="concept-transcript"><summary>Read all 4 steps</summary><ol><li><strong>Write ahead.</strong> The header has not yet announced this transaction. Log-data bytes alone do not make it committed.</li><li><strong>Commit.</strong> After log data is written, write_head publishes a nonzero count. Recovery can now identify the committed images.</li><li><strong>Install.</strong> Committed images reach their home blocks. If interrupted here, replay can repeat these copies.</li><li><strong>Finish.</strong> Clear the header only after installation, so the next boot sees no transaction to replay.</li></ol></details><p class="concept-source"><strong>Related xv6 code</strong> kernel/log.c · commit · write_log · write_head · install_trans</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: loops and bounds</summary><div class="c-reminder-content"><p>The initialiser runs once, the condition is checked before each iteration, and i++ advances the index afterwards. With i &lt; count, the visited indices are 0 through count - 1. The array must have enough elements for those accesses.</p><pre translate="no"><code>for (int i = 0; i &lt; count; i++) {
   /* use element i */
 }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/control-flow/3" target="_blank" rel="noopener noreferrer">Loops and repetition <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/1" target="_blank" rel="noopener noreferrer">Array indexing and bounds <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">Commit runs outside log.lock because it performs disk I/O and may sleep. committing blocks new operations until completion resets the flag and wakes them.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change FINISH from 1 to 2. Build and run; pending before cleanup becomes 0, and committed byte remains Z.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/sysproc.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>pending before cleanup=1</samp>.
+        </p>
+        <p id="assignment">Change FINISH from 1 to 2. Choose Build &amp; run again. Pending before cleanup becomes 0, and committed byte remains Z.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -100,18 +103,21 @@
             tabindex="-1"
             style="--editor-height: 720px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -122,8 +128,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -150,9 +156,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -172,9 +178,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -192,16 +196,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -210,19 +213,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">The commit boundary follows the outstanding-operation protocol.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why must commit wait until no admitted operation can still modify its recorded buffers?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why must commit wait until no admitted operation can still modify its recorded buffers?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/the-log-absorbs-repeated-block-updates/"><small>← Previous lesson</small>The log absorbs repeated updates to one block</a><a data-direction="next" href="lessons/the-header-is-the-commit-point/"><small>Next lesson →</small>The journal header marks the commit point</a>
         </nav>
@@ -230,15 +228,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -248,6 +243,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

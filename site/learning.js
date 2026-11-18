@@ -1,4 +1,4 @@
-import { extendedLearning } from "./extended.js?v=core25";
+import { extendedLearning } from "./extended.js?v=learner-flow1";
 // Authored teaching scaffolds. Diagrams explain a mechanism; they are not live traces.
 export const learning = {
   boot: {

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="uart-registers-are-memory-mapped">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -51,33 +51,36 @@
           <h1 id="lesson-title">A device register is accessed through an address</h1>
           <p id="lesson-subtitle">Read real UART configuration and status registers through MMIO.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>The kernel maps the UART’s physical register region into its address space. Accessing a byte at UART0 plus a register offset invokes the emulated device, rather than reading ordinary RAM. volatile keeps the C access present; it does not by itself create a device mapping.</p><p>Offset 3 is the line-control register. uartinit leaves it configured for eight-bit characters with its low two bits equal to 3. Build and read those actual bits. This is a register query, not a measurement of serial transmission speed.</p><p>Offset 5 is the line-status register, which describes different state. In this supplied run, the command’s input has already been consumed; its low receive-ready/error bits are zero. Register offsets and bit meanings are part of the device interface, so the same numeric mask must be interpreted in the selected register’s context.</p></div>
+        <div id="reading-content"><p>The kernel maps the UART’s physical register region into its address space. Accessing a byte at UART0 plus a register offset invokes the emulated device, rather than reading ordinary RAM. volatile keeps the C access present; it does not by itself create a device mapping.</p><p>Offset 3 is the line-control register. uartinit leaves it configured for eight-bit characters with its low two bits equal to 3. The probe shows the register setting in this emulated device.</p><p>Offset 5 is the line-status register, which describes different state. In this supplied run, the command’s input has already been consumed; its low receive-ready/error bits are zero. Register offsets and bit meanings are part of the device interface, so the same numeric mask must be interpreted in the selected register’s context.</p></div>
         <div id="concept-slot"></div>
         <details class="c-reminder"><summary>C reminder: a pointer to volatile bytes</summary><div class="c-reminder-content"><p>volatile unsigned char *reg points at a byte whose accesses the compiler must preserve. *reg reads that byte; the pointer cast alone performs no read. The address and the kernel’s mappings give it its device meaning. volatile does not create a mapping, grant permission or provide a lock.</p><pre translate="no"><code>volatile unsigned char *reg = (volatile unsigned char*)address;
 int bits = *reg &amp; 3;</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/values/4" target="_blank" rel="noopener noreferrer">Conversions and casts <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">The driver distinguishes configuration, receive/transmit data, status and interrupt-control registers. Reg casts the mapped address to a volatile byte pointer.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change offset from 3 to 5. Build and run. register low bits should become 0 for the empty receive state in this fixture; this is now a status read rather than the line-control configuration.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/sysproc.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>register low bits=3</samp>.
+        </p>
+        <p id="assignment">Change offset from 3 to 5. Choose Build &amp; run again. Register low bits should become 0 for the empty receive state in this fixture; this is now a status read rather than the line-control configuration.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -101,18 +104,21 @@ int bits = *reg &amp; 3;</code></pre><p class="c-refresher-links">Refresh in C F
             tabindex="-1"
             style="--editor-height: 380px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -123,8 +129,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -151,9 +157,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -173,9 +179,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -193,16 +197,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -211,19 +214,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">A device’s register map assigns meanings to addresses and bits; memory access syntax alone does not describe the device operation.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why should a C compiler preserve repeated reads of a volatile device status register?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why should a C compiler preserve repeated reads of a volatile device status register?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/claiming-and-completing-device-interrupts/"><small>← Previous lesson</small>The interrupt controller identifies a device</a><a data-direction="next" href="lessons/uart-output-passes-through-a-ring/"><small>Next lesson →</small>Buffered output separates a writer from the UART</a>
         </nav>
@@ -231,15 +229,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -249,6 +244,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

@@ -1,18 +1,18 @@
-import { chapter15Lessons } from "./chapter15.js?v=chapter15";
-import { chapter14Lessons } from "./chapter14.js?v=chapter14";
-import { chapter13Lessons } from "./chapter13.js?v=chapter13";
-import { chapter12Lessons } from "./chapter12.js?v=chapter12";
-import { chapter11Lessons } from "./chapter11.js?v=chapter15";
+import { chapter15Lessons } from "./chapter15.js?v=learner-flow15";
+import { chapter14Lessons } from "./chapter14.js?v=learner-flow14";
+import { chapter13Lessons } from "./chapter13.js?v=learner-flow13";
+import { chapter12Lessons } from "./chapter12.js?v=learner-flow12";
+import { chapter11Lessons } from "./chapter11.js?v=learner-flow15";
 // Each lesson has one idea, a matching xv6 source excerpt and one experiment.
-import { chapter10Lessons } from "./chapter10.js?v=chapter10";
-import { chapter9Lessons } from "./chapter9.js?v=chapter9";
-import { chapter8Lessons } from "./chapter8.js?v=chapter8";
-import { chapter7Lessons } from "./chapter7.js?v=chapter7";
-import { chapter6Lessons } from "./chapter6.js?v=chapter6";
-import { chapter5Lessons } from "./chapter5.js?v=chapter5";
-import { chapter4Lessons } from "./chapter4.js?v=chapter4";
-import { chapter3Lessons } from "./chapter3.js?v=chapter3";
-import { chapter2Lessons } from "./chapter2.js?v=chapter2";
+import { chapter10Lessons } from "./chapter10.js?v=learner-flow10";
+import { chapter9Lessons } from "./chapter9.js?v=learner-flow9";
+import { chapter8Lessons } from "./chapter8.js?v=learner-flow8";
+import { chapter7Lessons } from "./chapter7.js?v=learner-flow7";
+import { chapter6Lessons } from "./chapter6.js?v=learner-flow6";
+import { chapter5Lessons } from "./chapter5.js?v=learner-flow5";
+import { chapter4Lessons } from "./chapter4.js?v=learner-flow4";
+import { chapter3Lessons } from "./chapter3.js?v=learner-flow3";
+import { chapter2Lessons } from "./chapter2.js?v=learner-flow2";
 const userProgram = (body) =>
   '#include "kernel/types.h"\n#include "user/user.h"\n\nint\nmain(void)\n{\n' +
   body +
@@ -27,13 +27,13 @@ const kernelStarter = (files) =>
 const chapter1Lessons = {
   "running-a-program": {
     title: "A running program is a process",
-    goal: "Distinguish a program’s source from a running process.",
+    goal: "What starts your program, and which program stays running when it exits?",
     mode: "user",
     observePid: false,
     file: "user/workbench.c",
     offset: 1,
     starter: () => userProgram('  printf("Hello from my xv6 program!\\n");'),
-    reading: `<p>A <strong>program</strong> is a set of instructions. A <strong>process</strong> is a running instance of a program, with its own memory and state. The operating system creates and manages processes.</p><p>The source below is a small C program for xv6. Execution starts in <button class="code-link" data-focus="main">main</button>. It prints a message, then calls <button class="code-link" data-focus="exit">exit(0)</button> to end the process. The zero is an exit status conventionally used for success.</p><p>Choose <strong>Build & run</strong>. The browser compiles your C to RISC-V instructions and boots a fresh xv6 machine. The xv6 <strong>shell</strong> is a program that reads commands and starts other programs. Here it starts your program as a process. After it exits, the shell prints its <code>$</code> prompt again.</p>`,
+    reading: `<p>A <strong>process</strong> is a running instance of a program, with its own memory and state. The operating system manages processes. Its <strong>kernel</strong> is the part that controls access to memory and devices and decides which process runs.</p><p>The browser compiles C to RISC-V instructions and runs them on a virtual machine that emulates a RISC-V processor. After xv6 boots, its <strong>shell</strong> reads the supplied <code>workbench</code> command and starts your program at <button class="code-link" data-focus="main">main</button>. The program prints a message, then calls <button class="code-link" data-focus="exit">exit(0)</button> to end its process. An exit status of zero usually means success.</p>`,
     excerpt: {
       file: "user/user.h",
       anchor: "int exec(",
@@ -42,9 +42,10 @@ const chapter1Lessons = {
       declaration: "int exit(",
     },
     sourceNote:
-      "xv6 declares exit in its user interface. Calling it ends this process; it does not stop the operating system or the shell. The noreturn annotation tells the compiler that this call never comes back.",
+      "This is the kernel interface the program calls. The noreturn annotation tells the compiler that control never returns to the line after exit.",
+    starterEvidence: "Find Hello from my xv6 program! between $ workbench and the next $ prompt in the xv6 console.",
     assignment:
-      "Change only the greeting string in printf. Build and run again, and find your new message between the shell command and the next $ prompt.",
+      "In printf, replace Hello from my xv6 program! with Hello from my edited program! and keep the newline. Choose Build & run again. Which text changes between $ workbench and the next $ prompt?",
     takeaway:
       "Changing C source changes the next executable you build. A process is what runs that executable.",
     reflection: "Why does the shell survive after your program calls exit?",
@@ -69,8 +70,9 @@ const chapter1Lessons = {
     },
     sourceNote:
       "argfd reads the output argument, argaddr reads the address of the bytes, and argint reads their count. filewrite performs the write.",
+    starterEvidence: "Find hello on its own line between $ workbench and the next $ prompt in the xv6 console.",
     assignment:
-      "Change the count from 6 to 3. Build and run. You should see hel, with the next shell prompt immediately after it because you did not write the newline.",
+      "Change the final argument of write from 6 to 3. Choose Build & run again. Compare hello on its own line with hel next to the next $ prompt. Where did the newline go?",
     takeaway:
       "The kernel follows the byte count you pass. A C string’s terminator does not decide how many bytes write sends.",
     reflection:
@@ -81,18 +83,20 @@ const chapter1Lessons = {
   },
   "a-system-call-result": {
     title: "A system call returns a result",
-    goal: "Read the process identifier returned by getpid.",
+    goal: "Does the number returned by getpid match the PID stored in the kernel?",
     mode: "user",
     observePid: true,
     file: "user/workbench.c",
     offset: 1,
     starter: () => pidProgram,
-    reading: `<p>A process sometimes needs information held by the kernel. A <strong>system call</strong> is a request from a user program to the kernel. <button class="code-link" data-focus="getpid">getpid()</button> is a small example: it returns the identifier of the process making the call.</p><p>The program passes that returned integer to <code>printf</code>. The <code>%d</code> placeholder prints it as a decimal number. The kernel’s process record also stores a PID; the evidence beside the console reads that real record during this run.</p><p>Build the unchanged program. Compare its <code>reported pid</code> with the observed kernel PID. They should agree. You need not know the number in advance.</p>`,
+    reading: `<p>A <strong>system call</strong> is a request from a user program to the kernel. <button class="code-link" data-focus="getpid">getpid()</button> returns the process identifier, or <strong>PID</strong>, of the caller.</p><p>The program passes that integer to <code>printf</code>. The <code>%d</code> placeholder prints it as a decimal number. The lab also reads the stored PID from the kernel’s process record while this code runs.</p>`,
     excerpt: { file: "user/user.h", declaration: "int getpid(" },
     sourceNote:
       "This is the user-facing declaration. It tells C code that getpid takes no arguments and returns an int. The implementation reaches the kernel; it is not an ordinary user-memory lookup.",
+    starterEvidence:
+      "Under Evidence from this run, compare PID reported by the program with Kernel PID at syscall entry. The values should match. You do not need to predict their number.",
     assignment:
-      "Change the greeting, build, and run. The text changes, while the unchanged getpid call still reports the process’s kernel PID.",
+      "Replace Hello from my xv6 program! with Hello from my edited program! in the first printf, and keep the newline and getpid call. Choose Build & run again. Find the new greeting in the console. Do those two PID fields still match each other?",
     takeaway:
       "A system call can return information to its caller as a C function result.",
     reflection:
@@ -114,7 +118,7 @@ const chapter1Lessons = {
     sourceNote:
       "This assembly comes from the matching xv6 build. You do not need to write assembly here: notice which instruction requests kernel entry, and which register identifies the service.",
     assignment:
-      'Call getpid twice by adding a second printf("reported pid=%d\\n", getpid()); line. Build and run. Both requests come from the same process and should return the same PID.',
+      'Duplicate the line printf("reported pid=%d\\n", getpid()); immediately before exit(0). Choose Build & run again. Compare the two reported pid= lines in the xv6 console. Do the requests come from the same process?',
     takeaway:
       "A C system-call name hides a real transition into the kernel. ecall initiates that transition; it does not itself choose or implement getpid.",
     reflection:
@@ -131,7 +135,7 @@ const chapter1Lessons = {
     file: "kernel/sysproc.c",
     offset: 20,
     starter: kernelStarter,
-    reading: `<p>We have reached <code>sys_getpid</code>, the kernel handler. The editor now contains that actual function from <code>kernel/sysproc.c</code>. Your changes will compile into the kernel; a fixed user program will call it.</p><p><button class="code-link" data-focus="myproc">myproc()</button> returns a pointer to the current process’s <code>struct proc</code> record. The expression <button class="code-link" data-focus="pid">myproc()->pid</button> reads the <code>pid</code> field in that record.</p><p>Inside <code>myproc</code>, <code>c</code> is the current CPU’s record, and <code>c->proc</code> points to the process it is running. The surrounding <code>push_off</code>/<code>pop_off</code> calls keep this CPU lookup stable by temporarily disabling interrupts. We will study that mechanism later; here follow the pointer returned as <code>p</code>.</p>`,
+    reading: `<p><code>sys_getpid</code> is the kernel function called for the <code>getpid</code> request. It calls <button class="code-link" data-focus="myproc">myproc()</button>, which returns a pointer to the current process’s record, a <code>struct proc</code>. A <strong>pointer</strong> refers to an object in memory. The <code>-></code> operator accesses a member of a record through a pointer, so <button class="code-link" data-focus="pid">myproc()->pid</button> reads that record’s PID field.</p><p>In the reference excerpt, <code>c</code> points to the current CPU’s record. Its <code>proc</code> field points to the process the CPU is running. Follow the returned <code>p</code> to see what <code>sys_getpid</code> receives.</p>`,
     excerpt: {
       file: "kernel/proc.c",
       anchor: "myproc(void)",
@@ -141,7 +145,7 @@ const chapter1Lessons = {
     sourceNote:
       "The kernel tracks which process is running on each CPU. myproc returns that process record, rather than searching for a process by a printed name or number.",
     assignment:
-      'Before the return statement, add printf("kernel sees pid=%d\\n", myproc()->pid);. Build and run. Compare the kernel’s message with the user program’s reported PID.',
+      'In sys_getpid, add printf("kernel sees pid=%d\\n", myproc()->pid); directly before return myproc()->pid;. Choose Build & run again. Compare kernel sees pid= and reported pid= in the xv6 console. Which record did both values come from?',
     takeaway:
       "The handler runs for a particular calling process. myproc gives kernel code access to that process’s record.",
     reflection:
@@ -158,7 +162,7 @@ const chapter1Lessons = {
     file: "kernel/sysproc.c",
     offset: 20,
     starter: kernelStarter,
-    reading: `<p>The handler currently returns the value stored in <code>myproc()->pid</code>. A <button class="code-link" data-focus="return">return</button> expression computes an answer for the caller. It does not automatically assign that answer back into the process record.</p><p>Change it to <code>return myproc()->pid + 1000;</code>. When compiled, this kernel will read the PID, add 1000, and return the sum. The user program prints that sum. The evidence panel independently reads the process record at system-call entry and at process exit.</p><p>The dispatcher puts the handler’s returned value in the saved user <code>a0</code> register, as shown below. The kernel keeps the user registers in a saved record called a trapframe while it handles the call. Setting its <code>a0</code> field delivers the answer as the calling C function’s result.</p>`,
+    reading: `<p>The handler returns the value stored in <code>myproc()->pid</code>. A <button class="code-link" data-focus="return">return</button> expression can compute an answer from that field without writing it back to the process record.</p><p>While the kernel handles the call, it saves the user registers in a record called a <strong>trapframe</strong>. The code that selects the handler writes its answer into the saved <code>a0</code> register. The caller receives that value as the result of <code>getpid()</code>.</p>`,
     excerpt: {
       file: "kernel/syscall.c",
       anchor: "p->trapframe->a0 = syscalls[num]();",
@@ -166,8 +170,10 @@ const chapter1Lessons = {
     },
     sourceNote:
       "syscalls[num]() invokes the chosen handler. Assigning its result to the saved a0 register delivers it to the user program when execution returns there.",
+    starterEvidence:
+      "Under Evidence from this run, compare Kernel PID at syscall entry, Kernel PID at process exit and PID reported by the program. The three values should match.",
     assignment:
-      "Add + 1000 to the return expression. Build and run. Compare the reported PID with both kernel snapshots. Then restore the starter and repeat to recover the original answer.",
+      "Replace return myproc()->pid; with return myproc()->pid + 1000;. Choose Build & run again. Compare PID reported by the program with both Kernel PID fields. Which value is 1000 greater, and which two still match?",
     takeaway:
       "Changing an interface’s answer and changing the underlying state are different operations. return pid + 1000 changes the answer; assigning to pid would change state.",
     reflection:

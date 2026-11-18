@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="the-shell-composes-kernel-interfaces">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -51,33 +51,36 @@
           <h1 id="lesson-title">The shell composes kernel interfaces</h1>
           <p id="lesson-subtitle">Build redirection with fork, descriptors and exec.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>The shell is a user program that combines kernel interfaces. It does not need a special “run this command with redirection” syscall. A child closes descriptor 1, opens the output file into the lowest free slot, and execs the requested program.</p><p>The open descriptor survives exec. echo writes to its ordinary stdout, which now names the file. The parent retains its own console descriptors and waits for the child before opening the completed output.</p><p>This program builds that composition directly, without a parser. Build to read kernel from the actual redirected file, then change the echo argument to source. The matching runcmd code shows the same descriptor manipulation in xv6’s real shell. Earlier pipe lessons supply the parallel composition used by its PIPE case.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="redirect" aria-labelledby="concept-title-redirect"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-redirect">The child changes where stdout leads</strong></figcaption><p class="concept-summary">Descriptor tables belong to processes. The child arranges its descriptor 1 before exec.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-redirect"><li class="concept-parent"><div class="concept-node" data-node="fork"><strong>After fork</strong><span class="concept-value">Parent and child have separate descriptor tables.</span></div><ol class="concept-branches"><li class="concept-node" data-node="parent"><span class="concept-edge-label">Parent continues</span><strong>Parent stdout</strong><span class="concept-value">Descriptor 1 still leads to the console.</span></li><li class="concept-node" data-node="child"><span class="concept-edge-label">Child redirects</span><strong>Child stdout</strong><span class="concept-value">close(1); open the file into slot 1; exec echo keeps that reference.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> user/sh.c · runcmd; kernel/sysfile.c · sys_open; kernel/exec.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p>The shell is a user program that combines kernel interfaces. It does not need a special “run this command with redirection” syscall. A child closes descriptor 1, opens the output file into the lowest free slot, and execs the requested program.</p><p>The open descriptor survives exec. echo writes to its ordinary stdout, which now names the file. The parent retains its own console descriptors and waits for the child before opening the completed output.</p><p>This program builds that composition directly, without a parser. The console reports the readback text and the collected child’s exit status. The matching runcmd code shows the same descriptor manipulation in xv6’s real shell. Earlier pipe lessons supply the parallel composition used by its PIPE case.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="redirect" aria-labelledby="concept-title-redirect"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-redirect">The child changes where stdout leads</strong></figcaption><p class="concept-summary">Descriptor tables belong to processes. The child arranges its descriptor 1 before exec.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-redirect"><li class="concept-parent"><div class="concept-node" data-node="fork"><strong>After fork</strong><span class="concept-value">Parent and child have separate descriptor tables.</span></div><ol class="concept-branches"><li class="concept-node" data-node="parent"><span class="concept-edge-label">Parent continues</span><strong>Parent stdout</strong><span class="concept-value">Descriptor 1 still leads to the console.</span></li><li class="concept-node" data-node="child"><span class="concept-edge-label">Child redirects</span><strong>Child stdout</strong><span class="concept-value">close(1); open the file into slot 1; exec echo keeps that reference.</span></li></ol></li></ol><p class="concept-source"><strong>Related xv6 code</strong> user/sh.c · runcmd; kernel/sysfile.c · sys_open; kernel/exec.c</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arrays used as output arguments</summary><div class="c-reminder-content"><p>int p[2] reserves two integer elements. Passing p to pipe supplies the array’s starting address, so the function can fill p[0] and p[1]. They are integer handles, not pointers to the pipe’s bytes.</p><pre translate="no"><code>int p[2];
 if (pipe(p) == 0) { /* use p[0] and p[1] */ }</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/3" target="_blank" rel="noopener noreferrer">Arrays and pointers <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/2" target="_blank" rel="noopener noreferrer">Pointers as function arguments <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">The shell arranges descriptors before exec; the executed program uses the normal write interface. The kernel's descriptor table and file object implement the resulting routing.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change the echo argument &quot;kernel&quot; to &quot;source&quot;. Build and run; redirected output becomes source and child status remains 0.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the starter in user/workbench.c. The lab builds the code in the editor and starts it on a fresh xv6 machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>child status=0 redirected output=kernel</samp>.
+        </p>
+        <p id="assignment">Change the echo argument &quot;kernel&quot; to &quot;source&quot;. Choose Build &amp; run again. Redirected output becomes source and child status remains 0.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -101,18 +104,21 @@ if (pipe(p) == 0) { /* use p[0] and p[1] */ }</code></pre><p class="c-refresher-
             tabindex="-1"
             style="--editor-height: 790px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -123,8 +129,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -151,9 +157,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -173,9 +179,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -193,16 +197,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -211,19 +214,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">A shell gains expressive behavior by composing a small set of process and file interfaces.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why can the parent's console remain unchanged when its child redirects stdout?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why can the parent's console remain unchanged when its child redirects stdout?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/failed-exec-preserves-the-old-image/"><small>← Previous lesson</small>A failed exec preserves the old image</a><a data-direction="next" href="lessons/capstone-follow-a-byte-from-process-to-disk/"><small>Next lesson →</small>Follow a byte from a process to disk and back</a>
         </nav>
@@ -231,15 +229,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -249,6 +244,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="sleep-counts-guest-ticks">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -49,33 +49,36 @@
           <h1 id="lesson-title">Sleep waits for guest timer ticks</h1>
           <p id="lesson-subtitle">Observe a timed sleep without treating it as a browser performance measurement.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>xv6’s <button class="code-link" data-focus="sleep">sleep(n)</button> waits for guest timer ticks. While the process sleeps, the CPU can run another process. <code>uptime()</code> reads the kernel’s count of those ticks.</p><p>The example records a starting count, requests three ticks, then checks that at least that many elapsed. More ticks may pass before the process runs again. There is no promise of an exact browser duration.</p><p>In the kernel, the sleep syscall remembers <code>ticks0</code> and repeatedly checks the condition. Kernel <code>sleep</code> blocks on the ticks channel between checks; timer handling advances the count and wakes sleepers.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="tickwait" aria-labelledby="concept-title-tickwait"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-tickwait">Waking up means recheck the tick condition</strong></figcaption><p class="concept-summary">An ordinary timed wait rechecks elapsed guest ticks after each wakeup. It can resume later than the requested minimum.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-tickwait"><li class="concept-parent"><div class="concept-node" data-node="check"><strong>Compare elapsed ticks</strong><span class="concept-value">sys_sleep checks ticks − ticks0 against the requested n.</span></div><ol class="concept-branches"><li class="concept-node" data-node="wait"><span class="concept-edge-label">Keep waiting</span><strong>Elapsed &lt; n</strong><span class="concept-value">Sleep on the ticks channel. A wakeup makes the process runnable; when scheduled, recheck the condition.</span></li><li class="concept-node" data-node="done"><span class="concept-edge-label">Minimum reached</span><strong>Elapsed ≥ n</strong><span class="concept-value">Leave the loop and return 0 to the caller.</span></li></ol></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/sysproc.c · sys_sleep; kernel/trap.c · clockintr</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="tickwait" aria-labelledby="concept-title-tickwait"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-tickwait">Waking up means recheck the tick condition</strong></figcaption><p class="concept-summary">An ordinary timed wait rechecks elapsed guest ticks after each wakeup. It can resume later than the requested minimum.</p><ol class="concept-map concept-branch concept-count-3" id="concept-map-tickwait"><li class="concept-parent"><div class="concept-node" data-node="check"><strong>Compare elapsed ticks</strong><span class="concept-value">sys_sleep checks ticks − ticks0 against the requested n.</span></div><ol class="concept-branches"><li class="concept-node" data-node="wait"><span class="concept-edge-label">Keep waiting</span><strong>Elapsed &lt; n</strong><span class="concept-value">Sleep on the ticks channel. A wakeup makes the process runnable; when scheduled, recheck the condition.</span></li><li class="concept-node" data-node="done"><span class="concept-edge-label">Minimum reached</span><strong>Elapsed ≥ n</strong><span class="concept-value">Leave the loop and return 0 to the caller.</span></li></ol></li></ol><p class="concept-source"><strong>Related xv6 code</strong> kernel/sysproc.c · sys_sleep; kernel/trap.c · clockintr</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: arguments and return values</summary><div class="c-reminder-content"><p>A call such as f(x) passes an argument to a function. return supplies its result. In a nested call, the inner result becomes an argument to the outer call; assigning the result to a variable can make that easier to read.</p><pre translate="no"><code>int pid = getpid();
 printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/functions/1" target="_blank" rel="noopener noreferrer">Parameters and return values <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">The loop rechecks elapsed ticks after each wakeup. Kernel sleep takes a channel and lock; the user sleep syscall wraps that mechanism with a timer condition.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change requested from 3 to 5. Build and run. requested should become 5, while at_least remains 1 and sleep_result remains 0.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the starter in user/workbench.c. The lab builds the code in the editor and starts it on a fresh xv6 machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>requested=3 at_least=1 sleep_result=0</samp>.
+        </p>
+        <p id="assignment">Change requested from 3 to 5. Choose Build &amp; run again. Requested should become 5, while at_least remains 1 and sleep_result remains 0.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -99,18 +102,21 @@ printf(&quot;reported pid=%d\n&quot;, pid);</code></pre><p class="c-refresher-li
             tabindex="-1"
             style="--editor-height: 680px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -121,8 +127,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -149,9 +155,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -171,9 +177,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -191,16 +195,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -209,19 +212,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">Timed sleep blocks on a kernel condition; resuming can happen later than the requested minimum.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why does an elapsed-tick check use greater-than-or-equal rather than exact equality?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why does an elapsed-tick check use greater-than-or-equal rather than exact equality?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/redirecting-output-through-a-pipe/"><small>← Previous chapter</small>Redirection changes the destination</a><a data-direction="next" href="lessons/runnable-processes-take-turns/"><small>Next lesson →</small>Runnable processes take turns</a>
         </nav>
@@ -229,15 +227,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -247,6 +242,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

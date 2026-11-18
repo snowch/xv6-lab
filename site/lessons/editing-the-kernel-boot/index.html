@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="editing-the-kernel-boot">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -49,33 +49,36 @@
           <h1 id="lesson-title">The kernel boots before user programs</h1>
           <p id="lesson-subtitle">Change the real kernel boot function and distinguish boot output from program output.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>The first six chapters followed operating-system behaviour from user programs. We now revisit it inside the kernel. Start with <strong>boot</strong>: preparing the machine and kernel data before any user program runs.</p><p>The RISC-V kernel image names <code>_entry</code> as its entry point. Assembly in entry.S prepares a stack and calls start. That C function arranges supervisor-mode execution and transfers control to <code>main</code>. This kernel main is different from the main in a user program.</p><p>The editor contains the actual main from this build. Its calls form an ordered initialization sequence: console, memory, processes, traps, devices, filesystem caches, then the first user process. Finally scheduler takes control. The lab runs one hart, a RISC-V hardware thread; the other-hart branch remains in the source but is not exercised here.</p><p>Build the starter. Find <code>xv6 kernel is booting</code> before <code>init: starting sh</code> and the workbench program’s greeting. Your edit replaces kernel main itself. It does not change the user program.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="boot" aria-labelledby="concept-title-boot"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-boot">Boot establishes dependencies before running users</strong></figcaption><p class="concept-summary">This is a shortened dependency path for this one-hart lab.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-boot"><li class="concept-node" data-node="entry"><strong>Entry and privilege setup</strong><span class="concept-value">Set a stack; configure machine-mode state; enter supervisor mode.</span></li><li class="concept-node" data-node="memory"><strong>Memory and kernel mappings</strong><span class="concept-value">Initialize physical allocation; install the kernel page table.</span></li><li class="concept-node" data-node="services"><strong>Kernel services</strong><span class="concept-value">Prepare traps, interrupt routing, processes and device drivers.</span></li><li class="concept-node" data-node="user"><strong>First runnable process</strong><span class="concept-value">userinit prepares initcode; scheduler selects it to run.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/entry.S · start.c · main.c · proc.c</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p><strong>Boot</strong> prepares the machine and kernel data before any user program runs.</p><p>The RISC-V kernel image names <code>_entry</code> as its entry point. Assembly in entry.S prepares a stack and calls start. That C function arranges supervisor-mode execution and transfers control to <code>main</code>. This kernel main is different from the main in a user program.</p><p>The editor contains the actual main from this build. Its calls form an ordered initialization sequence: console, memory, processes, traps, devices, filesystem caches, then the first user process. Finally scheduler takes control. The lab runs one hart, a RISC-V hardware thread; the other-hart branch remains in the source but is not exercised here.</p><p>The kernel writes its boot message before init starts the shell. The supplied user program prints its own greeting later.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="boot" aria-labelledby="concept-title-boot"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-boot">Boot establishes dependencies before running users</strong></figcaption><p class="concept-summary">This is a shortened dependency path for this one-hart lab.</p><ol class="concept-map concept-flow concept-count-4" id="concept-map-boot"><li class="concept-node" data-node="entry"><strong>Entry and privilege setup</strong><span class="concept-value">Set a stack; configure machine-mode state; enter supervisor mode.</span></li><li class="concept-node" data-node="memory"><strong>Memory and kernel mappings</strong><span class="concept-value">Initialize physical allocation; install the kernel page table.</span></li><li class="concept-node" data-node="services"><strong>Kernel services</strong><span class="concept-value">Prepare traps, interrupt routing, processes and device drivers.</span></li><li class="concept-node" data-node="user"><strong>First runnable process</strong><span class="concept-value">userinit prepares initcode; scheduler selects it to run.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> kernel/entry.S · start.c · main.c · proc.c</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: reading a small C program</summary><div class="c-reminder-content"><p>main is the program’s entry function. Statements end with semicolons, and braces group a function or branch body. In printf, %d formats an integer and \n starts a new line.</p><pre translate="no"><code>int n = 3;
 printf(&quot;n=%d\n&quot;, n);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/first-program/2" target="_blank" rel="noopener noreferrer">Program structure <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/first-program/3" target="_blank" rel="noopener noreferrer">Printing with printf <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">Console and printf initialization precede the boot message. The allocator must be ready before later calls allocate memory; creating the first process comes after its dependencies.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change only &quot;xv6 kernel is booting&quot; to &quot;Hello from my kernel&quot;. Build and run. The new line should appear during boot, while the user program’s greeting stays the same.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/main.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find xv6 kernel is booting before init: starting sh and the user program’s greeting.
+        </p>
+        <p id="assignment">Change only &quot;xv6 kernel is booting&quot; to &quot;Hello from my kernel&quot;. Choose Build &amp; run again. The new line should appear during boot, while the user program’s greeting stays the same.</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -99,18 +102,21 @@ printf(&quot;n=%d\n&quot;, n);</code></pre><p class="c-refresher-links">Refresh 
             tabindex="-1"
             style="--editor-height: 820px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -121,8 +127,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -149,9 +155,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -171,9 +177,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -191,16 +195,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -209,19 +212,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">A kernel is executable code with its own entry and initialization path; user programs start only after that path has prepared the system.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why would a printf added before console initialization be a poor first boot experiment?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why would a printf added before console initialization be a poor first boot experiment?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/locks-protect-shared-kernel-state/"><small>← Previous chapter</small>Locks protect shared kernel state</a><a data-direction="next" href="lessons/boot-needs-a-stack/"><small>Next lesson →</small>C needs a stack before it can run</a>
         </nav>
@@ -229,15 +227,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -247,6 +242,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

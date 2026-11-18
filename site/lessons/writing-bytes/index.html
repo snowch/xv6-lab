@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="writing-bytes">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -49,33 +49,36 @@
           <h1 id="lesson-title">The kernel writes your bytes</h1>
           <p id="lesson-subtitle">See that write sends a specified number of bytes to an output.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
         <div id="reading-content"><p>The previous program used <code>printf</code> to format a message. Here we call <button class="code-link" data-focus="write">write</button> directly. It asks the kernel to copy bytes to an open output.</p><p>In <code>write(1, "hello\n", 6)</code>, <code>1</code> names this process’s standard output, the string supplies the bytes, and <code>6</code> is their count. The newline <code>\n</code> is one byte, so the six bytes are <code>h e l l o</code> and a newline.</p><p>The kernel’s <code>sys_write</code> handler obtains these arguments, then passes them to <code>filewrite</code>. For this run, standard output leads to the xv6 console.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="bytes" aria-labelledby="concept-title-bytes"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-bytes">The count selects bytes, not a whole string</strong></figcaption><p class="concept-summary">The string hello followed by a newline occupies seven bytes including its C terminator.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-bytes"><li class="concept-node" data-node="memory"><strong>Bytes in memory</strong><span class="concept-value">h · e · l · l · o · newline · NUL</span></li><li class="concept-node" data-node="request"><strong>write(1, message, 3)</strong><span class="concept-value">Copy the first three bytes to standard output.</span></li><li class="concept-node" data-node="output"><strong>Console output</strong><span class="concept-value">hel — neither the newline nor the NUL is included.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/sysfile.c · sys_write; kernel/file.c · filewrite</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="bytes" aria-labelledby="concept-title-bytes"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-bytes">The count selects bytes, not a whole string</strong></figcaption><p class="concept-summary">The string hello followed by a newline occupies seven bytes including its C terminator.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-bytes"><li class="concept-node" data-node="memory"><strong>Bytes in memory</strong><span class="concept-value">h · e · l · l · o · newline · NUL</span></li><li class="concept-node" data-node="request"><strong>write(1, message, 3)</strong><span class="concept-value">Copy the first three bytes to standard output.</span></li><li class="concept-node" data-node="output"><strong>Console output</strong><span class="concept-value">hel — neither the newline nor the NUL is included.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> kernel/sysfile.c · sys_write; kernel/file.c · filewrite</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: strings and byte counts</summary><div class="c-reminder-content"><p>A C string is a character array ending with a zero byte. The newline escape \n is one byte. A byte-counted write uses the count you pass; it does not search for the string terminator.</p><pre translate="no"><code>char text[] = &quot;hello\n&quot;;
 // Six message bytes, followed by one zero terminator.</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/arrays-strings/2" target="_blank" rel="noopener noreferrer">Character arrays and zero termination <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">argfd reads the output argument, argaddr reads the address of the bytes, and argint reads their count. filewrite performs the write.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change the count from 6 to 3. Build and run. You should see hel, with the next shell prompt immediately after it because you did not write the newline.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the starter in user/workbench.c. The lab builds the code in the editor and starts it on a fresh xv6 machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          Find hello on its own line between $ workbench and the next $ prompt in the xv6 console.
+        </p>
+        <p id="assignment">Change the final argument of write from 6 to 3. Choose Build &amp; run again. Compare hello on its own line with hel next to the next $ prompt. Where did the newline go?</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -99,18 +102,21 @@
             tabindex="-1"
             style="--editor-height: 330px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -121,8 +127,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -149,9 +155,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -171,9 +177,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -191,16 +195,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -209,19 +212,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">The kernel follows the byte count you pass. A C string’s terminator does not decide how many bytes write sends.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Which byte count would include hello but leave out the newline?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Which byte count would include hello but leave out the newline?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/running-a-program/"><small>← Previous lesson</small>A running program is a process</a><a data-direction="next" href="lessons/a-system-call-result/"><small>Next lesson →</small>A system call returns a result</a>
         </nav>
@@ -229,15 +227,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -247,6 +242,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

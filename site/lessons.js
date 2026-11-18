@@ -1,4 +1,4 @@
-import { extendedLessons } from "./extended.js?v=core25";
+import { extendedLessons } from "./extended.js?v=learner-flow1";
 export const lessons = [
   {
     id: "boot",
@@ -13,7 +13,7 @@ export const lessons = [
     command: "echo hello",
     expected: "hello",
     experiment:
-      "Run a name that does not exist, such as banana. Compare its error with echo hello. The shell is still alive after a failed command.",
+      "Load banana into the xv6 command field, then choose Run. Compare the failed launch with echo hello. Which program still writes a $ prompt after the failure?",
     question: "What does the $ prompt tell you?",
     choices: [
       "The browser has simulated a successful boot.",
@@ -40,7 +40,7 @@ export const lessons = [
     expected: "hello (after you continue)",
     breakpoint: "sys_write",
     experiment:
-      "Arm sys_write again, then run echo a much longer message. One handler entry is not one printed character: a write can carry several bytes. Shell echo and the prompt can also cause this breakpoint to fire.",
+      "Choose Run changed command. The lab sends echo a much longer message and pauses at sys_write. Inspect the PC, then choose Continue execution. Compare the text with hello. A breakpoint shows entry to one write handler, which can carry several bytes.",
     question: "Why does echo enter the kernel to print?",
     choices: [
       "User code must ask the kernel to operate the console file descriptor.",
@@ -67,7 +67,7 @@ export const lessons = [
     expected: "child",
     breakpoint: "sys_fork",
     experiment:
-      "Run echo one, then echo two. Re-arm the breakpoint for each command. Each external command needs a child; the original shell continues to accept commands.",
+      "Choose Run changed command. The lab sends echo second child and pauses at sys_fork. Choose Continue execution and look for second child followed by another $ prompt. What still happens even though you changed the message?",
     question: "What is exec’s role after fork?",
     choices: [
       "Create another CPU.",
@@ -93,7 +93,7 @@ export const lessons = [
     command: "echo hello | wc",
     expected: "1 1 6 (line, word and byte counts; spacing may differ)",
     experiment:
-      "Run echo hello | cat. cat copies from its input descriptor to its output descriptor. Compare that with echo hello > note, which routes output to a file.",
+      "Load echo hello world | wc, then choose Run in the xv6 command field. Compare the three numbers, lines, words and bytes, with 1 1 6. Which counts change when echo adds a second word?",
     question: "Why must unused pipe write ends be closed?",
     choices: [
       "So the reader can eventually observe end of file.",
@@ -118,7 +118,7 @@ export const lessons = [
     command: "echo hello > note",
     expected: "A new prompt; then cat note prints hello.",
     experiment:
-      "Create note again and run cat < note. Input redirection changes descriptor 0, just as output redirection changes descriptor 1.",
+      "After the first command created note, load cat < note and choose Run in the xv6 command field. Compare the console output with echo hello > note. Why does only this command display hello?",
     question: "Why can the same echo program write to a file or a console?",
     choices: [
       "echo contains a special implementation for every device.",
@@ -144,7 +144,7 @@ export const lessons = [
     expected: "inspect (after continuing)",
     breakpoint: "sys_write",
     experiment:
-      "Step several instructions. Notice that PC changes need not always be four bytes: RISC-V compressed instructions can occupy two bytes, and branches change control flow.",
+      "Choose Run changed command to pause at sys_write again. Choose Step one instruction twice and compare the PC addresses. Does each change have to be four bytes? Choose Continue execution to finish.",
     question: "What does Step instruction advance?",
     choices: [
       "One line of C, including every function it calls.",

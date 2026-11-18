@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="running-a-program">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -47,35 +47,38 @@
             6
           </p>
           <h1 id="lesson-title">A running program is a process</h1>
-          <p id="lesson-subtitle">Distinguish a program’s source from a running process.</p>
+          <p id="lesson-subtitle">What starts your program, and which program stays running when it exits?</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>A <strong>program</strong> is a set of instructions. A <strong>process</strong> is a running instance of a program, with its own memory and state. The operating system creates and manages processes.</p><p>The source below is a small C program for xv6. Execution starts in <button class="code-link" data-focus="main">main</button>. It prints a message, then calls <button class="code-link" data-focus="exit">exit(0)</button> to end the process. The zero is an exit status conventionally used for success.</p><p>Choose <strong>Build & run</strong>. The browser compiles your C to RISC-V instructions and boots a fresh xv6 machine. The xv6 <strong>shell</strong> is a program that reads commands and starts other programs. Here it starts your program as a process. After it exits, the shell prints its <code>$</code> prompt again.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="program" aria-labelledby="concept-title-program"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-program">Source, executable and process are different things</strong></figcaption><p class="concept-summary">Build creates instructions; the kernel supplies the running instance’s memory and state.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-program"><li class="concept-node" data-node="source"><strong>C source</strong><span class="concept-value">The text you edit describes the program.</span></li><li class="concept-node" data-node="binary"><strong>RISC-V executable</strong><span class="concept-value">The build turns that source into machine instructions.</span></li><li class="concept-node" data-node="process"><strong>Running process</strong><span class="concept-value">xv6 runs the executable with process memory and a kernel record.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> user/sh.c · runcmd; kernel/proc.c · fork; kernel/exec.c · exec</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p>A <strong>process</strong> is a running instance of a program, with its own memory and state. The operating system manages processes. Its <strong>kernel</strong> is the part that controls access to memory and devices and decides which process runs.</p><p>The browser compiles C to RISC-V instructions and runs them on a virtual machine that emulates a RISC-V processor. After xv6 boots, its <strong>shell</strong> reads the supplied <code>workbench</code> command and starts your program at <button class="code-link" data-focus="main">main</button>. The program prints a message, then calls <button class="code-link" data-focus="exit">exit(0)</button> to end its process. An exit status of zero usually means success.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="program" aria-labelledby="concept-title-program"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-program">Source, executable and process are different things</strong></figcaption><p class="concept-summary">Build creates instructions; the kernel supplies the running instance’s memory and state.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-program"><li class="concept-node" data-node="source"><strong>C source</strong><span class="concept-value">The text you edit describes the program.</span></li><li class="concept-node" data-node="binary"><strong>RISC-V executable</strong><span class="concept-value">The build turns that source into machine instructions.</span></li><li class="concept-node" data-node="process"><strong>Running process</strong><span class="concept-value">xv6 runs the executable with process memory and a kernel record.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> user/sh.c · runcmd; kernel/proc.c · fork; kernel/exec.c · exec</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: reading a small C program</summary><div class="c-reminder-content"><p>main is the program’s entry function. Statements end with semicolons, and braces group a function or branch body. In printf, %d formats an integer and \n starts a new line.</p><pre translate="no"><code>int n = 3;
 printf(&quot;n=%d\n&quot;, n);</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/first-program/2" target="_blank" rel="noopener noreferrer">Program structure <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/first-program/3" target="_blank" rel="noopener noreferrer">Printing with printf <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
-          <p id="source-note">xv6 declares exit in its user interface. Calling it ends this process; it does not stop the operating system or the shell. The noreturn annotation tells the compiler that this call never comes back.</p>
+          <p id="source-note">This is the kernel interface the program calls. The noreturn annotation tells the compiler that control never returns to the line after exit.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Change only the greeting string in printf. Build and run again, and find your new message between the shell command and the next $ prompt.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the starter in user/workbench.c. The lab builds the code in the editor and starts it on a fresh xv6 machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          Find Hello from my xv6 program! between $ workbench and the next $ prompt in the xv6 console.
+        </p>
+        <p id="assignment">In printf, replace Hello from my xv6 program! with Hello from my edited program! and keep the newline. Choose Build &amp; run again. Which text changes between $ workbench and the next $ prompt?</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -99,18 +102,21 @@ printf(&quot;n=%d\n&quot;, n);</code></pre><p class="c-refresher-links">Refresh 
             tabindex="-1"
             style="--editor-height: 330px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -121,8 +127,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -149,9 +155,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -171,9 +177,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -191,16 +195,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -209,19 +212,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">Changing C source changes the next executable you build. A process is what runs that executable.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why does the shell survive after your program calls exit?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why does the shell survive after your program calls exit?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a href="./"><small>← All lessons</small>Course contents</a><a data-direction="next" href="lessons/writing-bytes/"><small>Next lesson →</small>The kernel writes your bytes</a>
         </nav>
@@ -229,15 +227,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -247,6 +242,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

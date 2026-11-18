@@ -535,6 +535,20 @@ body[data-build-state="error"] .diagnostics pre {
   font-size: 16px;
   line-height: 1.6;
 }
+#run-owner {
+  background: #fff1dc;
+  color: #754c17;
+}
+.build-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.build-details .editor-bottom {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
+}
 .action-bar {
   position: fixed;
   left: 0;
@@ -558,6 +572,12 @@ body[data-build-state="error"] .diagnostics pre {
   gap: 10px;
   min-width: 0;
 }
+.activity:not(:has(> :not([hidden]))) {
+  display: none;
+}
+.action-bar:has(.activity:not(:has(> :not([hidden])))) {
+  justify-content: flex-end;
+}
 .activity p {
   font-size: 16px;
   line-height: 1.4;
@@ -568,19 +588,6 @@ body[data-build-state="error"] .diagnostics pre {
   font-size: 16px;
   min-height: 44px;
   align-content: center;
-}
-.activity > span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #6c849d;
-  flex-shrink: 0;
-}
-body[data-build-state="building"] .activity > span {
-  background: #1a54b7;
-}
-body[data-build-state="error"] .activity > span {
-  background: #ba542a;
 }
 .actions {
   display: flex;
@@ -725,7 +732,7 @@ body[data-build-state="error"] .activity > span {
   .action-bar {
     padding: 10px 12px max(10px, env(safe-area-inset-bottom));
     display: block;
-    min-height: 115px;
+    min-height: 64px;
   }
   .activity {
     margin-bottom: 9px;
@@ -743,9 +750,6 @@ body[data-build-state="error"] .activity > span {
     font-size: 16px;
     padding: 8px 10px;
     flex: 1;
-  }
-  #build-only {
-    display: none;
   }
   #run-built {
     display: none;
@@ -882,6 +886,10 @@ body[data-build-state="error"] .activity > span {
 .experiment-intro p {
   font-size: 19px;
   margin-top: 0;
+}
+.experiment-intro samp {
+  font: 0.88em var(--mono);
+  overflow-wrap: anywhere;
 }
 .lesson-page .workbench-grid {
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);

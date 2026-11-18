@@ -17,7 +17,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=concepts1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
   </head>
   <body class="lesson-page" data-lesson="the-current-process">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
@@ -49,33 +49,36 @@
           <h1 id="lesson-title">The kernel finds the current process</h1>
           <p id="lesson-subtitle">Connect myproc() with the process record belonging to the caller.</p>
         </div>
-        <p class="privacy-note">
-          Compiler and kernel run locally.<br />Your source stays in this
-          browser.
-        </p>
       </div>
       <div id="storage-warning" role="status" hidden></div>
       <article class="lesson-reading" aria-label="Lesson explanation">
-        <div id="reading-content"><p>We have reached <code>sys_getpid</code>, the kernel handler. The editor now contains that actual function from <code>kernel/sysproc.c</code>. Your changes will compile into the kernel; a fixed user program will call it.</p><p><button class="code-link" data-focus="myproc">myproc()</button> returns a pointer to the current process’s <code>struct proc</code> record. The expression <button class="code-link" data-focus="pid">myproc()->pid</button> reads the <code>pid</code> field in that record.</p><p>Inside <code>myproc</code>, <code>c</code> is the current CPU’s record, and <code>c->proc</code> points to the process it is running. The surrounding <code>push_off</code>/<code>pop_off</code> calls keep this CPU lookup stable by temporarily disabling interrupts. We will study that mechanism later; here follow the pointer returned as <code>p</code>.</p></div>
-        <div id="concept-slot"><figure class="concept-diagram" data-concept="currentproc" aria-labelledby="concept-title-currentproc"><figcaption><span class="concept-eyebrow">See the mechanism</span><strong id="concept-title-currentproc">Follow the current CPU’s process pointer</strong></figcaption><p class="concept-summary">While handling this process’s call, myproc follows c-&gt;proc to the caller’s kernel record.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-currentproc"><li class="concept-node" data-node="cpu"><strong>Current CPU record</strong><span class="concept-value">c = mycpu(); interrupts are temporarily disabled for this lookup.</span></li><li class="concept-node" data-node="process"><strong>Process record</strong><span class="concept-value">p = c-&gt;proc; this is the process running on that CPU.</span></li><li class="concept-node" data-node="pid"><strong>Stored identifier</strong><span class="concept-value">p-&gt;pid is a field in that process record.</span></li></ol><p class="concept-source"><strong>Source anchors</strong> kernel/proc.c · myproc; kernel/proc.h · struct cpu · struct proc</p><p class="concept-model-note">Conceptual model · illustrative state, separate from your live machine.</p></figure></div>
+        <div id="reading-content"><p><code>sys_getpid</code> is the kernel function called for the <code>getpid</code> request. It calls <button class="code-link" data-focus="myproc">myproc()</button>, which returns a pointer to the current process’s record, a <code>struct proc</code>. A <strong>pointer</strong> refers to an object in memory. The <code>-></code> operator accesses a member of a record through a pointer, so <button class="code-link" data-focus="pid">myproc()->pid</button> reads that record’s PID field.</p><p>In the reference excerpt, <code>c</code> points to the current CPU’s record. Its <code>proc</code> field points to the process the CPU is running. Follow the returned <code>p</code> to see what <code>sys_getpid</code> receives.</p></div>
+        <div id="concept-slot"><figure class="concept-diagram" data-concept="currentproc" aria-labelledby="concept-title-currentproc"><figcaption><span class="concept-eyebrow">Concept diagram</span><strong id="concept-title-currentproc">Follow the current CPU’s process pointer</strong></figcaption><p class="concept-summary">While handling this process’s call, myproc follows c-&gt;proc to the caller’s kernel record.</p><ol class="concept-map concept-flow concept-count-3" id="concept-map-currentproc"><li class="concept-node" data-node="cpu"><strong>Current CPU record</strong><span class="concept-value">c = mycpu(); interrupts are temporarily disabled for this lookup.</span></li><li class="concept-node" data-node="process"><strong>Process record</strong><span class="concept-value">p = c-&gt;proc; this is the process running on that CPU.</span></li><li class="concept-node" data-node="pid"><strong>Stored identifier</strong><span class="concept-value">p-&gt;pid is a field in that process record.</span></li></ol><p class="concept-source"><strong>Related xv6 code</strong> kernel/proc.c · myproc; kernel/proc.h · struct cpu · struct proc</p><p class="concept-model-note">This diagram uses example values. The xv6 console shows your run.</p></figure></div>
         <details class="c-reminder"><summary>C reminder: pointers and the -&gt; operator</summary><div class="c-reminder-content"><p>For a pointer p to a struct, p-&gt;pid means (*p).pid: follow the pointer, then read its pid member. Use the dot operator with a struct value itself. Reading a member and assigning to it are different operations.</p><pre translate="no"><code>p-&gt;pid        // read a member through a pointer
 p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-links">Refresh in C Foundry: <a href="https://snowch.github.io/c-foundry/#/chapter/structured-data/4" target="_blank" rel="noopener noreferrer">Pointers to structs <span class="new-tab-label">(new tab)</span></a> · <a href="https://snowch.github.io/c-foundry/#/chapter/pointers/1" target="_blank" rel="noopener noreferrer">Addresses and dereferencing <span class="new-tab-label">(new tab)</span></a></p></div></details>
         <figure class="source-figure">
-          <figcaption id="source-location">Matching xv6 source</figcaption>
+          <figcaption id="source-location">Reference source (read-only)</figcaption>
           <pre id="source-excerpt" translate="no">Loading source…</pre>
           <p id="source-note">The kernel tracks which process is running on each CPU. myproc returns that process record, rather than searching for a process by a printed name or number.</p>
         </figure>
         <details id="context">
-          <summary id="context-title">Read surrounding source</summary>
-          <label for="context-file">Baseline source (read-only)</label
+          <summary id="context-title">Read related source</summary>
+          <label for="context-file">Reference file (read-only)</label
           ><select id="context-file"></select>
           <pre id="context-source" translate="no"></pre>
         </details>
       </article>
       <section class="experiment-intro" aria-labelledby="experiment-title">
-        <p class="preview-label">Try it in xv6</p>
-        <h2 id="experiment-title">One small experiment</h2>
-        <p id="assignment">Before the return statement, add printf(&quot;kernel sees pid=%d\n&quot;, myproc()-&gt;pid);. Build and run. Compare the kernel’s message with the user program’s reported PID.</p>
+        <h2 id="experiment-title">Run the starter and try a change</h2>
+        <p id="prepared-source">On the first visit, the editor opens with the part of kernel/sysproc.c you can change. The lab builds that code into xv6 and starts a supplied user program on a fresh machine.</p>
+        <p id="starter-instructions">
+          If the editor reopened a saved edit, choose
+          <strong>Restore starter</strong> first. You can recover that edit with
+          <strong>Undo restore</strong>. With the starter in the editor, choose
+          <strong>Build &amp; run</strong>.
+          In the xv6 console, find <samp>reported pid=</samp>.
+        </p>
+        <p id="assignment">In sys_getpid, add printf(&quot;kernel sees pid=%d\n&quot;, myproc()-&gt;pid); directly before return myproc()-&gt;pid;. Choose Build &amp; run again. Compare kernel sees pid= and reported pid= in the xv6 console. Which record did both values come from?</p>
         <details id="test-program-details" class="supplied-program" hidden>
           <summary>Read the supplied user program</summary>
           <pre id="test-program-source" translate="no"></pre>
@@ -99,18 +102,21 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
             tabindex="-1"
             style="--editor-height: 330px"
           ></div>
-          <div class="editor-bottom">
-            <span id="build-relation">No build yet</span
-            ><button id="export-source" disabled>Download source</button>
-          </div>
-          <div class="diagnostics">
-            <h3>Build messages</h3>
-            <pre id="build-messages" role="status" aria-live="polite">
-Loading the matching xv6 sources…</pre
-            >
+          <div id="build-diagnostics" class="diagnostics" hidden>
+            <h3>Build error</h3>
+            <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
           <details class="build-details">
-            <summary>About this build</summary>
+            <summary>Build tools and source download</summary>
+            <div class="editor-bottom">
+              <span id="build-relation">No build yet</span>
+              <div class="build-tools">
+                <button id="build-only" disabled>Build only</button>
+                <button id="run-built" disabled>Run saved build</button>
+                <button id="export-source" disabled>Download source</button>
+              </div>
+            </div>
+            <p id="build-size" hidden></p>
             <p id="build-method"></p>
             <p>
               These lessons compile small, freestanding C edits with a
@@ -121,8 +127,8 @@ Loading the matching xv6 sources…</pre
               <code>make</code> rebuild.
             </p>
             <p>
-              Every run boots a fresh, disposable machine. Guest files reset;
-              source drafts stay saved.
+              Your source stays in this browser. Each run starts with a fresh
+              xv6 disk image.
             </p>
             <p>
               Kernel instruction helpers execute the native RISC-V register and
@@ -149,9 +155,9 @@ Loading the matching xv6 sources…</pre
         >
           <div class="pane-header">
             <h2 id="machine-title">Running xv6</h2>
-            <span id="run-status" role="status">Not started</span>
+            <span id="run-status" role="status" hidden></span>
           </div>
-          <p id="run-owner">Build your source to create a runnable image.</p>
+          <p id="run-owner" hidden></p>
           <section
             id="process-evidence"
             class="process-evidence"
@@ -171,9 +177,7 @@ Loading the matching xv6 sources…</pre
                 <tbody id="process-rows"></tbody>
               </table>
             </div>
-            <p id="process-note">
-              Build & run to capture the workbench processes at getpid.
-            </p>
+            <p id="process-note"></p>
           </section>
           <div id="pid-evidence" class="evidence">
             <h3>Evidence from this run</h3>
@@ -191,16 +195,15 @@ Loading the matching xv6 sources…</pre
                 <dd id="pid-reported">—</dd>
               </div>
             </dl>
-            <p id="evidence-note">
-              Values will be captured from real guest state and console output.
-            </p>
+            <p id="evidence-note"></p>
           </div>
           <div class="console-heading">
-            <span>xv6 console</span><span>RISC-V · one hart</span>
+            <span>xv6 console</span>
           </div>
           <div class="console-area">
             <p id="console-empty">
-              Your program’s output will appear here after Build & run.
+              After Build &amp; run, look for output between the
+              <code>$ workbench</code> command and the next <code>$</code> prompt.
             </p>
             <pre
               id="terminal"
@@ -209,19 +212,14 @@ Loading the matching xv6 sources…</pre
               tabindex="0"
             ></pre>
           </div>
-          <p id="run-message">
-            Build & run compiles this draft, boots the image, and launches
-            <code>workbench</code> in the guest shell.
-          </p>
+          <p id="run-message" hidden></p>
         </section>
       </div>
       <section class="lesson-ending">
         <h2>What this shows</h2>
         <p id="takeaway">The handler runs for a particular calling process. myproc gives kernel code access to that process’s record.</p>
-        <details class="reflection">
-          <summary>A question to carry forward</summary>
-          <p id="reflection">Why must the kernel find the calling process, rather than return one fixed PID for everybody?</p>
-        </details>
+        <h2>Check your understanding</h2>
+        <p id="reflection">Why must the kernel find the calling process, rather than return one fixed PID for everybody?</p>
         <nav class="lesson-navigation" aria-label="Previous and next lessons">
           <a data-direction="previous" href="lessons/entering-the-kernel/"><small>← Previous lesson</small>ecall crosses into the kernel</a><a data-direction="next" href="lessons/changing-the-answer/"><small>Next lesson →</small>A returned value is not the stored value</a>
         </nav>
@@ -229,15 +227,12 @@ Loading the matching xv6 sources…</pre
     </main>
     <footer class="action-bar">
       <div class="activity">
-        <span id="activity-dot" aria-hidden="true"></span>
-        <p id="activity-status" role="status">Loading the workbench…</p>
+        <p id="activity-status" role="status">Loading xv6 source…</p>
         <a id="view-result" href="#machine-pane" hidden>View result ↓</a>
       </div>
       <div class="actions">
-        <button id="stop" disabled>Stop run</button
-        ><button id="build-only" disabled>Build only</button
-        ><button id="run-built" disabled>Run build</button
-        ><button
+        <button id="stop" disabled hidden>Stop run</button>
+        <button
           id="build-run"
           class="primary"
           disabled
@@ -247,6 +242,6 @@ Loading the matching xv6 sources…</pre
         </button>
       </div>
     </footer>
-    <script type="module" src="workbench/app.js?v=concepts1"></script>
+    <script type="module" src="workbench/app.js?v=learner-flow1"></script>
   </body>
 </html>

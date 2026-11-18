@@ -1790,12 +1790,24 @@ article,
 #flow-cue:empty {
   display: none;
 }
-#guide-inspection pre {
+#guide-inspection pre,
+#guide-variant-inspection pre {
   font: 15px/1.65 var(--mono);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   padding: 10px;
   background: #edf2fa;
+}
+.guide-walks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 8px;
+}
+.guide-walks pre {
+  margin: 0;
+}
+#guide-variant-inspection:not(:empty) {
+  margin-top: 16px;
 }
 #guide-inspection details summary {
   min-height: 44px;

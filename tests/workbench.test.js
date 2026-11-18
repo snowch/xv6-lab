@@ -114,7 +114,12 @@ test(
       const lesson = lessons[id];
       const excerpt = sourceExcerpt(assets.files, lesson);
       assert.ok(excerpt.text.trim(), id + ": matching source");
-      let source = lesson.starter(assets.files);
+      const starter = lesson.starter(assets.files);
+      const baseline = await run(await buildExercise(lesson.mode, starter, assets), lesson.observePid);
+      assert.ok(baseline.output.includes(lesson.expected), id + ": starter output");
+      let source = starter;
+      if (id === "running-a-program" || id === "a-system-call-result")
+        source = starter.replace("Hello from my xv6 program!", "Hello from my edited program!");
       if (id === "writing-bytes")
         source = source.replace('"hello\\n", 6', '"hello\\n", 3');
       if (id === "entering-the-kernel")
@@ -127,9 +132,14 @@ test(
           "  return",
           '  printf("kernel sees pid=%d\\n", myproc()->pid);\n  return',
         );
+      if (id === "changing-the-answer")
+        source = source.replace("return myproc()->pid;", "return myproc()->pid + 1000;");
+      assert.notEqual(source, starter, id + ": taught edit changes source");
       const built = await buildExercise(lesson.mode, source, assets),
         result = await run(built, lesson.observePid);
-      if (id === "writing-bytes")
+      if (id === "running-a-program" || id === "a-system-call-result")
+        assert.match(result.output, /Hello from my edited program!/);
+      else if (id === "writing-bytes")
         assert.match(result.output, /workbench\nhel\$ /);
       else
         assert.ok(
@@ -142,6 +152,12 @@ test(
         assert.ok(
           result.output.includes("kernel sees pid=" + result.actualPID),
         );
+      if (id === "a-system-call-result")
+        assert.ok(result.output.includes("reported pid=" + result.actualPID));
+      if (id === "changing-the-answer") {
+        assert.equal(result.actualPID, result.exitPID);
+        assert.ok(result.output.includes("reported pid=" + (result.actualPID + 1000)));
+      }
     }
   },
 );
@@ -202,8 +218,8 @@ test(
     const cases = [
       [
         "fork-creates-a-child",
-        (s) => s.replace("child: fork returned", "child edit: fork returned"),
-        /child edit: fork returned 0/,
+        (s) => s.replace("child: fork returned", "new child: fork returned"),
+        /new child: fork returned 0/,
       ],
       [
         "waiting-for-a-child",
@@ -226,8 +242,8 @@ test(
       ],
       [
         "exec-replaces-the-program",
-        (s) => s.replace("The new program is echo", "EDITED EXEC ARGUMENT"),
-        /EDITED EXEC ARGUMENT/,
+        (s) => s.replace("The new program is echo", "The replacement printed this"),
+        /The replacement printed this/,
       ],
       [
         "when-exec-fails",

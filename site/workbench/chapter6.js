@@ -19,7 +19,7 @@ export const chapter6Lessons = {
     sourceNote:
       "The loop rechecks elapsed ticks after each wakeup. Kernel sleep takes a channel and lock; the user sleep syscall wraps that mechanism with a timer condition.",
     assignment:
-      "Change requested from 3 to 5. Build and run. requested should become 5, while at_least remains 1 and sleep_result remains 0.",
+      "Change requested from 3 to 5. Choose Build & run again. Requested should become 5, while at_least remains 1 and sleep_result remains 0.",
     takeaway:
       "Timed sleep blocks on a kernel condition; resuming can happen later than the requested minimum.",
     reflection:
@@ -46,7 +46,7 @@ export const chapter6Lessons = {
     sourceNote:
       "The scheduler changes a selected process to RUNNING, records it in c->proc and switches contexts. Blocking or yielding changes its state before switching back.",
     assignment:
-      "Change N from 3 to 5. Build and run. Each label should appear five times, with both children collected, regardless of their interleaving.",
+      "Change N from 3 to 5. Choose Build & run again. Each label should appear five times, with both children collected, regardless of their interleaving.",
     takeaway:
       "Scheduling chooses among runnable processes; a particular output interleaving is not the API contract.",
     reflection:
@@ -74,8 +74,9 @@ export const chapter6Lessons = {
     },
     sourceNote:
       "The kernel records what the process is waiting on, changes its state to SLEEPING, and calls sched. The saved state lets the scheduler run another process while this one waits.",
+    starterEvidence: "Find child pid= in the xv6 console. Match it to the running row in Kernel process snapshot, then use that row’s Parent column to find the sleeping process.",
     assignment:
-      "Change the child’s exit status from 0 to 7. Build and run. The snapshot should still show the waiting relationship; the parent should later report status 7.",
+      "In the child branch, change exit(0) to exit(7). Choose Build & run again. Find the running child and its sleeping parent in Kernel process snapshot. Compare parent collected child; status= in the console. Which evidence identifies the parent’s state, and which reports the child’s result?",
     takeaway:
       "A blocked process retains its memory and saved execution state while another process runs.",
     reflection:
@@ -104,7 +105,7 @@ export const chapter6Lessons = {
     sourceNote:
       "wakeup matches both the sleeping state and the channel before assigning RUNNABLE. The scheduler, rather than wakeup itself, later changes the chosen process to RUNNING.",
     assignment:
-      "Change K to Z in the producer’s write. Build and run. The awakened reader should obtain Z through the same wait/wakeup path.",
+      "Change K to Z in the producer’s write. Choose Build & run again. The awakened reader should obtain Z through the same wait/wakeup path.",
     takeaway:
       "Wakeup changes eligibility; the waiting operation must still recheck its condition.",
     reflection:
@@ -131,7 +132,7 @@ export const chapter6Lessons = {
     sourceNote:
       "kill wakes a sleeping target by assigning RUNNABLE. Trap handling checks killed before returning to user execution, and exit then leaves a record for the parent’s wait.",
     assignment:
-      "Replace kill(child) with kill(99999), a PID absent from this fresh machine. Build and run. kill should return -1, the child should complete its sleep, and its collected status should be 0.",
+      "Replace kill(child) with kill(99999), a PID absent from this fresh machine. Choose Build & run again. Kill should return -1, the child should complete its sleep, and its collected status should be 0.",
     takeaway:
       "Cancellation must interact with sleeping, scheduling and the ordinary exit/wait lifecycle.",
     reflection:
@@ -160,7 +161,7 @@ export const chapter6Lessons = {
     sourceNote:
       "This update occurs inside the pipe’s locked region; release is shown below it. spinlock.c implements acquisition with an atomic operation and disables local interrupts while held. The example checks functional outcomes under these rules, not hardware contention speed.",
     assignment:
-      "Change N from 20 to 30. Build and run. The reader should count 60 bytes: 30 A bytes and 30 B bytes, with both children collected.",
+      "Change N from 20 to 30. Choose Build & run again. The reader should count 60 bytes: 30 A bytes and 30 B bytes, with both children collected.",
     takeaway:
       "Process-private user memory can still access shared kernel objects, whose invariants need synchronization.",
     reflection:

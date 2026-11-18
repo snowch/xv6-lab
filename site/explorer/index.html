@@ -16,7 +16,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="../style.css?v=guided1" />
+    <link rel="stylesheet" href="../style.css?v=learner-flow1" />
   </head>
   <body class="guided-workbook">
     <a id="skip-lesson" class="skip-link" href="#lesson">Skip to lesson</a>
@@ -25,19 +25,15 @@
         ><span class="brand-mark" aria-hidden="true">x6<span>_</span></span
         ><span
           >xv6 <strong>Lab</strong
-          ><small>An operating systems workbook</small></span
+          ><small>Kernel explorer</small></span
         ></a
       >
-      <div class="sidebar-intro">
-        <p class="eyebrow">YOUR FIELD GUIDE</p>
-        <p>A small kernel.<br />A closer look.</p>
-      </div>
       <div class="course-progress">
         <div class="progress-track" aria-hidden="true">
           <span id="progress-fill"></span>
         </div>
         <p id="progress"></p>
-        <span>At your pace. Progress stays in this browser.</span>
+        <span>Progress is saved in this browser.</span>
       </div>
       <details id="course-menu" open>
         <summary>Browse the 25 lessons</summary>
@@ -61,7 +57,6 @@
         ><a href="https://github.com/snowch/xv6-lab"
           >View the source <span aria-hidden="true">↗</span></a
         >
-        <p>MIT xv6 · RISC-V · WebAssembly</p>
       </div>
     </aside>
     <div class="page">
@@ -96,13 +91,11 @@
             <div class="machine-guide">
               <span class="guide-icon" aria-hidden="true">↳</span>
               <p id="machine-hint">
-                Start with “Run this experiment” in the lesson. We’ll boot xv6
-                and prepare the command for you.
+                Choose Run experiment. The lab boots xv6 and enters the lesson’s command.
               </p>
             </div>
             <div class="terminal-heading">
-              <span><span aria-hidden="true">● ● ●</span> xv6 console</span
-              ><span>RISC-V · one hart</span>
+              <span>xv6 console</span>
             </div>
             <pre
               id="terminal"
@@ -111,13 +104,11 @@
               aria-label="Interactive xv6 console"
               aria-describedby="console-help"
             >
-A real operating system lives here.
-
-Run the first experiment to wake it up.
+Console output appears here when xv6 boots.
 </pre
             >
             <form id="command-form">
-              <label for="command">Try your own command</label>
+              <label for="command">xv6 command</label>
               <div class="command-row">
                 <span class="prompt-symbol" aria-hidden="true">$</span
                 ><input
@@ -140,7 +131,7 @@ Run the first experiment to wake it up.
             </form>
             <div id="error" role="alert" tabindex="-1" hidden></div>
             <details class="advanced-tools">
-              <summary>Optional debugger, memory & reset</summary>
+              <summary>Debugger, memory inspection and reset</summary>
               <div class="toolbar">
                 <button id="boot">Boot xv6</button
                 ><button id="pause" disabled>Pause</button
@@ -283,6 +274,6 @@ Pause inside the kernel to locate the current instruction in source.</pre
         </footer>
       </main>
     </div>
-    <script type="module" src="../app.js?v=guest4"></script>
+    <script type="module" src="../app.js?v=learner-flow1"></script>
   </body>
 </html>

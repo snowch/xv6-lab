@@ -1,6 +1,6 @@
-import { stages, processLessons, observations } from "./guide-content.js";
-import { lessons } from "./lessons.js?v=core25";
-import { learning } from "./learning.js?v=core25";
+import { stages, processLessons, observations, guidedChanges, commandChanges } from "./guide-content.js?v=learner-flow1";
+import { lessons } from "./lessons.js?v=learner-flow1";
+import { learning } from "./learning.js?v=learner-flow1";
 const $ = (id) => document.getElementById(id);
 const escape = (value) =>
   String(value)
@@ -121,13 +121,16 @@ $("lesson-search").oninput = (e) => {
 const stageByLesson = new Map(),
   launched = new Set(),
   finished = new Set(),
-  evidence = new Map();
+  evidence = new Map(),
+  pageWalks = new Map();
 let stage = 0,
   activeExperiment = null,
   outputStart = 0,
   lastSnapshot = null,
-  processSnapshot = null,
-  pageSnapshot = null;
+  processSnapshot = null;
+function hasGuidedInspection() {
+  return stage === 1 || (stage === 3 && Object.hasOwn(guidedChanges, selected.id));
+}
 window.addEventListener("popstate", () => {
   query = new URLSearchParams(location.search).get("q") || "";
   $("lesson-search").value = query;
@@ -174,7 +177,9 @@ function updateGuide() {
             ? "Explain this result"
             : "Waiting for the experiment…";
     next.disabled = !!worker && (!ready || (running && !shellReady));
-  } else
+  } else if (stage === 3 && ready && !running && guidedChanges[selected.id])
+    next.textContent = "Continue execution";
+  else
     next.textContent =
       stage === 2
         ? "Try a change"
@@ -183,11 +188,11 @@ function updateGuide() {
           : lessons.indexOf(selected) < lessons.length - 1
             ? "Next lesson"
             : "Review the course";
-  const inspect = $("guide-inspection");
+  const inspect = $(stage === 3 ? "guide-variant-inspection" : "guide-inspection");
   if (inspect) {
     const refocus = document.activeElement?.id === "guided-step";
     inspect.replaceChildren();
-    if (stage === 1 && ready && !running && lastSnapshot) {
+    if (hasGuidedInspection() && ready && !running && lastSnapshot) {
       const title = document.createElement("h4");
       title.textContent = lastSnapshot.reason;
       inspect.append(title);
@@ -202,15 +207,17 @@ function updateGuide() {
           loading.textContent = "Reading the paused process snapshot…";
           inspect.append(loading);
         } else if (selected.id === "pagetables") {
-          const walk = document.createElement("pre");
-          walk.textContent = pageSnapshot
-            ? pageSnapshot.steps
-                .map((s) => `L${s.level} [${s.index}] ${s.pte} ${s.flags}`)
-                .join("\n") +
-              "\n" +
-              pageSnapshot.result
-            : "Walking lab’s page table for 0x0…";
-          inspect.append(walk);
+          const walks = document.createElement("div");
+          walks.className = "guide-walks";
+          for (const address of stage === 3 ? ["0x0", "0x40000000"] : ["0x0"]) {
+            const walk = document.createElement("pre");
+            const snapshot = pageWalks.get(address);
+            walk.textContent = snapshot
+              ? `lab · ${address}\n${snapshot.steps.map(s => `L${s.level} [${s.index}] ${s.pte} ${s.flags}`).join("\n")}\n${snapshot.result}`
+              : `Reading lab’s page table at ${address}…`;
+            walks.append(walk);
+          }
+          inspect.append(walks);
         } else {
           const focus =
             processSnapshot.find(
@@ -220,7 +227,7 @@ function updateGuide() {
             processSnapshot.find((p) => p.state === "running");
           const table = document.createElement("div");
           table.className = "guide-processes";
-          table.innerHTML = `<table><caption>Actual paused processes</caption><thead><tr><th>PID</th><th>Name</th><th>State</th></tr></thead><tbody>${processSnapshot.map((p) => `<tr><td>${p.pid}</td><td>${escape(p.name)}</td><td>${escape(p.state)}</td></tr>`).join("")}</tbody></table>`;
+          table.innerHTML = `<table><caption>Paused processes</caption><thead><tr><th scope="col">PID</th><th scope="col">Name</th><th scope="col">State</th><th scope="col">Open descriptors</th></tr></thead><tbody>${processSnapshot.map((p) => `<tr><td>${p.pid}</td><td>${escape(p.name)}</td><td>${escape(p.state)}</td><td>${p.descriptors}</td></tr>`).join("")}</tbody></table>`;
           if (["identity", "traps", "heap"].includes(selected.id) && focus) {
             const detail = document.createElement("pre");
             detail.textContent =
@@ -272,16 +279,12 @@ function updateGuide() {
       stage !== 1
         ? ""
         : ready && !running
-          ? "The machine is paused. Inspect this snapshot, then choose Continue execution below."
-          : !launched.has(selected.id)
-            ? "Run the experiment when you are ready."
-            : !ready
-              ? "The kernel is booting. Your command will run automatically."
-              : !running
-                ? "You’re paused in the kernel. Inspect the snapshot here, then choose Continue execution below."
-                : !shellReady
-                  ? "Watch the console below. The experiment is running."
-                  : "The shell is ready again. Compare its output with your prediction, then explain the result.";
+          ? "After inspecting the snapshot, choose Continue execution."
+          : pending
+            ? "The kernel is booting. The command will run when the shell is ready."
+            : finished.has(selected.id)
+              ? "Compare the console with your prediction."
+              : "";
 }
 $("flow-back").onclick = () => setStage(stage - 1, true, true);
 $("flow-next").onclick = () => {
@@ -294,6 +297,8 @@ $("flow-next").onclick = () => {
     } else if (!launched.has(selected.id) || !worker) {
       startExperiment(selected);
     } else setStage(2, true, true);
+  } else if (stage === 3 && ready && !running && guidedChanges[selected.id]) {
+    send("continue");
   } else if (stage < 4) setStage(stage + 1, true, true);
   else {
     const index = lessons.indexOf(selected);
@@ -318,16 +323,28 @@ function render() {
   document.title = `${l.title} — xv6 Lab`;
   $("current-topic").textContent = l.title;
   navigation();
+  const followUp = {
+    wait: "waiting-for-a-child",
+    traps: "a-trapframe-saves-user-registers",
+    locks: "a-sleeping-lock-does-not-spin-through-io",
+    blocks: "direct-and-indirect-blocks-map-file-offsets",
+    transactions: "the-header-is-the-commit-point",
+  }[l.id];
+  const changeAction = guidedChanges[l.id]
+    ? `<button id="run-variant">${l.id === "pagetables" ? "Compare two addresses" : "Run changed command"}</button><div id="guide-variant-inspection"></div>`
+    : commandChanges[l.id]
+      ? '<button id="load-command">Load command</button><p id="variation-status" role="status"></p>'
+      : `<a href="../lessons/${followUp}/">Open the editable source lesson →</a>`;
   $("lesson").innerHTML = `
-    <div class="lesson-heading"><span class="tag">Experiment ${String(index + 1).padStart(2, "0")} / ${lessons.length}</span><span class="lesson-topic">${escape(l.tag)}</span></div>
+    <p class="lesson-topic">${escape(l.tag)}</p>
     <h2>${escape(l.title)}</h2><p class="lead">${escape(s.goal)}</p>
     <ol class="flow-steps" aria-label="Learning sequence">${stages.map(([key, title], i) => `<li><button data-flow-link="${i}" aria-controls="guide-task">${i + 1}. ${title}</button></li>`).join("")}</ol>
     <div id="guide-task" class="guide-task" role="region" aria-label="Current learning task" tabindex="0">
-    <section class="lesson-stage" data-flow-stage="0"><div class="stage-heading"><span class="stage-number">01</span><h3>Make a prediction</h3><span class="stage-label">Think first</span></div><p>${escape(l.predict)}</p><label class="sr-only" for="prediction">Your prediction</label><textarea id="prediction" name="prediction" autocomplete="off" rows="2" maxlength="2000" placeholder="I think… (a sentence is enough)">${escape(notes.get(l.id))}</textarea><p id="note-status" class="muted">${storageAvailable ? "Optional. Your notes stay in this browser." : "Optional. Notes are kept for this tab session only."}</p></section>
-    <section class="lesson-stage experiment-stage" data-flow-stage="1"><div class="stage-heading"><span class="stage-number">02</span><h3>Run & notice</h3><span class="stage-label">Try it</span></div><p>${escape(observations[l.id] || s.observe)}</p><div id="guide-inspection"></div><p id="flow-cue" role="status"></p><div class="example"><div class="example-heading"><span>First command</span>${l.breakpoint ? `<span>Stop at ${escape(l.breakpoint)}</span>` : "<span>In the xv6 shell</span>"}</div><code>${escape(l.command)}</code><button id="run-experiment" class="primary" aria-describedby="run-help">Run this experiment <span aria-hidden="true">↗</span></button></div><p id="run-help" class="muted"></p><p id="experiment-status" class="experiment-status" role="status"></p><details class="lesson-disclosure"><summary>Need a nudge?</summary><p>${escape(s.hint)}</p></details><details class="lesson-disclosure"><summary>Expected observation</summary><p>${escape(l.expected)}</p><p>Compare this with the real console. Seeing output is evidence to reason about, not an automatic pass.</p></details></section>
-    <section class="lesson-stage" data-flow-stage="2"><div class="stage-heading"><span class="stage-number">03</span><h3>Connect the dots</h3><span class="stage-label">Understand</span></div><div id="prediction-recall" class="prediction-recall" hidden><strong>You predicted</strong><blockquote id="prediction-text"></blockquote><p>What would you keep or revise after the experiment?</p></div><figure class="mechanism"><div class="flow">${s.flow.map(([label, caption], i) => `${i ? '<span class="flow-arrow" aria-hidden="true">→</span>' : ""}<div class="flow-node"><strong>${escape(label)}</strong><span>${escape(caption)}</span></div>`).join("")}</div><figcaption>A map of the idea · not a live execution trace</figcaption></figure><p>${escape(l.concept)}</p><div class="takeaway"><span aria-hidden="true">↳</span><p>${escape(s.takeaway)}</p></div></section><section class="lesson-stage" data-flow-stage="3"><div class="stage-heading"><h3>Change one thing</h3></div><p>${escape(l.experiment)}</p><button id="load-command" class="text-button">Edit the original command below</button><p id="variation-status" role="status"></p><p class="muted">Use the command field below. The same machine and its files stay available while you experiment.</p></section>
-    <section class="lesson-stage quiz" data-flow-stage="4"><div class="stage-heading"><span class="stage-number">04</span><h3>Check your understanding</h3></div><p>${escape(l.question)}</p><div class="answers">${l.choices.map((choice, i) => `<button data-answer="${i}" aria-pressed="false"><span class="answer-letter" aria-hidden="true">${String.fromCharCode(65 + i)}</span><span>${escape(choice)}</span><span class="answer-mark" aria-hidden="true"></span></button>`).join("")}</div><p id="feedback" class="feedback" role="status"></p><details class="lesson-disclosure retrieval"><summary>One more thought, without looking back</summary><p>${escape(s.transfer)}</p><p class="muted">Explain it in your own words, then compare.</p><button id="reveal-transfer" class="text-button" aria-expanded="false" aria-controls="transfer-answer">Compare with an explanation</button><p id="transfer-answer" hidden>${escape(s.transferAnswer)}</p></details>
-    <div class="completion-card"><label class="completion"><input id="complete" name="complete" type="checkbox" ${completed.has(l.id) ? "checked" : ""}><span><strong>I can explain this idea</strong><small>I’ve tried the experiment and checked my understanding. Mark this lesson as explored.</small></span></label><p class="muted">This is your own learning record, not an automatic grade.</p></div>
+    <section class="lesson-stage" data-flow-stage="0"><h3>Make a prediction</h3><p>${escape(l.predict)}</p><label class="sr-only" for="prediction">Your prediction</label><textarea id="prediction" name="prediction" autocomplete="off" rows="2" maxlength="2000" placeholder="Optional prediction">${escape(notes.get(l.id))}</textarea><p id="note-status" class="muted">${storageAvailable ? "Optional. Your notes stay in this browser." : "Optional. Notes are kept for this tab session only."}</p></section>
+    <section class="lesson-stage experiment-stage" data-flow-stage="1"><h3>Run and inspect</h3><p>The lab boots xv6 if needed and enters <code>${escape(l.command)}</code>.${l.breakpoint ? ` It pauses at <code>${escape(l.breakpoint)}</code>.` : ""}</p><p>${escape(observations[l.id] || s.observe)}</p><div id="guide-inspection"></div><p id="flow-cue" role="status"></p><p><strong>Starter evidence.</strong> ${escape(l.expected)}</p><button id="run-experiment" aria-describedby="run-help" hidden>Run starter again</button><p id="run-help" class="muted"></p><p id="experiment-status" class="experiment-status" role="status"></p><details class="lesson-disclosure"><summary>Hint for reading the result</summary><p>${escape(s.hint)}</p></details></section>
+    <section class="lesson-stage" data-flow-stage="2"><h3>Explain the result</h3><div id="prediction-recall" class="prediction-recall" hidden><strong>You predicted</strong><blockquote id="prediction-text"></blockquote><p>What would you keep or revise after the experiment?</p></div><figure class="mechanism"><div class="flow">${s.flow.map(([label, caption], i) => `${i ? '<span class="flow-arrow" aria-hidden="true">→</span>' : ""}<div class="flow-node"><strong>${escape(label)}</strong><span>${escape(caption)}</span></div>`).join("")}</div><figcaption>Diagram of the mechanism</figcaption></figure><p>${escape(l.concept)}</p><div class="takeaway"><span aria-hidden="true">↳</span><p>${escape(s.takeaway)}</p></div></section><section class="lesson-stage" data-flow-stage="3"><h3>Try a variation</h3><p>${escape(l.experiment)}</p>${changeAction}</section>
+    <section class="lesson-stage quiz" data-flow-stage="4"><h3>Check your understanding</h3><p>${escape(l.question)}</p><div class="answers">${l.choices.map((choice, i) => `<button data-answer="${i}" aria-pressed="false"><span class="answer-letter" aria-hidden="true">${String.fromCharCode(65 + i)}</span><span>${escape(choice)}</span><span class="answer-mark" aria-hidden="true"></span></button>`).join("")}</div><p id="feedback" class="feedback" role="status"></p><details class="lesson-disclosure retrieval"><summary>Apply the idea to another question</summary><p>${escape(s.transfer)}</p><p class="muted">Explain it in your own words, then compare.</p><button id="reveal-transfer" class="text-button" aria-expanded="false" aria-controls="transfer-answer">Compare with an explanation</button><p id="transfer-answer" hidden>${escape(s.transferAnswer)}</p></details>
+    <div class="completion-card"><label class="completion"><input id="complete" name="complete" type="checkbox" ${completed.has(l.id) ? "checked" : ""}><span><strong>Mark this lesson as explored</strong></span></label></div>
     </section></div><div id="resource-content"><details class="recent-evidence"><summary>Your prediction & recent output</summary><blockquote id="prediction-summary"></blockquote><pre id="recent-output"></pre></details><details class="lesson-navigation-details"><summary>Other lessons</summary><div class="lesson-navigation">${index > 0 ? `<a href="#${lessons[index - 1].id}">← Previous</a>` : "<span>Keep the machine running as you explore.</span>"}${index < lessons.length - 1 ? `<a class="next-lesson" href="#${lessons[index + 1].id}">${escape(lessons[index + 1].title)} <span aria-hidden="true">→</span></a>` : '<a class="next-lesson" href="#boot">Revisit the beginning →</a>'}</div>
     </details><details class="source-note" id="full-source"><summary>Read the matching source in this page</summary><pre id="full-source-code">Open to load the source file.</pre></details><details class="source-note"><summary>Go deeper: source & scope</summary><p>${escape(l.next)}</p><a href="https://github.com/snowch/xv6-lab/blob/main/guest/${l.source}" target="_blank" rel="noreferrer">Read ${escape(l.source)} ↗</a><p class="muted">This opens the matching source used to build this lab’s kernel and user programs.</p></details></div>`;
   $("lesson-resources").replaceChildren($("resource-content"));
@@ -377,13 +394,14 @@ function render() {
         ". Close and reopen this panel to retry, or use the source link below.";
     }
   };
-  $("load-command").onclick = () => {
-    $("command").value = l.command;
+  if ($("load-command")) $("load-command").onclick = () => {
+    $("command").value = commandChanges[l.id];
     $("variation-status").textContent =
-      "The original command is in the command field. Edit it, then choose Run.";
-    $("experiment-status").textContent =
-      "Command copied. Run the guided experiment, or send it yourself when the shell is ready.";
+      shellReady && running ? "The command is loaded. Choose Run in the xv6 command field." : "The command is loaded. Use Run and inspect to start or continue xv6, then choose Run when the $ prompt returns.";
     if (shellReady && running) $("command").focus();
+  };
+  if ($("run-variant")) $("run-variant").onclick = () => {
+    startExperiment({ ...l, command: guidedChanges[l.id] });
   };
   $("run-experiment").onclick = () => {
     setStage(1);
@@ -479,7 +497,8 @@ function controls() {
             : "Boots xv6 if needed and prepares this lesson’s command and breakpoint.";
   if ($("run-experiment")) {
     $("run-experiment").hidden = !finished.has(selected.id);
-    $("run-experiment").textContent = "Run experiment again";
+    if ($("run-variant"))
+      $("run-variant").disabled = !!pending || (!!worker && (!ready || !running || !shellReady));
     $("run-experiment").disabled =
       !!pending || (!!worker && (!ready || !running || !shellReady));
     updateGuide();
@@ -567,7 +586,7 @@ function boot(keepPending = false) {
   outputStart = 0;
   lastSnapshot = null;
   processSnapshot = null;
-  pageSnapshot = null;
+  pageWalks.clear();
   if (!keepPending) {
     launched.clear();
     finished.clear();
@@ -587,7 +606,7 @@ function boot(keepPending = false) {
   guide(
     "Booting a real kernel. This can take a little while; you don’t need to type anything yet.",
   );
-  worker = new Worker(new URL("./worker.js?v=guest4", import.meta.url), {
+  worker = new Worker(new URL("./worker.js?v=learner-flow1", import.meta.url), {
     type: "module",
   });
   worker.onmessage = ({ data }) => {
@@ -620,7 +639,7 @@ function boot(keepPending = false) {
         $("page-result").replaceChildren();
         lastSnapshot = data;
         processSnapshot = null;
-        pageSnapshot = null;
+        pageWalks.clear();
         running = data.running;
         $("status").textContent = data.reason;
         $("pc").textContent = data.pc;
@@ -637,7 +656,7 @@ function boot(keepPending = false) {
           .join("");
         if (!running) {
           if (
-            stage === 1 &&
+            hasGuidedInspection() &&
             processLessons.has(selected.id) &&
             BigInt(data.pc) >= 0x80000000n &&
             BigInt(data.pc) < 0x88000000n
@@ -665,15 +684,18 @@ function boot(keepPending = false) {
               `<option value="${p.pid}" ${p.name === "lab" ? "selected" : ""}>${p.pid} ${escape(p.name)}</option>`,
           )
           .join("");
-        if (stage === 1 && selected.id === "pagetables" && !running) {
+        if (hasGuidedInspection() && selected.id === "pagetables" && !running) {
           const proc = data.rows.find((p) => p.name === "lab");
-          if (proc)
+          if (proc) {
             send("pagetable", { pid: proc.pid, address: "0x0", auto: true });
+            if (stage === 3)
+              send("pagetable", { pid: proc.pid, address: "0x40000000", auto: true });
+          }
         }
         controls();
         break;
       case "pagetable":
-        pageSnapshot = data;
+        pageWalks.set(data.address, data);
         $("page-result").innerHTML =
           `<p>${escape(data.result)}</p><table><caption>PID ${data.pid} · actual PTE reads</caption><thead><tr><th>Level</th><th>Index</th><th>PTE</th><th>Flags</th></tr></thead><tbody>${data.steps.map((s) => `<tr><td>${s.level}</td><td>${s.index}</td><td>${s.pte}</td><td>${s.flags || "—"}</td></tr>`).join("")}</tbody></table>`;
         updateGuide();
