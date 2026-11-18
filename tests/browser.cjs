@@ -884,6 +884,37 @@ const server = http.createServer((req, res) => {
       }
       assert.match(await editor.innerText(), /A longer learner draft/);
       assert.equal(await page.evaluate(key => localStorage.getItem(key), key), previous);
+      await page.close();
+
+      // The reverse operation also needs room to write the original draft.
+      const undoPage = await context.newPage();
+      await undoPage.goto(route);
+      const undoEditor = undoPage.locator(".cm-content");
+      await undoEditor.waitFor();
+      await undoPage.getByRole("button", { name: "Restore starter" }).press("Enter");
+      assert.equal(await undoPage.evaluate(key => localStorage.getItem(key), key), source);
+      await undoPage.evaluate(({ key, previous, recoveryInTab }) => {
+        const save = Storage.prototype.setItem;
+        Storage.prototype.setItem = function (name, value) {
+          if (name === key && value === previous && (this === localStorage || !recoveryInTab))
+            throw new DOMException("No space for the recovered source", "QuotaExceededError");
+          return save.call(this, name, value);
+        };
+      }, { key, previous, recoveryInTab });
+      await undoPage.getByRole("button", { name: "Undo restore" }).press("Enter");
+      assert.match(await undoEditor.innerText(), /A longer learner draft/);
+      assert.equal(await undoPage.evaluate(key => localStorage.getItem(key), key), source);
+      assert.equal(
+        await undoPage.evaluate(key => JSON.parse(localStorage.getItem(key)), recoveryKey),
+        previous,
+        "Durable recovery remains after an Undo that cannot save the restored draft",
+      );
+      const laterTab = await context.newPage();
+      await laterTab.goto(route);
+      await laterTab.locator(".cm-content").waitFor();
+      await laterTab.getByRole("button", { name: "Undo restore" }).press("Enter");
+      assert.equal(await laterTab.evaluate(key => localStorage.getItem(key), key), previous);
+      assert.equal(await laterTab.evaluate(key => localStorage.getItem(key), recoveryKey), null);
       await context.close();
     }
     console.log("workbench recovery quotas passed");

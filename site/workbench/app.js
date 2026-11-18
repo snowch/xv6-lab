@@ -75,7 +75,7 @@ function showDraftStatus() {
     say(
       "storage-warning",
       draftScope === "tab"
-        ? "The current source and Undo restore can reopen in this tab. A new tab opens your previous saved draft. To keep the current source, download it under Build tools and source download."
+        ? "The current source and Undo restore can reopen in this tab. Permanent storage still holds any previous saved draft. To keep the current source, download it under Build tools and source download."
         : "The current source and Undo restore are available on this page. Reloading opens your previous saved draft if you had one. To keep the current source, download it under Build tools and source download.",
     );
   } else if (draftScope === "tab")
@@ -539,11 +539,24 @@ $("restore").onclick = () => {
 $("undo-restore").onclick = () => {
   if (undoRestore === null) return;
   const source = undoRestore;
+  const savedRecovery = recoveryScope === "browser";
   undoRestore = null;
   editor.replace(source);
-  persist(recoveryKey, "null");
+  // Undo can load a larger draft than storage can currently write.
+  if (draftScope === "browser") {
+    try {
+      localStorage.removeItem(recoveryKey);
+    } catch {}
+    try {
+      sessionStorage.removeItem(recoveryKey);
+    } catch {}
+  }
   controls();
-  activity("Your previous draft is restored.");
+  activity(
+    draftScope !== "browser" && savedRecovery
+      ? "Your previous draft is open. Its permanent recovery copy is still saved."
+      : "Your previous draft is restored.",
+  );
 };
 $("export-source").onclick = () => {
   const url = URL.createObjectURL(
