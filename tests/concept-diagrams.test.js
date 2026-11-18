@@ -27,10 +27,9 @@ test("course diagrams are available without JavaScript and belong to existing le
       document.querySelector(".concept-source").textContent,
       /(?:kernel|user)\//,
     );
-    assert.match(
-      document.querySelector(".concept-model-note").textContent,
-      /separate from your live machine/,
-    );
+    const modelNote = document.querySelector(".concept-model-note").textContent;
+    assert.match(modelNote, /example values/);
+    assert.match(modelNote, /xv6 console shows your run/);
     const committed = readFileSync(
       new URL(`../site/lessons/${id}/index.html`, import.meta.url),
       "utf8",
