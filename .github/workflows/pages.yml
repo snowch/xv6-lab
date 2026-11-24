@@ -29,6 +29,8 @@ jobs:
         run: npm run build:lessons && git -c safe.directory="$GITHUB_WORKSPACE" diff --exit-code HEAD -- site/index.html site/lessons/
       - run: npm test
       - name: Verify shared runner, offline course and guarded updates
+        env:
+          COURSE_COMMIT: ${{ github.sha }}
         run: npm run test:shared
       - name: Check desktop, tablet and phone UX in Chromium
         run: npm run test:browser
