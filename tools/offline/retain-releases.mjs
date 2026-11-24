@@ -1,7 +1,7 @@
 // Keep exact bytes for open tabs while a newer course is published.
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { validateRelease } from "../src/release-contract.mjs";
+import { validateRelease } from "../../site/release-contract.mjs";
 const matches = (bytes, file) =>
   bytes.length === file.bytes &&
   createHash("sha256").update(bytes).digest("hex") === file.sha256;
