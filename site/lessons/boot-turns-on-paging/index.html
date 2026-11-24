@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,34 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="boot-turns-on-paging">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 7 · Lesson 3 of 6
-        </summary>
-        <nav aria-label="Chapter 7 lessons"><a href="lessons/editing-the-kernel-boot/" data-lesson="editing-the-kernel-boot"><span>1.</span> The kernel boots before user programs</a>
-<a href="lessons/boot-needs-a-stack/" data-lesson="boot-needs-a-stack"><span>2.</span> C needs a stack before it can run</a>
-<a href="lessons/boot-turns-on-paging/" data-lesson="boot-turns-on-paging"><span>3.</span> Paging is enabled during boot</a>
-<a href="lessons/boot-prepares-physical-pages/" data-lesson="boot-prepares-physical-pages"><span>4.</span> The allocator supplies physical pages</a>
-<a href="lessons/initialization-is-not-execution/" data-lesson="initialization-is-not-execution"><span>5.</span> Initialized records are not running processes</a>
-<a href="lessons/boot-creates-the-first-user-process/" data-lesson="boot-creates-the-first-user-process"><span>6.</span> Boot prepares the first user process</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 7 · Boot and kernel organization · Lesson 3 of
-            6
+            Lesson 3 of 6 in Chapter 7
           </p>
           <h1 id="lesson-title">Paging is enabled during boot</h1>
           <p id="lesson-subtitle">Observe the translation mode before and after the kernel installs its page table.</p>
@@ -105,7 +88,7 @@
             <h3>Build error</h3>
             <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
-          <details class="build-details">
+          <details class="build-details" id="build-tools">
             <summary>Build tools and source download</summary>
             <div class="editor-bottom">
               <span id="build-relation">No build yet</span>

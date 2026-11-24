@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,34 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="fork-creates-a-child">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 2 · Lesson 1 of 6
-        </summary>
-        <nav aria-label="Chapter 2 lessons"><a href="lessons/fork-creates-a-child/" data-lesson="fork-creates-a-child"><span>1.</span> fork creates a child process</a>
-<a href="lessons/waiting-for-a-child/" data-lesson="waiting-for-a-child"><span>2.</span> wait collects an exited child</a>
-<a href="lessons/a-childs-exit-status/" data-lesson="a-childs-exit-status"><span>3.</span> A child returns an exit status</a>
-<a href="lessons/fork-copies-memory/" data-lesson="fork-copies-memory"><span>4.</span> Parent and child have separate memory</a>
-<a href="lessons/exec-replaces-the-program/" data-lesson="exec-replaces-the-program"><span>5.</span> exec replaces the program</a>
-<a href="lessons/when-exec-fails/" data-lesson="when-exec-fails"><span>6.</span> A failed exec leaves the caller running</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 2 · Processes · Lesson 1 of
-            6
+            Lesson 1 of 6 in Chapter 2
           </p>
           <h1 id="lesson-title">fork creates a child process</h1>
           <p id="lesson-subtitle">Follow one fork call as two processes continue from it.</p>
@@ -106,7 +89,7 @@ if (child == 0) { /* child’s path */ }</code></pre><p class="c-refresher-links
             <h3>Build error</h3>
             <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
-          <details class="build-details">
+          <details class="build-details" id="build-tools">
             <summary>Build tools and source download</summary>
             <div class="editor-bottom">
               <span id="build-relation">No build yet</span>

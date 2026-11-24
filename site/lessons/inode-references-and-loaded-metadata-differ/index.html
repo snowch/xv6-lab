@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,36 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="inode-references-and-loaded-metadata-differ">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 13 · Lesson 4 of 8
-        </summary>
-        <nav aria-label="Chapter 13 lessons"><a href="lessons/the-superblock-describes-disk-regions/" data-lesson="the-superblock-describes-disk-regions"><span>1.</span> The superblock describes disk regions</a>
-<a href="lessons/the-buffer-cache-reuses-block-identity/" data-lesson="the-buffer-cache-reuses-block-identity"><span>2.</span> The buffer cache reuses a block’s identity</a>
-<a href="lessons/references-keep-cache-buffers-resident/" data-lesson="references-keep-cache-buffers-resident"><span>3.</span> References keep cache buffers resident</a>
-<a href="lessons/inode-references-and-loaded-metadata-differ/" data-lesson="inode-references-and-loaded-metadata-differ"><span>4.</span> An inode reference can precede loaded metadata</a>
-<a href="lessons/paths-start-at-root-or-the-current-directory/" data-lesson="paths-start-at-root-or-the-current-directory"><span>5.</span> A path starts at root or the current directory</a>
-<a href="lessons/the-bitmap-tracks-block-ownership/" data-lesson="the-bitmap-tracks-block-ownership"><span>6.</span> The bitmap tracks block ownership</a>
-<a href="lessons/direct-and-indirect-blocks-map-file-offsets/" data-lesson="direct-and-indirect-blocks-map-file-offsets"><span>7.</span> An indirect block extends a file’s block map</a>
-<a href="lessons/truncation-releases-a-files-block-map/" data-lesson="truncation-releases-a-files-block-map"><span>8.</span> Truncation releases a file’s block map</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 13 · Filesystem structure · Lesson 4 of
-            8
+            Lesson 4 of 8 in Chapter 13
           </p>
           <h1 id="lesson-title">An inode reference can precede loaded metadata</h1>
           <p id="lesson-subtitle">Observe lazy inode loading at ilock.</p>
@@ -108,7 +89,7 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
             <h3>Build error</h3>
             <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
-          <details class="build-details">
+          <details class="build-details" id="build-tools">
             <summary>Build tools and source download</summary>
             <div class="editor-bottom">
               <span id="build-relation">No build yet</span>

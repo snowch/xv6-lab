@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,34 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="the-header-is-the-commit-point">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 14 · Lesson 4 of 6
-        </summary>
-        <nav aria-label="Chapter 14 lessons"><a href="lessons/filesystem-operations-reserve-log-space/" data-lesson="filesystem-operations-reserve-log-space"><span>1.</span> Filesystem operations reserve log space</a>
-<a href="lessons/the-log-absorbs-repeated-block-updates/" data-lesson="the-log-absorbs-repeated-block-updates"><span>2.</span> The log absorbs repeated updates to one block</a>
-<a href="lessons/the-last-operation-triggers-commit/" data-lesson="the-last-operation-triggers-commit"><span>3.</span> The last outstanding operation triggers commit</a>
-<a href="lessons/the-header-is-the-commit-point/" data-lesson="the-header-is-the-commit-point"><span>4.</span> The journal header marks the commit point</a>
-<a href="lessons/boot-replays-a-committed-journal/" data-lesson="boot-replays-a-committed-journal"><span>5.</span> Boot replays a committed journal</a>
-<a href="lessons/redo-replay-is-idempotent/" data-lesson="redo-replay-is-idempotent"><span>6.</span> Redo replay can be repeated safely</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 14 · Logging and recovery · Lesson 4 of
-            6
+            Lesson 4 of 6 in Chapter 14
           </p>
           <h1 id="lesson-title">The journal header marks the commit point</h1>
           <p id="lesson-subtitle">Observe the real header before and after write_head.</p>
@@ -106,7 +89,7 @@ p-&gt;pid = 7;   // assign a new member value</code></pre><p class="c-refresher-
             <h3>Build error</h3>
             <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
-          <details class="build-details">
+          <details class="build-details" id="build-tools">
             <summary>Build tools and source download</summary>
             <div class="editor-bottom">
               <span id="build-relation">No build yet</span>

@@ -179,3 +179,7 @@ The browser runner serves the site on an ephemeral local port, executes real gue
 An explorer task is shareable as `/explorer/?step=observe#pagetables` (also predict/explain/vary/check). In-page return visits remember each lesson’s task. Predictions and completion keep their existing local-storage keys; captured guest output stays available for this tab session. Moving between tasks preserves the guest worker, console DOM node and its files. Completion remains explicit.
 
 A lesson change during boot cancels the queued command without recording a successful run. Automatic inspections that become stale when execution resumes are ignored; manual inspection errors still report their cause. Browser tests verify the five-step path, console identity/position, inline page-table inspection without opening advanced tools, and deep links.
+
+## Shared controls and offline use
+
+Use **Code runner** in the header to prepare tools, release memory or change the idle timeout. Source runs use fresh machines; a live or paused explorer is kept until you explicitly stop it or leave the document. **App status → Save offline copy** saves all readings and required compiler/kernel assets. Wait for **Downloaded and ready to use offline** before disconnecting. Updating a saved copy stages a verified release and offers **Restart to update** while preserving learner work. See [the xv6 adapter design](docs/shared-course-controls.md) for the state, recovery and verification contracts.

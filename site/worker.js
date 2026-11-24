@@ -1,3 +1,5 @@
+import { toolModules } from "./tool-cache.mjs";
+let preparedAssets;
 import init, { WasmRiscv } from "./vendor/riscv_emu_rust_wasm.js?v=irq3";
 let layout,
   source,
@@ -80,6 +82,21 @@ function resume() {
   tick();
 }
 async function asset(path) {
+  if (preparedAssets) {
+    const name = path.replace(/^\.\//, "");
+    const value = {
+      "vendor/riscv_emu_rust_wasm_bg.wasm": preparedAssets.runtime,
+      "images/kernel": preparedAssets.kernel,
+      "images/fs.img": preparedAssets.disk,
+      "layout.json": preparedAssets.layout,
+      "source.json": preparedAssets.source,
+    }[name];
+    if (value !== undefined)
+      return typeof value === "string"
+        ? new TextEncoder().encode(value)
+        : value;
+  }
+
   const response = await fetch(new URL(path + "?v=guest4", import.meta.url));
   if (!response.ok)
     throw new Error(`Could not load ${path}: HTTP ${response.status}`);
@@ -88,8 +105,12 @@ async function asset(path) {
 onmessage = async ({ data }) => {
   try {
     if (data.type === "boot") {
+      preparedAssets = data.assets;
+      const modules = await toolModules(preparedAssets?.cacheKey);
       await init({
-        module_or_path: await asset("./vendor/riscv_emu_rust_wasm_bg.wasm"),
+        module_or_path:
+          modules?.runtime ||
+          (await asset("./vendor/riscv_emu_rust_wasm_bg.wasm")),
       });
       const [kernel, disk] = await Promise.all([
         data.kernel
@@ -218,7 +239,12 @@ onmessage = async ({ data }) => {
           }
           table = (pte >> 10n) << 12n;
         }
-        send("pagetable", { steps, result, pid: proc.pid, address: data.address });
+        send("pagetable", {
+          steps,
+          result,
+          pid: proc.pid,
+          address: data.address,
+        });
         break;
       }
       case "memory": {

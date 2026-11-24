@@ -1,4 +1,18 @@
-import { stages, processLessons, observations, guidedChanges, commandChanges } from "./guide-content.js?v=learner-flow1";
+import "./shared-course.mjs";
+import {
+  acquireRunner,
+  releaseRunner,
+  runnerPhase,
+  runtimeRecovery,
+} from "./runner-controls.mjs";
+let preparingRunner = false;
+import {
+  stages,
+  processLessons,
+  observations,
+  guidedChanges,
+  commandChanges,
+} from "./guide-content.js?v=learner-flow1";
 import { lessons } from "./lessons.js?v=learner-flow1";
 import { learning } from "./learning.js?v=learner-flow1";
 const $ = (id) => document.getElementById(id);
@@ -89,6 +103,8 @@ function setParam(key, value) {
   window.history.replaceState(null, "", url);
 }
 function navigation() {
+  $("course-progress").textContent =
+    completed.size + " / " + lessons.length + " complete";
   const needle = query.trim().toLowerCase();
   let count = 0;
   $("lessons").innerHTML =
@@ -129,7 +145,9 @@ let stage = 0,
   lastSnapshot = null,
   processSnapshot = null;
 function hasGuidedInspection() {
-  return stage === 1 || (stage === 3 && Object.hasOwn(guidedChanges, selected.id));
+  return (
+    stage === 1 || (stage === 3 && Object.hasOwn(guidedChanges, selected.id))
+  );
 }
 window.addEventListener("popstate", () => {
   query = new URLSearchParams(location.search).get("q") || "";
@@ -188,7 +206,9 @@ function updateGuide() {
           : lessons.indexOf(selected) < lessons.length - 1
             ? "Next lesson"
             : "Review the course";
-  const inspect = $(stage === 3 ? "guide-variant-inspection" : "guide-inspection");
+  const inspect = $(
+    stage === 3 ? "guide-variant-inspection" : "guide-inspection",
+  );
   if (inspect) {
     const refocus = document.activeElement?.id === "guided-step";
     inspect.replaceChildren();
@@ -213,7 +233,7 @@ function updateGuide() {
             const walk = document.createElement("pre");
             const snapshot = pageWalks.get(address);
             walk.textContent = snapshot
-              ? `lab · ${address}\n${snapshot.steps.map(s => `L${s.level} [${s.index}] ${s.pte} ${s.flags}`).join("\n")}\n${snapshot.result}`
+              ? `lab · ${address}\n${snapshot.steps.map((s) => `L${s.level} [${s.index}] ${s.pte} ${s.flags}`).join("\n")}\n${snapshot.result}`
               : `Reading lab’s page table at ${address}…`;
             walks.append(walk);
           }
@@ -394,15 +414,19 @@ function render() {
         ". Close and reopen this panel to retry, or use the source link below.";
     }
   };
-  if ($("load-command")) $("load-command").onclick = () => {
-    $("command").value = commandChanges[l.id];
-    $("variation-status").textContent =
-      shellReady && running ? "The command is loaded. Choose Run in the xv6 command field." : "The command is loaded. Use Run and inspect to start or continue xv6, then choose Run when the $ prompt returns.";
-    if (shellReady && running) $("command").focus();
-  };
-  if ($("run-variant")) $("run-variant").onclick = () => {
-    startExperiment({ ...l, command: guidedChanges[l.id] });
-  };
+  if ($("load-command"))
+    $("load-command").onclick = () => {
+      $("command").value = commandChanges[l.id];
+      $("variation-status").textContent =
+        shellReady && running
+          ? "The command is loaded. Choose Run in the xv6 command field."
+          : "The command is loaded. Use Run and inspect to start or continue xv6, then choose Run when the $ prompt returns.";
+      if (shellReady && running) $("command").focus();
+    };
+  if ($("run-variant"))
+    $("run-variant").onclick = () => {
+      startExperiment({ ...l, command: guidedChanges[l.id] });
+    };
   $("run-experiment").onclick = () => {
     setStage(1);
     startExperiment(l);
@@ -462,7 +486,7 @@ function grade(lesson, choice) {
     : "Try again. " + learning[lesson.id].wrong[choice];
 }
 function controls() {
-  $("boot").disabled = !!worker;
+  $("boot").disabled = !!worker || preparingRunner;
   $("reset").disabled = !worker;
   $("pause").disabled = !ready || !running;
   $("continue").disabled = !ready || running;
@@ -498,7 +522,8 @@ function controls() {
   if ($("run-experiment")) {
     $("run-experiment").hidden = !finished.has(selected.id);
     if ($("run-variant"))
-      $("run-variant").disabled = !!pending || (!!worker && (!ready || !running || !shellReady));
+      $("run-variant").disabled =
+        !!pending || (!!worker && (!ready || !running || !shellReady));
     $("run-experiment").disabled =
       !!pending || (!!worker && (!ready || !running || !shellReady));
     updateGuide();
@@ -576,7 +601,24 @@ function appendOutput(text) {
   $("terminal").scrollTop = $("terminal").scrollHeight;
   shellReady = output.endsWith("$ ");
 }
-function boot(keepPending = false) {
+async function boot(keepPending = false) {
+  if (preparingRunner) return;
+  preparingRunner = true;
+  controls();
+  let assets;
+  try {
+    assets = await acquireRunner();
+  } catch (failure) {
+    pending = null;
+    if (activeExperiment) launched.delete(activeExperiment);
+    if (failure.name !== "AbortError") error(failure.message);
+    else guide("Startup cancelled. Your prediction is kept.");
+    return;
+  } finally {
+    preparingRunner = false;
+    controls();
+  }
+  void runnerPhase("Running");
   if (!keepPending) pending = null;
   worker?.terminate();
   ready = false;
@@ -641,6 +683,7 @@ function boot(keepPending = false) {
         processSnapshot = null;
         pageWalks.clear();
         running = data.running;
+        void runnerPhase(running ? "Running" : "Paused");
         $("status").textContent = data.reason;
         $("pc").textContent = data.pc;
         $("instruction").textContent = data.instruction;
@@ -689,7 +732,11 @@ function boot(keepPending = false) {
           if (proc) {
             send("pagetable", { pid: proc.pid, address: "0x0", auto: true });
             if (stage === 3)
-              send("pagetable", { pid: proc.pid, address: "0x40000000", auto: true });
+              send("pagetable", {
+                pid: proc.pid,
+                address: "0x40000000",
+                auto: true,
+              });
           }
         }
         controls();
@@ -723,11 +770,12 @@ function boot(keepPending = false) {
     );
   };
   controls();
-  send("boot");
+  send("boot", { assets });
 }
 function stopWorker() {
   worker?.terminate();
   worker = null;
+  void releaseRunner();
   ready = false;
   running = false;
   shellReady = false;
@@ -879,3 +927,46 @@ $("terminal").onpaste = (event) => {
   send("input", { text });
   controls();
 };
+
+window.xv6Explorer = { hasMachine: () => Boolean(worker) };
+window.addEventListener("runner-free", () => stopWorker());
+window.labWorkbench = {
+  isBusy: () =>
+    Boolean(
+      preparingRunner ||
+      worker ||
+      window.xv6Runner?.status().busy ||
+      window.xv6Runner?.status().phase === "Starting",
+    ),
+  async saveReading() {
+    return {
+      notes: [...notes],
+      answers: [...answers],
+      evidence: [...evidence],
+      completed: [...completed],
+      output,
+      stage,
+    };
+  },
+  async restoreReading(saved) {
+    if (!saved) return;
+    for (const [k, v] of saved.notes || []) notes.set(k, v);
+    for (const [k, v] of saved.answers || []) answers.set(k, v);
+    for (const [k, v] of saved.evidence || []) evidence.set(k, v);
+    for (const id of saved.completed || []) completed.add(id);
+    render();
+    setStage(saved.stage || 0, false);
+    output = saved.output || "";
+    $("terminal").textContent = output;
+    $("status").textContent = output
+      ? "Saved earlier output; machine stopped"
+      : "Machine stopped";
+    navigation();
+    controls();
+  },
+};
+window.dispatchEvent(new window.Event("lab-workbench-ready"));
+window.addEventListener("pagehide", () => {
+  worker?.terminate();
+  void releaseRunner();
+});

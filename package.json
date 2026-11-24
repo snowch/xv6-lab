@@ -6,9 +6,11 @@
   "scripts": {
     "build:editor": "node tools/build-workbench-editor.mjs",
     "test": "node --test tests/*.test.js",
-    "serve": "python3 -m http.server 8000 --directory site",
+    "serve": "npm run build && python3 -m http.server 8000 --directory .build/site",
     "test:browser": "node tests/browser.cjs",
-    "build:lessons": "node tools/build-lesson-pages.mjs"
+    "build:lessons": "node tools/build-lesson-pages.mjs",
+    "build": "node tools/build-site.mjs",
+    "test:shared": "npm run build && node tests/update-browser.cjs && node tests/shared-offline.cjs"
   },
   "devDependencies": {
     "@codemirror/lang-cpp": "^6.0.3",
@@ -16,6 +18,8 @@
     "codemirror": "^6.0.2",
     "esbuild": "^0.25.12",
     "jsdom": "^27.4.0",
-    "playwright": "^1.56.1"
+    "playwright": "^1.56.1",
+    "@codemirror/language": "6.13.1",
+    "@lezer/highlight": "1.2.5"
   }
 }

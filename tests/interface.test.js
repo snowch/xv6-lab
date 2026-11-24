@@ -1,3 +1,4 @@
+import { fixtureRunner, runnerTick } from "./runner-fixture.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -7,7 +8,10 @@ import { commandChanges } from "../site/guide-content.js";
 
 test("all lessons navigate, grade answers, save explicit completion, and operate machine controls", async () => {
   const dom = new JSDOM(
-    readFileSync(new URL("../site/explorer/index.html", import.meta.url), "utf8"),
+    readFileSync(
+      new URL("../site/explorer/index.html", import.meta.url),
+      "utf8",
+    ),
     { url: "https://example.test/xv6-lab/#boot" },
   );
   Object.assign(globalThis, {
@@ -32,6 +36,7 @@ test("all lessons navigate, grade answers, save explicit completion, and operate
       this.onmessage({ data });
     }
   };
+  fixtureRunner(dom);
   await import("../site/app.js");
   const $ = (id) => document.getElementById(id);
   $("lesson-search").value = "pipe";
@@ -68,7 +73,8 @@ test("all lessons navigate, grade answers, save explicit completion, and operate
   dom.window.location.hash = "step";
   dom.window.dispatchEvent(new dom.window.HashChangeEvent("hashchange"));
   $("boot").click();
-  assert.deepEqual(worker.messages[0], { type: "boot" });
+  await runnerTick();
+  assert.deepEqual(worker.messages[0], { type: "boot", assets: {} });
   worker.receive({ type: "ready" });
   worker.receive({
     type: "state",
@@ -136,10 +142,12 @@ test("all lessons navigate, grade answers, save explicit completion, and operate
     return false;
   };
   $("reset").click();
+  await runnerTick();
   assert.equal(original.terminated, undefined, "cancel reset retains machine");
   assert.match(confirmation, /discarded/);
   dom.window.confirm = () => true;
   $("reset").click();
+  await runnerTick();
   assert.equal(original.terminated, true);
   assert.notEqual(worker, original);
   assert.equal($("terminal").textContent.includes("guest output"), false);

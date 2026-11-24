@@ -1,3 +1,12 @@
+import "../shared-course.mjs";
+import {
+  acquireRunner,
+  releaseRunner,
+  runnerPhase,
+  runtimeRecovery,
+} from "../runner-controls.mjs";
+let preparingRunner = false,
+  sourceLoadFailed = false;
 import {
   renderConcept,
   enhanceConcepts,
@@ -64,12 +73,15 @@ function load(key) {
   }
 }
 function showDraftStatus() {
-  say("draft-status", {
-    starter: "Starter source",
-    browser: "Draft saved in this browser",
-    tab: "Draft saved for this tab",
-    page: "Draft kept on this page",
-  }[draftScope]);
+  say(
+    "draft-status",
+    {
+      starter: "Starter source",
+      browser: "Draft saved in this browser",
+      tab: "Draft saved for this tab",
+      page: "Draft kept on this page",
+    }[draftScope],
+  );
   $("storage-warning").hidden = ["starter", "browser"].includes(draftScope);
   if (undoRestore !== null && recoveryScope !== "browser") {
     say(
@@ -79,9 +91,15 @@ function showDraftStatus() {
         : "The current source and Undo restore are available on this page. Reloading opens your previous saved draft if you had one. To keep the current source, download it under Build tools and source download.",
     );
   } else if (draftScope === "tab")
-    say("storage-warning", "Permanent storage is unavailable. Your draft can reopen in this tab. Use Download source under Build tools and source download to keep a copy before closing the tab.");
+    say(
+      "storage-warning",
+      "Permanent storage is unavailable. Your draft can reopen in this tab. Use Download source under Build tools and source download to keep a copy before closing the tab.",
+    );
   else if (draftScope === "page")
-    say("storage-warning", "Browser storage is unavailable. Use Download source under Build tools and source download to keep your edit before reloading or leaving this page.");
+    say(
+      "storage-warning",
+      "Browser storage is unavailable. Use Download source under Build tools and source download to keep your edit before reloading or leaving this page.",
+    );
 }
 function starter(id) {
   return lessons[id].starter(files);
@@ -89,8 +107,8 @@ function starter(id) {
 function controls() {
   const build = builds.get(kind),
     same = build && build.source === drafts.get(kind);
-  $("build-run").disabled = !files || !!buildJob;
-  $("build-only").disabled = !files || !!buildJob;
+  $("build-run").disabled = !files || !!buildJob || preparingRunner;
+  $("build-only").disabled = !files || !!buildJob || preparingRunner;
   $("run-built").disabled = !same || !!buildJob;
   $("stop").disabled = !buildJob && !machine?.worker;
   $("stop").hidden = $("stop").disabled;
@@ -110,11 +128,14 @@ function controls() {
     const failed = document.body.dataset.buildState === "error";
     const earlier = machine.source !== drafts.get(kind);
     $("run-owner").hidden = !failed && !earlier;
-    say("run-owner", failed
-      ? "Latest build failed. The console and kernel evidence show the last run."
-      : earlier
-        ? "The console and kernel evidence show an earlier draft. Choose Build & run to run your current source."
-        : "");
+    say(
+      "run-owner",
+      failed
+        ? "Latest build failed. The console and kernel evidence show the last run."
+        : earlier
+          ? "The console and kernel evidence show an earlier draft. Choose Build & run to run your current source."
+          : "",
+    );
   }
 }
 function contextFile() {
@@ -190,8 +211,7 @@ function render() {
         $("build-diagnostics").hidden = true;
       }
       controls();
-      if (!buildJob && !machine?.worker)
-        activity("");
+      if (!buildJob && !machine?.worker) activity("");
     },
     onRun: () => build(true),
   });
@@ -216,7 +236,24 @@ function render() {
   controls();
 }
 async function build(runAfter) {
-  if (buildJob || !files) return;
+  if (buildJob || !files || preparingRunner) return;
+  preparingRunner = true;
+  controls();
+  let assets;
+  try {
+    assets = await acquireRunner();
+  } catch (error) {
+    activity(
+      error.name === "AbortError"
+        ? "Runner preparation cancelled. Your draft and previous result are kept."
+        : error.message,
+    );
+    return;
+  } finally {
+    preparingRunner = false;
+    controls();
+  }
+
   const exercise = kind,
     source = drafts.get(kind),
     worker = new Worker(
@@ -232,7 +269,7 @@ async function build(runAfter) {
   editor.clearDiagnostics();
   activity("Loading the compiler…");
   controls();
-  const fail = (message) => {
+  const fail = (message, category = "compile") => {
     if (buildJob !== job) return;
     clearTimeout(job.timer);
     worker.terminate();
@@ -241,13 +278,25 @@ async function build(runAfter) {
     $("build-diagnostics").hidden = false;
     $("build-diagnostics").querySelector("h3").textContent = "Build error";
     if (lessons[exercise].file === "user/workbench.c")
-      message = message.replaceAll("user/user/workbench.c:", "user/workbench.c:");
+      message = message.replaceAll(
+        "user/user/workbench.c:",
+        "user/workbench.c:",
+      );
     say(
       "build-messages",
-      message +
-        "\nFix the source, then choose Build & run.",
+      message + "\nFix the source, then choose Build & run.",
     );
-    editor.diagnostic(message);
+    if (category === "asset") {
+      $("build-diagnostics").querySelector("h3").textContent =
+        "Code runner files unavailable";
+      say(
+        "build-messages",
+        message +
+          " Your source and previous result are kept. Reload the lesson online, then choose Build & run.",
+      );
+      runtimeRecovery.open();
+    } else editor.diagnostic(message);
+    void releaseRunner();
     activity("Build failed. See Build error below the editor.");
     controls();
   };
@@ -262,6 +311,7 @@ async function build(runAfter) {
     fail(
       event.message ||
         "The compiler worker stopped unexpectedly. Try building again.",
+      "asset",
     );
   worker.onmessage = async ({ data }) => {
     if (buildJob !== job) return;
@@ -280,7 +330,7 @@ async function build(runAfter) {
       return;
     }
     if (data.type === "error") {
-      fail(data.message);
+      fail(data.message, data.category);
       return;
     }
     if (data.type !== "built") return;
@@ -292,19 +342,24 @@ async function build(runAfter) {
     document.body.dataset.buildState = "ready";
     const current = kind === exercise && drafts.get(kind) === source;
     $("build-size").hidden = false;
-    say("build-size", `Edited code and data use ${data.used} bytes in the space reserved for this lesson.`);
+    say(
+      "build-size",
+      `Edited code and data use ${data.used} bytes in the space reserved for this lesson.`,
+    );
     activity(
       current
         ? "Build ready for this draft."
         : "The source changed during the build. Choose Build & run to test this draft.",
     );
     controls();
-    if (runAfter && current) runBuild(record);
+    if (runAfter && current) runBuild(record, assets);
+    else void releaseRunner();
   };
   worker.postMessage({
     kind: lessons[exercise].mode,
     source,
     context: lessons[exercise].build,
+    assets,
   });
 }
 function processEvidence() {
@@ -359,17 +414,27 @@ function stopRun(
   if (!machine?.worker) return;
   machine.worker.terminate();
   machine.worker = null;
+  void releaseRunner();
   say("run-status", "Stopped");
   say("run-message", message);
   activity(message);
   processEvidence();
   controls();
 }
-function runBuild(record) {
+async function runBuild(record, assets) {
   if (!record || record.source !== drafts.get(record.exercise)) {
     activity("Build the current draft before running.");
     return;
   }
+  if (!assets) {
+    try {
+      assets = await acquireRunner();
+    } catch (error) {
+      activity(error.message);
+      return;
+    }
+  }
+  void runnerPhase("Running");
   machine?.worker?.terminate();
   const worker = new Worker(new URL("../worker.js?v=guest4", import.meta.url), {
     type: "module",
@@ -436,6 +501,7 @@ function runBuild(record) {
         run.complete = true;
         run.worker.terminate();
         run.worker = null;
+        void releaseRunner();
         say("run-status", "Kernel panic");
         say(
           "run-message",
@@ -467,6 +533,7 @@ function runBuild(record) {
           run.complete = true;
           run.worker.terminate();
           run.worker = null;
+          void releaseRunner();
           say("run-status", "Run complete");
           const userFault = /(?:^|\n)usertrap\(\)/.test(run.output);
           say(
@@ -477,9 +544,7 @@ function runBuild(record) {
                 : "The guest reported a fault. Check the console for the error, then inspect your edit."
               : "The shell returned to its prompt.",
           );
-          activity(
-            userFault ? "Guest reported a fault." : "",
-          );
+          activity(userFault ? "Guest reported a fault." : "");
           evidence();
           controls();
         }
@@ -509,7 +574,7 @@ function runBuild(record) {
       say("run-status", "Running…");
     }
   };
-  send("boot", { kernel: record.kernel, disk: record.disk });
+  send("boot", { kernel: record.kernel, disk: record.disk, assets });
 }
 $("build-run").onclick = () => build(true);
 $("build-only").onclick = () => build(false);
@@ -519,6 +584,7 @@ $("stop").onclick = () => {
   buildJob.worker.terminate();
   clearTimeout(buildJob.timer);
   buildJob = null;
+  void releaseRunner();
   document.body.dataset.buildState = "idle";
   $("build-diagnostics").hidden = false;
   $("build-diagnostics").querySelector("h3").textContent = "Build cancelled";
@@ -601,21 +667,33 @@ try {
   files = (await response.json()).files;
   let saved = load(draftKey);
   // Retain drafts made in the original two-exercise preview.
-  if (saved.value === null && ["a-system-call-result", "changing-the-answer"].includes(kind))
-    saved = load("xv6-workbench:" + (kind === "a-system-call-result" ? "user" : "kernel"));
-  draftScope = saved.value === null && saved.scope === "browser" ? "starter" : saved.scope;
+  if (
+    saved.value === null &&
+    ["a-system-call-result", "changing-the-answer"].includes(kind)
+  )
+    saved = load(
+      "xv6-workbench:" + (kind === "a-system-call-result" ? "user" : "kernel"),
+    );
+  draftScope =
+    saved.value === null && saved.scope === "browser" ? "starter" : saved.scope;
   drafts.set(kind, saved.value ?? starter(kind));
   const recovery = load(recoveryKey);
   let previous = null;
   try {
     previous = JSON.parse(recovery.value);
   } catch {}
-  undoRestore = typeof previous === "string" && previous !== drafts.get(kind) ? previous : null;
+  undoRestore =
+    typeof previous === "string" && previous !== drafts.get(kind)
+      ? previous
+      : null;
   recoveryScope = recovery.scope;
   render();
 } catch (error) {
+  sourceLoadFailed = true;
+  runtimeRecovery.open();
   $("build-diagnostics").hidden = false;
-  $("build-diagnostics").querySelector("h3").textContent = "Source loading error";
+  $("build-diagnostics").querySelector("h3").textContent =
+    "Source loading error";
   say(
     "build-messages",
     "Could not load the matching xv6 source: " +
@@ -624,3 +702,66 @@ try {
   );
   activity("Source loading failed. Reload to retry.");
 }
+
+window.addEventListener("runner-free", () => {
+  if (buildJob) {
+    buildJob.worker.terminate();
+    clearTimeout(buildJob.timer);
+    buildJob = null;
+    document.body.dataset.buildState = "idle";
+    activity("Build cancelled. Your source and previous result are kept.");
+    void releaseRunner();
+  }
+  stopRun("Runner memory released. Your code and recorded output are kept.");
+  controls();
+});
+window.labWorkbench = {
+  isBusy: () =>
+    Boolean(
+      (!files && !sourceLoadFailed) ||
+      preparingRunner ||
+      buildJob ||
+      machine?.worker ||
+      window.xv6Runner?.status().busy ||
+      window.xv6Runner?.status().phase === "Starting",
+    ),
+  async saveReading() {
+    return {
+      source: drafts.get(kind) ?? load(draftKey).value,
+      undoRestore,
+      complete: $("lesson-complete").checked,
+      machine: machine ? { ...machine, worker: null } : null,
+    };
+  },
+  async restoreReading(saved) {
+    if (!saved) return;
+    if (!editor)
+      throw Error(
+        "The matching source is still unavailable. This window’s saved snapshot is kept; reload online to restore it.",
+      );
+    undoRestore = saved.undoRestore ?? null;
+    if (undoRestore !== null)
+      recoveryScope = persist(recoveryKey, JSON.stringify(undoRestore));
+    if (typeof saved.source === "string") editor.replace(saved.source);
+    if (typeof saved.complete === "boolean") {
+      $("lesson-complete").checked = saved.complete;
+      $("lesson-complete").dispatchEvent(new window.Event("change"));
+    }
+    if (saved.machine) {
+      machine = { ...saved.machine, worker: null };
+      say("terminal", machine.output);
+      $("console-empty").hidden = true;
+      $("run-status").hidden = false;
+      say("run-status", "Saved earlier result");
+      $("run-message").hidden = false;
+      say(
+        "run-message",
+        "This result was recorded before reloading. Build & run tests your current source in a fresh machine.",
+      );
+      processEvidence();
+      evidence();
+    }
+    controls();
+  },
+};
+window.dispatchEvent(new window.Event("lab-workbench-ready"));

@@ -28,6 +28,10 @@ jobs:
       - name: Check generated lesson pages
         run: npm run build:lessons && git -c safe.directory="$GITHUB_WORKSPACE" diff --exit-code HEAD -- site/index.html site/lessons/
       - run: npm test
+      - name: Verify shared runner, offline course and guarded updates
+        env:
+          COURSE_COMMIT: ${{ github.sha }}
+        run: npm run test:shared
       - name: Check desktop, tablet and phone UX in Chromium
         run: npm run test:browser
       - uses: actions/upload-artifact@v4
@@ -36,10 +40,15 @@ jobs:
           name: browser-previews
           path: .artifacts/
           include-hidden-files: true
+      - name: Retain releases and old open lesson assets
+        if: github.event_name != 'pull_request'
+        env:
+          PUBLISHED_COURSE_URL: https://snowch.github.io/xv6-lab/
+        run: node tools/retain-for-publish.mjs
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'
         with:
-          path: site
+          path: .build/site
   deploy:
     if: github.event_name != 'pull_request'
     needs: check

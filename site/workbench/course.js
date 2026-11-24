@@ -1,3 +1,4 @@
+import "../shared-course.mjs";
 import { lessons as legacyLessons } from "../lessons.js";
 import { lessons, lessonHref } from "./lessons.js?v=learner-flow1";
 function legacyLink() {

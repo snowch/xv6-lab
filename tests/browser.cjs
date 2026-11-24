@@ -1,4 +1,5 @@
 const { chromium } = require("playwright");
+const { expect } = require("playwright/test");
 const assert = require("node:assert/strict");
 const http = require("node:http");
 const fs = require("node:fs");
@@ -9,6 +10,7 @@ fs.mkdirSync(artifacts, { recursive: true });
 const mime = {
   ".html": "text/html",
   ".js": "application/javascript",
+  ".mjs": "application/javascript",
   ".css": "text/css",
   ".json": "application/json",
   ".wasm": "application/wasm",
@@ -47,6 +49,14 @@ const server = http.createServer((req, res) => {
     headless: true,
     args: ["--no-sandbox"],
   });
+  const newPage = browser.newPage.bind(browser);
+  browser.newPage = async (options) => {
+    const page = await newPage(options);
+    await page.addInitScript(() =>
+      localStorage.setItem("xv6-lab:runner-intro:1", "1"),
+    );
+    return page;
+  };
   try {
     // The course starts at a contents page and progresses through one concept per URL.
     const {
@@ -268,10 +278,13 @@ const server = http.createServer((req, res) => {
           ),
           id + ": no page overflow",
         );
-        assert.match(
-          await page.locator(".lesson-menu summary").textContent(),
-          new RegExp("Chapter " + chapter[id].chapter),
+        assert.ok(
+          (await page.locator("#course-breadcrumbs").textContent()).includes(
+            chapters.find((c) => c.number === chapter[id].chapter).title,
+          ),
+          id + ": chapter in breadcrumb row",
         );
+        assert.equal(await page.locator("#course-toggle").isVisible(), true);
         const latestMobile =
           name !== "desktop" &&
           latest.number >= 3 &&
@@ -511,26 +524,31 @@ const server = http.createServer((req, res) => {
         ),
         name + ": no page overflow",
       );
-      if (width > 1280) {
-        const nav = await page.locator("#lessons").boundingBox(),
-          footer = await page.locator(".sidebar-bottom").boundingBox();
-        assert.ok(
-          nav.y + nav.height <= footer.y,
-          "lesson list does not overlap footer",
-        );
-      }
+      await page.locator("#course-toggle").click();
+      assert.equal(
+        await page.locator("#lessons").isVisible(),
+        true,
+        "the inline course outline is available at every width",
+      );
+      assert.ok(
+        await page
+          .locator("#lessons")
+          .evaluate((n) => n.scrollWidth <= n.clientWidth + 1),
+        "lesson links fit the outline",
+      );
+      await page.locator("#course-toggle").click();
       await page.screenshot({
         path: path.join(artifacts, name + "-lesson.png"),
         fullPage: false,
       });
-      if (width < 1281) await page.locator("#course-menu summary").click();
+      await page.locator("#course-toggle").click();
       await page.locator("#lesson-search").fill("pipe");
       assert.ok((await page.locator(".lesson-link").count()) < 25);
       assert.match(page.url(), /q=pipe/);
       await page.locator("#lesson-search").fill("zzzzzz");
       await page.getByText("No lessons match.", { exact: false }).waitFor();
       await page.locator("#lesson-search").fill("");
-      if (width < 1281) await page.locator("#course-menu summary").click();
+      await page.locator("#course-toggle").click();
       await page.locator("#flow-next").click();
       await page.waitForFunction(
         () =>
@@ -641,41 +659,79 @@ const server = http.createServer((req, res) => {
     await page.locator("#flow-next").click();
     assert.equal(await page.locator('[data-flow-stage="2"]').isVisible(), true);
     await page.locator("#flow-next").click();
-    await page.getByRole("button", { name: "Compare two addresses", exact: true }).press("Enter");
-    await page.waitForFunction(() => {
-      const compare = document.querySelector("#guide-variant-inspection").textContent;
-      return compare.includes("Physical address") && compare.includes("Unmapped");
-    }, null, { timeout: 60000 });
+    await page
+      .getByRole("button", { name: "Compare two addresses", exact: true })
+      .press("Enter");
+    await page.waitForFunction(
+      () => {
+        const compare = document.querySelector(
+          "#guide-variant-inspection",
+        ).textContent;
+        return (
+          compare.includes("Physical address") && compare.includes("Unmapped")
+        );
+      },
+      null,
+      { timeout: 60000 },
+    );
     const comparison = page.locator("#guide-variant-inspection");
-    assert.match(await comparison.textContent(), /lab · 0x0[\s\S]*L0 \[0\][\s\S]*Physical address/);
-    assert.match(await comparison.textContent(), /lab · 0x40000000[\s\S]*L2 \[1\][\s\S]*Unmapped/);
-    assert.equal(await page.locator(".advanced-tools").getAttribute("open"), null);
+    assert.match(
+      await comparison.textContent(),
+      /lab · 0x0[\s\S]*L0 \[0\][\s\S]*Physical address/,
+    );
+    assert.match(
+      await comparison.textContent(),
+      /lab · 0x40000000[\s\S]*L2 \[1\][\s\S]*Unmapped/,
+    );
+    assert.equal(
+      await page.locator(".advanced-tools").getAttribute("open"),
+      null,
+    );
     await page.locator("#flow-next").press("Enter");
-    await page.waitForFunction(() => document.querySelector("#status").textContent === "Shell ready");
+    await page.waitForFunction(
+      () => document.querySelector("#status").textContent === "Shell ready",
+    );
     assert.equal(await page.locator("#lesson-search").inputValue(), "memory");
 
     assert.match(await page.locator("#lesson > h2").textContent(), /Sv39/);
     await page.goto(base + "explorer/?step=observe#directories");
     await page.locator("#flow-next").press("Enter");
     await page.waitForFunction(() =>
-      document.querySelector("#status").textContent.startsWith("Stopped at sys_mkdir"),
+      document
+        .querySelector("#status")
+        .textContent.startsWith("Stopped at sys_mkdir"),
     );
     await page.locator("#flow-next").press("Enter");
-    await page.waitForFunction(() => document.querySelector("#status").textContent === "Shell ready");
+    await page.waitForFunction(
+      () => document.querySelector("#status").textContent === "Shell ready",
+    );
     await page.locator('[data-flow-link="3"]').press("Enter");
     await page.locator("#load-command").press("Enter");
-    assert.equal(await page.locator("#command").inputValue(), "echo hello > labdir/item");
-    for (const command of ["echo hello > labdir/item", "cd labdir", "/cat item"]) {
+    assert.equal(
+      await page.locator("#command").inputValue(),
+      "echo hello > labdir/item",
+    );
+    for (const command of [
+      "echo hello > labdir/item",
+      "cd labdir",
+      "/cat item",
+    ]) {
       await page.locator("#command").fill(command);
       const before = (await page.locator("#terminal").textContent()).length;
       await page.locator("#send").press("Enter");
-      await page.waitForFunction(offset => {
+      await page.waitForFunction((offset) => {
         const output = document.querySelector("#terminal").textContent;
-        return output.length > offset && output.endsWith("$ ") &&
-          document.querySelector("#status").textContent === "Shell ready";
+        return (
+          output.length > offset &&
+          output.endsWith("$ ") &&
+          document.querySelector("#status").textContent === "Shell ready"
+        );
       }, before);
     }
-    assert.match(await page.locator("#terminal").textContent(), /\/cat item\nhello\n\$ /);
+    assert.match(
+      await page.locator("#terminal").textContent(),
+      /\/cat item\nhello\n\$ /,
+    );
     await page.close();
     console.log("deep link passed");
     // Source workbench: real browser-side C compilation and guest execution.
@@ -794,25 +850,46 @@ const server = http.createServer((req, res) => {
       if (name === "phone") {
         await page.reload();
         await page.locator(".cm-content").waitFor();
-        assert.doesNotMatch(await page.locator(".cm-content").innerText(), /\+ 1000/);
+        assert.doesNotMatch(
+          await page.locator(".cm-content").innerText(),
+          /\+ 1000/,
+        );
         assert.equal(await page.locator("#undo-restore").isVisible(), true);
       }
       await page.locator("#undo-restore").click();
       assert.match(await page.locator(".cm-content").innerText(), /\+ 1000/);
       if (name === "wide") {
-        // A pending download can be cancelled without changing source or output.
-        await page.route("**/workbench/compiler/tcc.wasm", async (route) => {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Assets stay warm across pages. Hold the new worker's real request
+        // so cancellation is tested during a build, rather than after a fast run.
+        let requestPending = false,
+          releaseRequest;
+        const pendingRequest = new Promise((resolve) => {
+          releaseRequest = resolve;
+        });
+        await page.route("**/workbench/build-worker.js*", async (route) => {
+          requestPending = true;
+          await pendingRequest;
           await route.continue().catch(() => {});
         });
+        const outputBeforeCancel = await page
+          .locator("#terminal")
+          .textContent();
         await page.locator("#build-run").click();
+        await expect.poll(() => requestPending, { timeout: 15000 }).toBe(true);
+        await expect(page.locator("#stop")).toHaveText("Cancel build");
         await page.locator("#stop").click();
         assert.match(
           await page.locator("#build-messages").textContent(),
           /Build cancelled/,
         );
         assert.match(await page.locator(".cm-content").innerText(), /\+ 1000/);
-        await page.unroute("**/workbench/compiler/tcc.wasm");
+        assert.equal(
+          await page.locator("#terminal").textContent(),
+          outputBeforeCancel,
+          "cancelling a pending build retains genuine prior output",
+        );
+        releaseRequest();
+        await page.unroute("**/workbench/build-worker.js*");
         // Saved drafts survive reload; Stop interrupts a real looping guest.
         await page.reload();
         await page.locator(".cm-content").waitFor();
@@ -849,32 +926,55 @@ const server = http.createServer((req, res) => {
       const key = "xv6-lesson:" + id;
       const recoveryKey = "xv6-lesson-restore:" + id;
       const source = chapter[id].starter(matchingFiles);
-      const previous = source.replace("Hello from my xv6 program!", "A longer learner draft that permanent storage can hold only once.");
-      const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      const previous = source.replace(
+        "Hello from my xv6 program!",
+        "A longer learner draft that permanent storage can hold only once.",
+      );
+      const context = await browser.newContext({
+        viewport: { width: 390, height: 844 },
+      });
       const page = await context.newPage();
-      await page.addInitScript(({ key, previous, recoveryKey, recoveryInTab }) => {
-        const save = Storage.prototype.setItem;
-        if (localStorage.getItem(key) === null) save.call(localStorage, key, previous);
-        Storage.prototype.setItem = function (name, value) {
-          if (name === recoveryKey && (this === localStorage || !recoveryInTab))
-            throw new DOMException("No space for a second copy", "QuotaExceededError");
-          return save.call(this, name, value);
-        };
-      }, { key, previous, recoveryKey, recoveryInTab });
+      await page.addInitScript(
+        ({ key, previous, recoveryKey, recoveryInTab }) => {
+          const save = Storage.prototype.setItem;
+          if (localStorage.getItem(key) === null)
+            save.call(localStorage, key, previous);
+          Storage.prototype.setItem = function (name, value) {
+            if (
+              name === recoveryKey &&
+              (this === localStorage || !recoveryInTab)
+            )
+              throw new DOMException(
+                "No space for a second copy",
+                "QuotaExceededError",
+              );
+            return save.call(this, name, value);
+          };
+        },
+        { key, previous, recoveryKey, recoveryInTab },
+      );
       const route = base + "lessons/" + id + "/";
       await page.goto(route);
       const editor = page.locator(".cm-content");
       await editor.waitFor();
-      await page.getByRole("button", { name: "Restore starter" }).press("Enter");
+      await page
+        .getByRole("button", { name: "Restore starter" })
+        .press("Enter");
       assert.match(await editor.innerText(), /Hello from my xv6 program!/);
-      assert.equal(await page.evaluate(key => localStorage.getItem(key), key), previous);
+      assert.equal(
+        await page.evaluate((key) => localStorage.getItem(key), key),
+        previous,
+      );
       assert.match(
         await page.locator("#storage-warning").textContent(),
         recoveryInTab ? /reopen in this tab/ : /available on this page/,
       );
       const newTab = await context.newPage();
       await newTab.goto(route);
-      assert.match(await newTab.locator(".cm-content").innerText(), /A longer learner draft/);
+      assert.match(
+        await newTab.locator(".cm-content").innerText(),
+        /A longer learner draft/,
+      );
       await newTab.close();
       await page.reload();
       await editor.waitFor();
@@ -883,7 +983,10 @@ const server = http.createServer((req, res) => {
         await page.getByRole("button", { name: "Undo restore" }).press("Enter");
       }
       assert.match(await editor.innerText(), /A longer learner draft/);
-      assert.equal(await page.evaluate(key => localStorage.getItem(key), key), previous);
+      assert.equal(
+        await page.evaluate((key) => localStorage.getItem(key), key),
+        previous,
+      );
       await page.close();
 
       // The reverse operation also needs room to write the original draft.
@@ -891,30 +994,64 @@ const server = http.createServer((req, res) => {
       await undoPage.goto(route);
       const undoEditor = undoPage.locator(".cm-content");
       await undoEditor.waitFor();
-      await undoPage.getByRole("button", { name: "Restore starter" }).press("Enter");
-      assert.equal(await undoPage.evaluate(key => localStorage.getItem(key), key), source);
-      await undoPage.evaluate(({ key, previous, recoveryInTab }) => {
-        const save = Storage.prototype.setItem;
-        Storage.prototype.setItem = function (name, value) {
-          if (name === key && value === previous && (this === localStorage || !recoveryInTab))
-            throw new DOMException("No space for the recovered source", "QuotaExceededError");
-          return save.call(this, name, value);
-        };
-      }, { key, previous, recoveryInTab });
-      await undoPage.getByRole("button", { name: "Undo restore" }).press("Enter");
-      assert.match(await undoEditor.innerText(), /A longer learner draft/);
-      assert.equal(await undoPage.evaluate(key => localStorage.getItem(key), key), source);
+      await undoPage
+        .getByRole("button", { name: "Restore starter" })
+        .press("Enter");
       assert.equal(
-        await undoPage.evaluate(key => JSON.parse(localStorage.getItem(key)), recoveryKey),
+        await undoPage.evaluate((key) => localStorage.getItem(key), key),
+        source,
+      );
+      await undoPage.evaluate(
+        ({ key, previous, recoveryInTab }) => {
+          const save = Storage.prototype.setItem;
+          Storage.prototype.setItem = function (name, value) {
+            if (
+              name === key &&
+              value === previous &&
+              (this === localStorage || !recoveryInTab)
+            )
+              throw new DOMException(
+                "No space for the recovered source",
+                "QuotaExceededError",
+              );
+            return save.call(this, name, value);
+          };
+        },
+        { key, previous, recoveryInTab },
+      );
+      await undoPage
+        .getByRole("button", { name: "Undo restore" })
+        .press("Enter");
+      assert.match(await undoEditor.innerText(), /A longer learner draft/);
+      assert.equal(
+        await undoPage.evaluate((key) => localStorage.getItem(key), key),
+        source,
+      );
+      assert.equal(
+        await undoPage.evaluate(
+          (key) => JSON.parse(localStorage.getItem(key)),
+          recoveryKey,
+        ),
         previous,
         "Durable recovery remains after an Undo that cannot save the restored draft",
       );
       const laterTab = await context.newPage();
       await laterTab.goto(route);
       await laterTab.locator(".cm-content").waitFor();
-      await laterTab.getByRole("button", { name: "Undo restore" }).press("Enter");
-      assert.equal(await laterTab.evaluate(key => localStorage.getItem(key), key), previous);
-      assert.equal(await laterTab.evaluate(key => localStorage.getItem(key), recoveryKey), null);
+      await laterTab
+        .getByRole("button", { name: "Undo restore" })
+        .press("Enter");
+      assert.equal(
+        await laterTab.evaluate((key) => localStorage.getItem(key), key),
+        previous,
+      );
+      assert.equal(
+        await laterTab.evaluate(
+          (key) => localStorage.getItem(key),
+          recoveryKey,
+        ),
+        null,
+      );
       await context.close();
     }
     console.log("workbench recovery quotas passed");

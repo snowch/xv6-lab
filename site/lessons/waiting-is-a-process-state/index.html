@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,34 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="waiting-is-a-process-state">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 6 · Lesson 3 of 6
-        </summary>
-        <nav aria-label="Chapter 6 lessons"><a href="lessons/sleep-counts-guest-ticks/" data-lesson="sleep-counts-guest-ticks"><span>1.</span> Sleep waits for guest timer ticks</a>
-<a href="lessons/runnable-processes-take-turns/" data-lesson="runnable-processes-take-turns"><span>2.</span> Runnable processes take turns</a>
-<a href="lessons/waiting-is-a-process-state/" data-lesson="waiting-is-a-process-state"><span>3.</span> Waiting is a process state</a>
-<a href="lessons/wakeup-makes-a-process-runnable/" data-lesson="wakeup-makes-a-process-runnable"><span>4.</span> Wakeup makes a process runnable</a>
-<a href="lessons/killing-a-sleeping-process/" data-lesson="killing-a-sleeping-process"><span>5.</span> A killed sleeper must run to exit</a>
-<a href="lessons/locks-protect-shared-kernel-state/" data-lesson="locks-protect-shared-kernel-state"><span>6.</span> Locks protect shared kernel state</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 6 · Scheduling · Lesson 3 of
-            6
+            Lesson 3 of 6 in Chapter 6
           </p>
           <h1 id="lesson-title">Waiting is a process state</h1>
           <p id="lesson-subtitle">Inspect the parent sleeping in wait while its child runs.</p>
@@ -106,7 +89,7 @@ int pid = wait(&amp;status);</code></pre><p class="c-refresher-links">Refresh in
             <h3>Build error</h3>
             <pre id="build-messages" role="status" aria-live="polite"></pre>
           </div>
-          <details class="build-details">
+          <details class="build-details" id="build-tools">
             <summary>Build tools and source download</summary>
             <div class="editor-bottom">
               <span id="build-relation">No build yet</span>

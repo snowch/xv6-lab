@@ -1,3 +1,4 @@
+import { fixtureRunner, runnerTick } from "./runner-fixture.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -32,7 +33,10 @@ test(
   { timeout: 300000 },
   async (t) => {
     const dom = new JSDOM(
-      readFileSync(new URL("../site/explorer/index.html", import.meta.url), "utf8"),
+      readFileSync(
+        new URL("../site/explorer/index.html", import.meta.url),
+        "utf8",
+      ),
       { url: "https://example.test/xv6-lab/#boot" },
     );
     dom.window.matchMedia = (query) => ({
@@ -73,6 +77,7 @@ test(
       for (const worker of workers) worker.terminate();
       dom.window.close();
     });
+    fixtureRunner(dom);
     await import("../site/app.js");
     const $ = (id) => document.getElementById(id);
     assert.equal(
@@ -99,6 +104,7 @@ test(
     $("prediction").value = "The shell reads the command";
     $("prediction").dispatchEvent(new dom.window.Event("input"));
     $("flow-next").click();
+    await runnerTick();
     assert.equal(workers.length, 1);
     assert.equal($("send").disabled, true);
     assert.equal($("run-experiment").disabled, true);
