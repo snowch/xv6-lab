@@ -79,6 +79,43 @@ const { chromium, expect } = require("playwright/test"),
         );
         for (const id of ["code-runner-open", "app-status-open", "theme"])
           await expect(p.locator("#" + id)).toBeVisible();
+        const contrast = await p.evaluate(() => {
+          const rgb = (value) => (value.match(/[\d.]+/g) || []).map(Number);
+          const luminance = (values) =>
+            values
+              .slice(0, 3)
+              .map((x) => x / 255)
+              .map((x) =>
+                x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4,
+              )
+              .reduce((sum, x, i) => sum + x * [0.2126, 0.7152, 0.0722][i], 0);
+          return [
+            ...document.querySelectorAll(
+              ".pane-header h2,.editable-label,.cm-gutters,.resource-row summary strong",
+            ),
+          ].map((node) => {
+            let parent = node,
+              bg;
+            while (parent) {
+              bg = rgb(getComputedStyle(parent).backgroundColor);
+              if (bg.length === 3 || bg[3] === 1) break;
+              parent = parent.parentElement;
+            }
+            const fg = luminance(rgb(getComputedStyle(node).color)),
+              background = luminance(bg || [255, 255, 255]);
+            return {
+              label: node.className || node.textContent,
+              ratio:
+                (Math.max(fg, background) + 0.05) /
+                (Math.min(fg, background) + 0.05),
+            };
+          });
+        });
+        for (const item of contrast)
+          assert.ok(
+            item.ratio >= 4.5,
+            theme + ": " + item.label + " contrast " + item.ratio,
+          );
       }
     await p.setViewportSize({ width: 390, height: 950 });
     await p.locator("#lesson-complete").check();
@@ -106,13 +143,6 @@ const { chromium, expect } = require("playwright/test"),
     await p.locator("[data-start]").click();
     await expect(p.locator("#runner-summary")).toHaveText("Ready", {
       timeout: 60000,
-      const contrast=await p.evaluate(()=>{
-        const rgb=value=>(value.match(/[\d.]+/g)||[]).map(Number);
-        const luminance=values=>values.slice(0,3).map(x=>x/255).map(x=>x<=.04045?x/12.92:((x+.055)/1.055)**2.4).reduce((sum,x,i)=>sum+x*[.2126,.7152,.0722][i],0);
-        return [...document.querySelectorAll('.pane-header h2,.editable-label,.cm-gutters,.resource-row summary strong')].map(node=>{let parent=node,bg;while(parent){bg=rgb(getComputedStyle(parent).backgroundColor);if(bg.length===3||bg[3]===1)break;parent=parent.parentElement;}const fg=luminance(rgb(getComputedStyle(node).color)),background=luminance(bg||[255,255,255]);return{label:node.className||node.textContent,ratio:(Math.max(fg,background)+.05)/(Math.min(fg,background)+.05)};});
-      });
-      for(const item of contrast)assert.ok(item.ratio>=4.5,theme+': '+item.label+' contrast '+item.ratio);
-
     });
     await p.locator("#code-runner-dialog [data-close]").click();
     await p.locator("#build-run").click();
@@ -144,6 +174,15 @@ const { chromium, expect } = require("playwright/test"),
       timeout: 60000,
     });
     const output = await p.locator("#terminal").textContent();
+    await p.evaluate(() => {
+      const set = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (key, value) {
+        if (key.startsWith("xv6-source-complete:"))
+          throw new DOMException("Test quota", "QuotaExceededError");
+        return set.call(this, key, value);
+      };
+    });
+    await p.locator("#lesson-complete").uncheck();
     await p.evaluate(async () => {
       const app = document.querySelector(
         'script[src*="/workbench/app.js"]',
@@ -156,6 +195,7 @@ const { chromium, expect } = require("playwright/test"),
     await expect(p.locator("#build-run")).toBeEnabled();
     await expect(p.locator("#terminal")).toHaveText(output);
     await expect(p.locator("#run-status")).toHaveText("Saved earlier result");
+    await expect(p.locator("#lesson-complete")).not.toBeChecked();
     assert.match(await p.locator(".cm-content").innerText(), /offline edit/);
     await p.goto(base + "lessons/changing-the-answer/");
     await expect(p.locator("#build-run")).toBeEnabled();

@@ -172,6 +172,7 @@ if (id) {
     nav = ending.querySelector(".lesson-navigation");
   const refs = document.createElement("details");
   refs.className = "resource-row";
+  refs.id = "lesson-references";
   refs.innerHTML =
     "<summary>" +
     icon("menu_book") +

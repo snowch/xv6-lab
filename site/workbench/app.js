@@ -729,6 +729,7 @@ window.labWorkbench = {
     return {
       source: drafts.get(kind) ?? load(draftKey).value,
       undoRestore,
+      complete: $("lesson-complete").checked,
       machine: machine ? { ...machine, worker: null } : null,
     };
   },
@@ -738,8 +739,14 @@ window.labWorkbench = {
       throw Error(
         "The matching source is still unavailable. This window’s saved snapshot is kept; reload online to restore it.",
       );
-    if (typeof saved.source === "string") editor.replace(saved.source);
     undoRestore = saved.undoRestore ?? null;
+    if (undoRestore !== null)
+      recoveryScope = persist(recoveryKey, JSON.stringify(undoRestore));
+    if (typeof saved.source === "string") editor.replace(saved.source);
+    if (typeof saved.complete === "boolean") {
+      $("lesson-complete").checked = saved.complete;
+      $("lesson-complete").dispatchEvent(new window.Event("change"));
+    }
     if (saved.machine) {
       machine = { ...saved.machine, worker: null };
       say("terminal", machine.output);
