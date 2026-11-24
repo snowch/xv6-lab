@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,36 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="elf-headers-identify-an-executable">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 15 · Lesson 1 of 8
-        </summary>
-        <nav aria-label="Chapter 15 lessons"><a href="lessons/elf-headers-identify-an-executable/" data-lesson="elf-headers-identify-an-executable"><span>1.</span> An ELF header identifies an executable</a>
-<a href="lessons/segments-separate-file-bytes-from-memory-size/" data-lesson="segments-separate-file-bytes-from-memory-size"><span>2.</span> A segment’s memory size can exceed its file bytes</a>
-<a href="lessons/the-loader-zeroes-real-bss-memory/" data-lesson="the-loader-zeroes-real-bss-memory"><span>3.</span> The loader supplies zero bytes for BSS</a>
-<a href="lessons/exec-builds-a-new-argument-vector/" data-lesson="exec-builds-a-new-argument-vector"><span>4.</span> Exec builds a new argument vector</a>
-<a href="lessons/exec-establishes-the-entry-stack/" data-lesson="exec-establishes-the-entry-stack"><span>5.</span> Exec establishes the entry stack</a>
-<a href="lessons/failed-exec-preserves-the-old-image/" data-lesson="failed-exec-preserves-the-old-image"><span>6.</span> A failed exec preserves the old image</a>
-<a href="lessons/the-shell-composes-kernel-interfaces/" data-lesson="the-shell-composes-kernel-interfaces"><span>7.</span> The shell composes kernel interfaces</a>
-<a href="lessons/capstone-follow-a-byte-from-process-to-disk/" data-lesson="capstone-follow-a-byte-from-process-to-disk"><span>8.</span> Follow a byte from a process to disk and back</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 15 · Loading programs and integration · Lesson 1 of
-            8
+            Lesson 1 of 8 in Chapter 15
           </p>
           <h1 id="lesson-title">An ELF header identifies an executable</h1>
           <p id="lesson-subtitle">Read the real file header checked by exec.</p>

@@ -11,3 +11,5 @@ guest/kernel/kernel
 guest/mkfs/mkfs
 guest/fs.img
 .artifacts/
+
+.build/

@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,36 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="masking-supervisor-interrupts">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 10 · Lesson 2 of 8
-        </summary>
-        <nav aria-label="Chapter 10 lessons"><a href="lessons/timer-interrupts-advance-kernel-ticks/" data-lesson="timer-interrupts-advance-kernel-ticks"><span>1.</span> Timer interrupts advance a kernel counter</a>
-<a href="lessons/masking-supervisor-interrupts/" data-lesson="masking-supervisor-interrupts"><span>2.</span> An enable bit controls supervisor interrupt delivery</a>
-<a href="lessons/claiming-and-completing-device-interrupts/" data-lesson="claiming-and-completing-device-interrupts"><span>3.</span> The interrupt controller identifies a device</a>
-<a href="lessons/uart-registers-are-memory-mapped/" data-lesson="uart-registers-are-memory-mapped"><span>4.</span> A device register is accessed through an address</a>
-<a href="lessons/uart-output-passes-through-a-ring/" data-lesson="uart-output-passes-through-a-ring"><span>5.</span> Buffered output separates a writer from the UART</a>
-<a href="lessons/the-console-edits-and-commits-lines/" data-lesson="the-console-edits-and-commits-lines"><span>6.</span> The console edits a line before readers consume it</a>
-<a href="lessons/virtio-descriptors-name-device-buffers/" data-lesson="virtio-descriptors-name-device-buffers"><span>7.</span> Descriptors tell the device which memory to use</a>
-<a href="lessons/disk-completion-precedes-cache-validity/" data-lesson="disk-completion-precedes-cache-validity"><span>8.</span> A disk request completes through an interrupt</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 10 · Interrupts and device drivers · Lesson 2 of
-            8
+            Lesson 2 of 8 in Chapter 10
           </p>
           <h1 id="lesson-title">An enable bit controls supervisor interrupt delivery</h1>
           <p id="lesson-subtitle">Observe the supervisor interrupt-enable state around a bounded kernel probe.</p>

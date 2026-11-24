@@ -21,7 +21,8 @@ export async function compileObject(wasmBytes, source, file = "edit.c") {
       },
     },
   };
-  ({ instance } = await WebAssembly.instantiate(wasmBytes, imports));
+  const loaded = await WebAssembly.instantiate(wasmBytes, imports);
+  instance = loaded.instance || loaded;
   const str = (text) => {
     const b = new TextEncoder().encode(text + "\0"),
       p = instance.exports.allocUint8(b.length);

@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,34 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="kernel-contexts-save-a-call-boundary">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 11 · Lesson 1 of 6
-        </summary>
-        <nav aria-label="Chapter 11 lessons"><a href="lessons/kernel-contexts-save-a-call-boundary/" data-lesson="kernel-contexts-save-a-call-boundary"><span>1.</span> A kernel context saves a call boundary</a>
-<a href="lessons/a-saved-stack-belongs-to-the-kernel/" data-lesson="a-saved-stack-belongs-to-the-kernel"><span>2.</span> A suspended kernel thread has its own stack</a>
-<a href="lessons/yield-hands-a-process-to-the-scheduler/" data-lesson="yield-hands-a-process-to-the-scheduler"><span>3.</span> Yield changes state before switching away</a>
-<a href="lessons/sched-enforces-switching-invariants/" data-lesson="sched-enforces-switching-invariants"><span>4.</span> Sched checks the handoff contract</a>
-<a href="lessons/timer-preemption-enters-the-scheduler/" data-lesson="timer-preemption-enters-the-scheduler"><span>5.</span> The timer can preempt user computation</a>
-<a href="lessons/sleep-transfers-lock-protection/" data-lesson="sleep-transfers-lock-protection"><span>6.</span> Sleep transfers protection before releasing a condition lock</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 11 · Context switching · Lesson 1 of
-            6
+            Lesson 1 of 6 in Chapter 11
           </p>
           <h1 id="lesson-title">A kernel context saves a call boundary</h1>
           <p id="lesson-subtitle">Distinguish the small swtch context from a saved user trapframe.</p>

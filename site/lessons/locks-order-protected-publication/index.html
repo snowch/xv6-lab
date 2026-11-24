@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,35 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="locks-order-protected-publication">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 12 · Lesson 4 of 7
-        </summary>
-        <nav aria-label="Chapter 12 lessons"><a href="lessons/an-atomic-swap-returns-the-old-value/" data-lesson="an-atomic-swap-returns-the-old-value"><span>1.</span> An atomic swap returns the old value</a>
-<a href="lessons/a-lock-records-its-owner/" data-lesson="a-lock-records-its-owner"><span>2.</span> A spinlock records its owning CPU</a>
-<a href="lessons/nested-critical-sections-restore-interrupts/" data-lesson="nested-critical-sections-restore-interrupts"><span>3.</span> Nested critical sections restore the previous interrupt state</a>
-<a href="lessons/locks-order-protected-publication/" data-lesson="locks-order-protected-publication"><span>4.</span> Locks order the publication of protected state</a>
-<a href="lessons/a-sleeping-lock-does-not-spin-through-io/" data-lesson="a-sleeping-lock-does-not-spin-through-io"><span>5.</span> A sleeping lock can stay held across blocking work</a>
-<a href="lessons/a-wakeup-needs-the-right-condition-and-channel/" data-lesson="a-wakeup-needs-the-right-condition-and-channel"><span>6.</span> A wakeup needs the matching channel</a>
-<a href="lessons/lock-order-prevents-circular-wait/" data-lesson="lock-order-prevents-circular-wait"><span>7.</span> Lock order prevents circular wait</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 12 · Locks and coordination · Lesson 4 of
-            7
+            Lesson 4 of 7 in Chapter 12
           </p>
           <h1 id="lesson-title">Locks order the publication of protected state</h1>
           <p id="lesson-subtitle">Connect payload visibility to the ordering inside acquire and release.</p>

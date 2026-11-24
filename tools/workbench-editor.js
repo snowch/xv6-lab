@@ -1,3 +1,13 @@
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { tags } from "@lezer/highlight";
+const courseHighlight = HighlightStyle.define([
+  { tag: tags.keyword, color: "var(--code-keyword)" },
+  { tag: [tags.typeName, tags.className], color: "var(--code-type)" },
+  { tag: [tags.number, tags.bool, tags.null], color: "var(--code-value)" },
+  { tag: [tags.string, tags.character], color: "var(--code-string)" },
+  { tag: tags.comment, color: "var(--code-comment)" },
+  { tag: tags.function(tags.variableName), color: "var(--code-function)" },
+]);
 import { minimalSetup } from "codemirror";
 import { EditorView, keymap, lineNumbers } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
@@ -16,6 +26,7 @@ export function createEditor(
         minimalSetup,
         lineNumbers({ formatNumber: (n) => String(n + lineOffset - 1) }),
         cpp(),
+        syntaxHighlighting(courseHighlight),
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({
           "aria-label": "Editable C source: " + file,

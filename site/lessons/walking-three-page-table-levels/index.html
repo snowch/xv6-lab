@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,36 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="walking-three-page-table-levels">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 8 · Lesson 2 of 8
-        </summary>
-        <nav aria-label="Chapter 8 lessons"><a href="lessons/splitting-a-virtual-address/" data-lesson="splitting-a-virtual-address"><span>1.</span> A virtual address selects indices and an offset</a>
-<a href="lessons/walking-three-page-table-levels/" data-lesson="walking-three-page-table-levels"><span>2.</span> A page-table walk follows physical page addresses</a>
-<a href="lessons/reading-page-permissions/" data-lesson="reading-page-permissions"><span>3.</span> A valid mapping still has access permissions</a>
-<a href="lessons/kernel-mappings-include-devices/" data-lesson="kernel-mappings-include-devices"><span>4.</span> The kernel maps RAM and device registers</a>
-<a href="lessons/a-guard-page-denies-user-access/" data-lesson="a-guard-page-denies-user-access"><span>5.</span> A guard page catches an invalid user access</a>
-<a href="lessons/trampoline-mappings-cross-address-spaces/" data-lesson="trampoline-mappings-cross-address-spaces"><span>6.</span> The trampoline has a shared virtual location</a>
-<a href="lessons/checked-copies-translate-user-addresses/" data-lesson="checked-copies-translate-user-addresses"><span>7.</span> The kernel translates user pointers before copying</a>
-<a href="lessons/copies-check-each-page/" data-lesson="copies-check-each-page"><span>8.</span> A copy must check each page it crosses</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 8 · Address translation · Lesson 2 of
-            8
+            Lesson 2 of 8 in Chapter 8
           </p>
           <h1 id="lesson-title">A page-table walk follows physical page addresses</h1>
           <p id="lesson-subtitle">Read the real entries along a mapped user address’s translation path.</p>

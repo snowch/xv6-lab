@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <base href="../../" />
+    <link rel="icon" href="icons/material/memory.svg" type="image/svg+xml">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#edf2f8" />
@@ -17,34 +18,16 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" />
+    <link rel="stylesheet" href="workbench/style.css?v=learner-flow1" /><link rel="stylesheet" href="shared-course.css"><link rel="stylesheet" href="material-symbols.css"><link rel="stylesheet" href="app-status.css"><link rel="stylesheet" href="runtime-recovery.css">
   </head>
   <body class="lesson-page" data-lesson="entering-the-kernel">
     <a href="#source-editor" class="skip-link">Skip to editable source</a>
-    <header class="app-header">
-      <a class="brand" href="./"
-        ><span aria-hidden="true">x6_</span
-        ><strong>xv6 Lab<small>Learn through the source</small></strong></a
-      >
-      <details class="lesson-menu">
-        <summary>
-          Chapter 1 · Lesson 4 of 6
-        </summary>
-        <nav aria-label="Chapter 1 lessons"><a href="lessons/running-a-program/" data-lesson="running-a-program"><span>1.</span> A running program is a process</a>
-<a href="lessons/writing-bytes/" data-lesson="writing-bytes"><span>2.</span> The kernel writes your bytes</a>
-<a href="lessons/a-system-call-result/" data-lesson="a-system-call-result"><span>3.</span> A system call returns a result</a>
-<a href="lessons/entering-the-kernel/" data-lesson="entering-the-kernel"><span>4.</span> ecall crosses into the kernel</a>
-<a href="lessons/the-current-process/" data-lesson="the-current-process"><span>5.</span> The kernel finds the current process</a>
-<a href="lessons/changing-the-answer/" data-lesson="changing-the-answer"><span>6.</span> A returned value is not the stored value</a></nav>
-      </details>
-      <a class="course-link" href="./">Course contents</a>
-    </header>
+    <header class="app-header"><a class="brand" href="./"><span aria-hidden="true">x6_</span><strong>xv6 Lab<small>Learn through the source</small></strong></a><div class="header-actions"><button id="code-runner-open" type="button" aria-haspopup="dialog">Code runner<span id="runner-summary">Stopped</span></button><!-- app-status-control --><button id="theme" type="button">Dark theme</button></div></header>
     <main>
       <div class="project-heading">
         <div>
           <p class="preview-label">
-            Chapter 1 · Programs and system calls · Lesson 4 of
-            6
+            Lesson 4 of 6 in Chapter 1
           </p>
           <h1 id="lesson-title">ecall crosses into the kernel</h1>
           <p id="lesson-subtitle">Follow getpid from its C call through the RISC-V ecall instruction.</p>
