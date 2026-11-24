@@ -55,3 +55,5 @@ Run npm run test:shared against the published staging build. Its small-release f
 Keep local interruptions and failures in the verification record. A timed-out shared host run is not a passing check; require an isolated exact-head CI result before merging. Functional checks do not establish learning effectiveness, physical Android performance or permanent browser-storage retention.
 
 Recovery snapshot identity excludes the operational download and gpu-release query parameters, while keeping lesson hashes, search and step parameters. Recovery may remove those operational parameters before reloading; the same per-window snapshot must still restore. The small-release browser fixture verifies this path.
+
+The CI build runs in a container whose checkout can be owned by a different runner UID. Read revision, dirty state and source date with a Git safe.directory override scoped to the current repository for each command; do not enable a global wildcard trust rule. CI supplies the source revision for generated native artifacts. The build-identity regression reproduces Git's real ownership rejection and checks the packaged source identity under that condition.
