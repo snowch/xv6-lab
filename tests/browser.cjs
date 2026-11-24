@@ -1,4 +1,5 @@
 const { chromium } = require("playwright");
+const { expect } = require("playwright/test");
 const assert = require("node:assert/strict");
 const http = require("node:http");
 const fs = require("node:fs");
@@ -858,19 +859,37 @@ const server = http.createServer((req, res) => {
       await page.locator("#undo-restore").click();
       assert.match(await page.locator(".cm-content").innerText(), /\+ 1000/);
       if (name === "wide") {
-        // A pending download can be cancelled without changing source or output.
-        await page.route("**/workbench/compiler/tcc.wasm", async (route) => {
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+        // Assets stay warm across pages. Hold the new worker's real request
+        // so cancellation is tested during a build, rather than after a fast run.
+        let requestPending = false,
+          releaseRequest;
+        const pendingRequest = new Promise((resolve) => {
+          releaseRequest = resolve;
+        });
+        await page.route("**/workbench/build-worker.js*", async (route) => {
+          requestPending = true;
+          await pendingRequest;
           await route.continue().catch(() => {});
         });
+        const outputBeforeCancel = await page
+          .locator("#terminal")
+          .textContent();
         await page.locator("#build-run").click();
+        await expect.poll(() => requestPending, { timeout: 15000 }).toBe(true);
+        await expect(page.locator("#stop")).toHaveText("Cancel build");
         await page.locator("#stop").click();
         assert.match(
           await page.locator("#build-messages").textContent(),
           /Build cancelled/,
         );
         assert.match(await page.locator(".cm-content").innerText(), /\+ 1000/);
-        await page.unroute("**/workbench/compiler/tcc.wasm");
+        assert.equal(
+          await page.locator("#terminal").textContent(),
+          outputBeforeCancel,
+          "cancelling a pending build retains genuine prior output",
+        );
+        releaseRequest();
+        await page.unroute("**/workbench/build-worker.js*");
         // Saved drafts survive reload; Stop interrupts a real looping guest.
         await page.reload();
         await page.locator(".cm-content").waitFor();
