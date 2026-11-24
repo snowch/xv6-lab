@@ -1,16 +1,15 @@
 import { cp, rm, readFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { buildOffline } from "./offline/build.mjs";
+const git = (args) =>
+  execFileSync("git", ["-c", "safe.directory=" + process.cwd(), ...args], {
+    encoding: "utf8",
+  }).trim();
 await rm(".build/site", { recursive: true, force: true });
 await cp("site", ".build/site", { recursive: true });
-const dirty = execFileSync("git", ["status", "--porcelain"], {
-  encoding: "utf8",
-}).trim();
+const dirty = git(["status", "--porcelain"]);
 const commit =
-  process.env.COURSE_COMMIT ||
-  (dirty
-    ? null
-    : execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim());
+  process.env.COURSE_COMMIT || (dirty ? null : git(["rev-parse", "HEAD"]));
 const release = await buildOffline(".build/site", {
   commit,
   date: commit
