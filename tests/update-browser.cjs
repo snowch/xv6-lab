@@ -15,7 +15,7 @@ const { chromium, expect } = require("playwright/test"),
     roots[version] = root;
     await fs.mkdir(root);
     for (const file of [
-      "offline.mjs",
+      "offline.mjs", "header-controls.mjs", "header-controls.LICENSE.txt",
       "release-contract.mjs",
       "release-metadata.mjs",
       "experiment-state.mjs",
@@ -122,6 +122,8 @@ const { chromium, expect } = require("playwright/test"),
       "Downloaded and ready to use offline",
       { timeout: 30000 },
     );
+    await expect(p.locator("#app-status-open [data-badge='saved']")).toBeVisible();
+    await expect(p.locator("#app-status-open")).toHaveAccessibleDescription(/Downloaded and ready to use offline/);
     await p.locator("#app-status-close").click();
     const q = await context.newPage();
     await q.goto(base + "#two");
@@ -135,6 +137,7 @@ const { chromium, expect } = require("playwright/test"),
       "Update offline copy",
       { timeout: 30000 },
     );
+    await expect(p.locator("#app-status-open [data-badge='update']")).toBeVisible();
     await p.locator("#download-update").click();
     await expect(p.locator("#restart-update")).toBeVisible({ timeout: 30000 });
     await q.evaluate(() => (window.veto = true));
