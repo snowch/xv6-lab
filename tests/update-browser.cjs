@@ -15,7 +15,7 @@ const { chromium, expect } = require("playwright/test"),
     roots[version] = root;
     await fs.mkdir(root);
     for (const file of [
-      "offline.mjs", "header-controls.mjs", "header-controls.LICENSE.txt",
+      "offline.mjs", "header-controls.mjs", "header-controls.LICENSE.txt", "app-status.css",
       "release-contract.mjs",
       "release-metadata.mjs",
       "experiment-state.mjs",
@@ -23,7 +23,7 @@ const { chromium, expect } = require("playwright/test"),
       await fs.copyFile("site/" + file, path.join(root, file));
     await fs.writeFile(
       path.join(root, "index.html"),
-      '<html><head><script type="module" src="./fixture.mjs"></script></head><body><header><!-- app-status-control --><button id="theme">Theme</button></header><main><textarea id="source">starter</textarea><pre id="output">recorded output</pre><details id="notes"><summary>Notes</summary>Reading</details></main></body></html>',
+      '<html><head><link rel="stylesheet" href="./app-status.css"><script type="module" src="./fixture.mjs"></script></head><body><header><!-- app-status-control --><button id="theme">Theme</button></header><main><textarea id="source">starter</textarea><pre id="output">recorded output</pre><details id="notes"><summary>Notes</summary>Reading</details></main></body></html>',
     );
     await fs.writeFile(
       path.join(root, "fixture.mjs"),
@@ -69,7 +69,9 @@ const { chromium, expect } = require("playwright/test"),
         .writeHead(200, {
           "Content-Type": name.endsWith(".html")
             ? "text/html"
-            : name.endsWith(".json")
+            : name.endsWith(".css")
+              ? "text/css"
+              : name.endsWith(".json")
               ? "application/json"
               : "text/javascript",
           "Cache-Control": "no-store",
