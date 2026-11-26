@@ -75,7 +75,7 @@ header button.lab-header-control:disabled {
 header button.lab-header-control > :not(.lab-header-visual):not(.lab-header-label) {
   display: none !important;
 }
-.lab-header-label {
+header button.lab-header-control > .lab-header-label {
   display: inline !important;
   font: inherit;
   white-space: nowrap;
